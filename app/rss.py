@@ -5,7 +5,7 @@ from threading import Lock
 import log
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import DbHelper
+from app.helper import DbHelper, RssHelper
 from app.media import Media
 from app.media.meta import MetaInfo
 from app.message import Message
@@ -28,6 +28,7 @@ class Rss:
     downloader = None
     searcher = None
     dbhelper = None
+    rsshelper = None
     subscribe = None
 
     def __init__(self):
@@ -40,6 +41,7 @@ class Rss:
         self.siteconf = SiteConf()
         self.filter = Filter()
         self.dbhelper = DbHelper()
+        self.rsshelper = RssHelper()
         self.subscribe = Subscribe()
 
     def rssdownload(self):
@@ -149,7 +151,7 @@ class Rss:
                         # 开始处理
                         log.info(f"【Rss】开始处理：{title}")
                         # 检查这个种子是不是下过了
-                        if self.dbhelper.is_torrent_rssd(enclosure):
+                        if self.rsshelper.is_rssd_by_enclosure(enclosure):
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
                         # 识别种子名称，开始搜索TMDB
@@ -294,7 +296,7 @@ class Rss:
                         media_info.set_download_info(download_setting=match_info.get("download_setting"),
                                                      save_path=match_info.get("save_path"))
                         # 插入数据库历史记录
-                        self.dbhelper.insert_rss_torrents(media_info)
+                        self.rsshelper.insert_rss_torrents(media_info)
                         # 加入下载列表
                         if media_info not in rss_download_torrents:
                             rss_download_torrents.append(media_info)
@@ -663,20 +665,6 @@ class Rss:
             log.info("【Rss】实际下载了 %s 个资源" % len(download_items))
         else:
             log.info("【Rss】未下载到任何资源")
-
-    def is_rss_finished(self, torrent_name, enclosure):
-        """
-        检查种子是否RSS处理过
-        """
-        return self.dbhelper.is_userrss_finished(torrent_name=torrent_name,
-                                                 enclosure=enclosure)
-
-    def simple_insert_rss_torrents(self, title, enclosure):
-        """
-        简单插入RSS种子
-        """
-        self.dbhelper.simple_insert_rss_torrents(title=title,
-                                                 enclosure=enclosure)
 
     def delete_rss_history(self, rssid):
         """

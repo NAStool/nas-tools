@@ -191,3 +191,33 @@ class Searcher:
                 # 全部下完了
                 else:
                     return download_items[0], no_exists, len(media_list), len(download_items)
+
+    def get_search_result_by_id(self, dl_id):
+        """
+        根据下载ID获取搜索结果
+        :param dl_id: 下载ID
+        :return: 搜索结果
+        """
+        return self.dbhelper.get_search_result_by_id(dl_id)
+
+    def get_search_results(self):
+        """
+        获取搜索结果
+        :return: 搜索结果
+        """
+        return self.dbhelper.get_search_results()
+
+    def delete_all_search_torrents(self):
+        """
+        删除所有搜索结果
+        """
+        self.dbhelper.delete_all_search_torrents()
+
+    def insert_search_results(self, media_items: list, title=None, ident_flag=True):
+        """
+        插入搜索结果
+        :param media_items: 搜索结果
+        :param title: 搜索标题
+        :param ident_flag: 是否标识
+        """
+        self.dbhelper.insert_search_results(media_items, title, ident_flag)

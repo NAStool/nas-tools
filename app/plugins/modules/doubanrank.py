@@ -7,9 +7,9 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from app.helper import RssHelper
 from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
-from app.rss import Rss
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, DomUtils
 from app.utils.types import MediaType, SearchType, RssType
@@ -44,7 +44,7 @@ class DoubanRank(_IPluginModule):
     # 私有属性
     mediaserver = None
     subscribe = None
-    rss = None
+    rsshelper = None
     _douban_address = {
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
         'movie-weekly': 'https://rsshub.app/douban/movie/weekly',
@@ -65,7 +65,7 @@ class DoubanRank(_IPluginModule):
     def init_config(self, config: dict = None):
         self.mediaserver = MediaServer()
         self.subscribe = Subscribe()
-        self.rss = Rss()
+        self.rsshelper = RssHelper()
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
@@ -274,7 +274,7 @@ class DoubanRank(_IPluginModule):
                     mtype = rss_info.get('type')
                     unique_flag = f"doubanrank: {title} (DB:{douban_id})"
                     # 检查是否已处理过
-                    if self.rss.is_rss_finished(torrent_name=unique_flag, enclosure=None):
+                    if self.rsshelper.is_rssd_by_simple(torrent_name=unique_flag, enclosure=None):
                         self.info(f"已处理过：{title} （豆瓣id：{douban_id}）")
                         continue
                     # 识别媒体信息
@@ -307,7 +307,7 @@ class DoubanRank(_IPluginModule):
                             f"{media_info.get_title_string()}{media_info.get_season_string()} 已订阅过")
                         continue
                     # 添加处理历史
-                    self.rss.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
+                    self.rsshelper.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
                     # 添加订阅
                     code, msg, rss_media = self.subscribe.add_rss_subscribe(
                         mtype=media_info.type,

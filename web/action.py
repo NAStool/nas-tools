@@ -23,6 +23,7 @@ from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper, IndexerHelper, IyuuHelper
+from app.helper import RssHelper
 from app.indexer import Indexer
 from app.media import Category, Media, Bangumi, DouBan, Scraper
 from app.media.meta import MetaInfo, MetaBase
@@ -32,6 +33,7 @@ from app.plugins import PluginManager, EventManager
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import Scheduler
+from app.searcher import Searcher
 from app.sites import Sites, SiteUserInfo, SiteCookie, SiteConf
 from app.subscribe import Subscribe
 from app.sync import Sync
@@ -47,11 +49,9 @@ from web.backend.web_utils import WebUtils
 
 
 class WebAction:
-    dbhelper = None
     _actions = {}
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self._actions = {
             "sch": self.__sch,
             "search": self.__search,
@@ -532,14 +532,15 @@ class WebAction:
                 return {"code": ret, "msg": ret_msg}
         return {"code": 0}
 
-    def __download(self, data):
+    @staticmethod
+    def __download(data):
         """
         从WEB添加下载
         """
         dl_id = data.get("id")
         dl_dir = data.get("dir")
         dl_setting = data.get("setting")
-        results = self.dbhelper.get_search_result_by_id(dl_id)
+        results = Searcher().get_search_result_by_id(dl_id)
         for res in results:
             media = Media().get_media_info(title=res.TORRENT_NAME, subtitle=res.DESCRIPTION)
             if not media:
@@ -696,7 +697,8 @@ class WebAction:
         torrents = Downloader().get_downloading_progress(ids=ids)
         return {"retcode": 0, "torrents": torrents}
 
-    def __del_unknown_path(self, data):
+    @staticmethod
+    def __del_unknown_path(data):
         """
         删除路径
         """
@@ -705,10 +707,10 @@ class WebAction:
             for tid in tids:
                 if not tid:
                     continue
-                self.dbhelper.delete_transfer_unknown(tid)
+                FileTransfer().delete_transfer_unknown(tid)
             return {"retcode": 0}
         else:
-            retcode = self.dbhelper.delete_transfer_unknown(tids)
+            retcode = FileTransfer().delete_transfer_unknown(tids)
             return {"retcode": retcode}
 
     def __rename(self, data):
@@ -719,7 +721,7 @@ class WebAction:
         syncmod = ModuleConf.RMT_MODES.get(data.get("syncmod"))
         logid = data.get("logid")
         if logid:
-            transinfo = self.dbhelper.get_transfer_info_by_id(logid)
+            transinfo = FileTransfer().get_transfer_info_by_id(logid)
             if transinfo:
                 path = os.path.join(
                     transinfo.SOURCE_PATH, transinfo.SOURCE_FILENAME)
@@ -729,7 +731,7 @@ class WebAction:
         else:
             unknown_id = data.get("unknown_id")
             if unknown_id:
-                inknowninfo = self.dbhelper.get_unknown_info_by_id(unknown_id)
+                inknowninfo = FileTransfer().get_unknown_info_by_id(unknown_id)
                 if inknowninfo:
                     path = inknowninfo.PATH
                     dest_dir = inknowninfo.DEST
@@ -774,7 +776,7 @@ class WebAction:
         if succ_flag:
             if not need_fix_all and not logid:
                 # 更新记录状态
-                self.dbhelper.update_transfer_unknown_state(path)
+                FileTransfer().update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -885,12 +887,13 @@ class WebAction:
         """
         logids = data.get('logids') or []
         flag = data.get('flag')
+        _filetransfer = FileTransfer()
         for logid in logids:
             # 读取历史记录
-            transinfo = self.dbhelper.get_transfer_info_by_id(logid)
+            transinfo = _filetransfer.get_transfer_info_by_id(logid)
             if transinfo:
                 # 删除记录
-                self.dbhelper.delete_transfer_log_by_id(logid)
+                _filetransfer.delete_transfer_log_by_id(logid)
                 # 根据flag删除文件
                 source_path = transinfo.SOURCE_PATH
                 source_filename = transinfo.SOURCE_FILENAME
@@ -903,7 +906,7 @@ class WebAction:
                     "season_episode": transinfo.SEASON_EPISODE
                 }
                 # 删除该识别记录对应的转移记录
-                self.dbhelper.delete_transfer_blacklist("%s/%s" % (source_path, source_filename))
+                _filetransfer.delete_transfer_blacklist("%s/%s" % (source_path, source_filename))
                 dest = transinfo.DEST
                 dest_path = transinfo.DEST_PATH
                 dest_filename = transinfo.DEST_FILENAME
@@ -947,7 +950,7 @@ class WebAction:
                         else:
                             meta_info.type = MediaType.TV
                         # 删除文件
-                        dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
+                        dest_path = _filetransfer.get_dest_path_by_info(dest=dest, meta_info=meta_info)
                         if dest_path and dest_path.find(meta_info.title) != -1:
                             rm_parent_dir = False
                             if not meta_info.get_season_list():
@@ -1241,12 +1244,13 @@ class WebAction:
             self.restart_server()
         return {"code": 0}
 
-    def __reset_db_version(self, data):
+    @staticmethod
+    def __reset_db_version(data):
         """
         重置数据库版本
         """
         try:
-            self.dbhelper.drop_table("alembic_version")
+            DbHelper().drop_table("alembic_version")
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -1499,7 +1503,8 @@ class WebAction:
                                                 tmdbid=media_info.tmdb_id)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
-    def re_identification(self, data):
+    @staticmethod
+    def re_identification(data):
         """
         未识别的重新识别
         """
@@ -1507,9 +1512,10 @@ class WebAction:
         ids = data.get("ids")
         ret_flag = True
         ret_msg = []
+        _filetransfer = FileTransfer()
         if flag == "unidentification":
             for wid in ids:
-                unknowninfo = self.dbhelper.get_unknown_info_by_id(wid)
+                unknowninfo = _filetransfer.get_unknown_info_by_id(wid)
                 if unknowninfo:
                     path = unknowninfo.PATH
                     dest_dir = unknowninfo.DEST
@@ -1521,19 +1527,19 @@ class WebAction:
                     dest_dir = ""
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
-                succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                succ_flag, msg = _filetransfer.transfer_media(in_from=SyncType.MAN,
                                                                rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if succ_flag:
-                    self.dbhelper.update_transfer_unknown_state(path)
+                    _filetransfer.update_transfer_unknown_state(path)
                 else:
                     ret_flag = False
                     if msg not in ret_msg:
                         ret_msg.append(msg)
         elif flag == "history":
             for wid in ids:
-                transinfo = self.dbhelper.get_transfer_info_by_id(wid)
+                transinfo = _filetransfer.get_transfer_info_by_id(wid)
                 if transinfo:
                     path = os.path.join(
                         transinfo.SOURCE_PATH, transinfo.SOURCE_FILENAME)
@@ -1546,7 +1552,7 @@ class WebAction:
                     dest_dir = ""
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
-                succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                succ_flag, msg = _filetransfer.transfer_media(in_from=SyncType.MAN,
                                                                rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
@@ -1703,7 +1709,8 @@ class WebAction:
             return {"code": 0 if ret else 1}
         return {"code": 0}
 
-    def __user_manager(self, data):
+    @staticmethod
+    def __user_manager(data):
         """
         用户管理
         """
@@ -1714,9 +1721,9 @@ class WebAction:
             pris = data.get("pris")
             if isinstance(pris, list):
                 pris = ",".join(pris)
-            ret = self.dbhelper.insert_user(name, password, pris)
+            ret = User().add_user(name, password, pris)
         else:
-            ret = self.dbhelper.delete_user(name)
+            ret = User().delete_user(name)
 
         if ret == 1 or ret:
             return {"code": 0, "success": False}
@@ -1937,19 +1944,21 @@ class WebAction:
             MetaHelper().save_meta_data(force=True)
         return {"code": 0}
 
-    def truncate_blacklist(self, data):
+    @staticmethod
+    def truncate_blacklist(data):
         """
         清空文件转移黑名单记录
         """
-        self.dbhelper.truncate_transfer_blacklist()
+        FileTransfer().truncate_transfer_blacklist()
         return {"code": 0}
 
-    def truncate_rsshistory(self, data):
+    @staticmethod
+    def truncate_rsshistory(data):
         """
         清空RSS历史记录
         """
-        self.dbhelper.truncate_rss_history()
-        self.dbhelper.truncate_rss_episodes()
+        RssHelper().truncate_rss_history()
+        Subscribe().truncate_rss_episodes()
         return {"code": 0}
 
     @staticmethod
@@ -2239,7 +2248,8 @@ class WebAction:
         Filter().add_group(name, default)
         return {"code": 0}
 
-    def __restore_filtergroup(self, data):
+    @staticmethod
+    def __restore_filtergroup(data):
         """
         恢复初始规则组
         """
@@ -2254,7 +2264,7 @@ class WebAction:
             for init_rulegroup in init_rulegroups:
                 if str(init_rulegroup.get("id")) == groupid:
                     for sql in init_rulegroup.get("sql"):
-                        self.dbhelper.excute(sql)
+                        DbHelper().excute(sql)
         return {"code": 0}
 
     @staticmethod
@@ -3421,7 +3431,8 @@ class WebAction:
                 "UsedSapce": UsedSapce,
                 "TotalSpace": TotalSpace}
 
-    def get_transfer_statistics(self, data=None):
+    @staticmethod
+    def get_transfer_statistics(data=None):
         """
         查询转移历史统计数据
         """
@@ -3429,7 +3440,7 @@ class WebAction:
         MovieNums = []
         TvNums = []
         AnimeNums = []
-        for statistic in self.dbhelper.get_transfer_statistics(90):
+        for statistic in FileTransfer().get_transfer_statistics(90):
             if not statistic[2]:
                 continue
             if statistic[1] not in Labels:
@@ -3487,7 +3498,7 @@ class WebAction:
         查询所有搜索结果
         """
         SearchResults = {}
-        res = self.dbhelper.get_search_results()
+        res = Searcher().get_search_results()
         total = len(res)
         for item in res:
             # 质量(来源、效果)、分辨率
@@ -3808,12 +3819,13 @@ class WebAction:
             "currentPage": CurrentPage
         }
 
-    def get_unknown_list(self, data=None):
+    @staticmethod
+    def get_unknown_list(data=None):
         """
         查询所有未识别记录
         """
         Items = []
-        Records = self.dbhelper.get_transfer_unknown_paths()
+        Records = FileTransfer().get_transfer_unknown_paths()
         for rec in Records:
             if not rec.PATH:
                 continue
@@ -3833,7 +3845,8 @@ class WebAction:
 
         return {"code": 0, "items": Items}
 
-    def get_unknown_list_by_page(self, data):
+    @staticmethod
+    def get_unknown_list_by_page(data):
         """
         查询所有未识别记录
         """
@@ -3846,7 +3859,7 @@ class WebAction:
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
-        totalCount, Records = self.dbhelper.get_transfer_unknown_paths_by_page(
+        totalCount, Records = FileTransfer().get_transfer_unknown_paths_by_page(
             SearchStr, CurrentPage, PageNum)
         Items = []
         for rec in Records:
@@ -3876,19 +3889,20 @@ class WebAction:
             "currentPage": CurrentPage
         }
 
-    def unidentification(self):
+    @staticmethod
+    def unidentification():
         """
         重新识别所有未识别记录
         """
         ItemIds = []
-        Records = self.dbhelper.get_transfer_unknown_paths()
+        Records = FileTransfer().get_transfer_unknown_paths()
         for rec in Records:
             if not rec.PATH:
                 continue
             ItemIds.append(rec.ID)
 
         if len(ItemIds) > 0:
-            WebAction.re_identification(self, {"flag": "unidentification", "ids": ItemIds})
+            WebAction.re_identification({"flag": "unidentification", "ids": ItemIds})
 
     @staticmethod
     def get_customwords(data=None):
@@ -3949,11 +3963,12 @@ class WebAction:
             "result": groups
         }
 
-    def get_users(self, data=None):
+    @staticmethod
+    def get_users(data=None):
         """
         查询所有用户
         """
-        user_list = self.dbhelper.get_users()
+        user_list = User().get_users()
         Users = []
         for user in user_list:
             pris = str(user.PRIS).split(",")

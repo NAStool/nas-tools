@@ -1021,3 +1021,9 @@ class Subscribe:
                                                year=year,
                                                season=season,
                                                tmdbid=tmdbid)
+
+    def truncate_rss_episodes(self):
+        """
+        清空订阅缺失集数
+        """
+        self.dbhelper.truncate_rss_episodes()

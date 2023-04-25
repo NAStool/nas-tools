@@ -3,7 +3,7 @@ import re
 
 import log
 from app.downloader import Downloader
-from app.helper import DbHelper, ProgressHelper
+from app.helper import ProgressHelper
 from app.helper.openai_helper import OpenAiHelper
 from app.indexer import Indexer
 from app.media import Media, DouBan
@@ -38,8 +38,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if media_type:
         mtype = media_type
     # 开始进度
-    search_process = ProgressHelper()
-    search_process.start(ProgressKey.Search)
+    _searcher = Searcher()
+    _process = ProgressHelper()
+    _media = Media()
+    _process.start(ProgressKey.Search)
     # 识别媒体
     media_info = None
     if ident_flag:
@@ -49,8 +51,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             media_info = WebUtils.get_mediainfo_from_id(mtype=mtype, mediaid=tmdbid)
         else:
             # 按输入名称查
-            media_info = Media().get_media_info(mtype=media_type or mtype,
-                                                title=content)
+            media_info = _media.get_media_info(mtype=media_type or mtype,
+                                               title=content)
 
         # 整合集
         if media_info:
@@ -84,7 +86,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                 if media_info.original_language == "en":
                     search_en_name = media_info.original_title
                 else:
-                    en_title = Media().get_tmdb_en_title(media_info)
+                    en_title = _media.get_tmdb_en_title(media_info)
                     if en_title:
                         search_en_name = en_title
             # 两次搜索名称
@@ -130,28 +132,28 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         filter_args.update(filters)
     # 开始搜索
     log.info("【Web】开始搜索 %s ..." % content)
-    media_list = Searcher().search_medias(key_word=first_search_name,
-                                          filter_args=filter_args,
-                                          match_media=media_info,
-                                          in_from=SearchType.WEB)
+    media_list = _searcher.search_medias(key_word=first_search_name,
+                                         filter_args=filter_args,
+                                         match_media=media_info,
+                                         in_from=SearchType.WEB)
     # 使用第二名称重新搜索
     if ident_flag \
             and len(media_list) == 0 \
             and second_search_name \
             and second_search_name != first_search_name:
-        search_process.start(ProgressKey.Search)
-        search_process.update(ptype=ProgressKey.Search,
-                              text="%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (first_search_name, second_search_name))
+        _process.start(ProgressKey.Search)
+        _process.update(ptype=ProgressKey.Search,
+                        text="%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (
+                            first_search_name, second_search_name))
         log.info("【Searcher】%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (first_search_name, second_search_name))
-        media_list = Searcher().search_medias(key_word=second_search_name,
-                                              filter_args=filter_args,
-                                              match_media=media_info,
-                                              in_from=SearchType.WEB)
+        media_list = _searcher.search_medias(key_word=second_search_name,
+                                             filter_args=filter_args,
+                                             match_media=media_info,
+                                             in_from=SearchType.WEB)
     # 清空缓存结果
-    dbhepler = DbHelper()
-    dbhepler.delete_all_search_torrents()
+    _searcher.delete_all_search_torrents()
     # 结束进度
-    search_process.end(ProgressKey.Search)
+    _process.end(ProgressKey.Search)
     if len(media_list) == 0:
         log.info("【Web】%s 未搜索到任何资源" % content)
         return 1, "%s 未搜索到任何资源" % content
@@ -161,9 +163,9 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        dbhepler.insert_search_results(media_items=media_list,
-                                       ident_flag=ident_flag,
-                                       title=content)
+        _searcher.insert_search_results(media_items=media_list,
+                                        ident_flag=ident_flag,
+                                        title=content)
         return 0, ""
 
 
