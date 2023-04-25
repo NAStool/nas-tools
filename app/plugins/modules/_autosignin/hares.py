@@ -15,9 +15,6 @@ class Hares(_ISiteSigninHandler):
     # 已签到
     _sign_text = '已签到'
 
-    # 签到成功
-    _succeed_text = '签到成功'
-
     @classmethod
     def match(cls, url):
         """
