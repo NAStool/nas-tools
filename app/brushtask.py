@@ -314,7 +314,7 @@ class BrushTask(object):
                 sendmessage = taskinfo.get("sendmessage")
 
                 # 当前任务种子详情
-                task_torrents = self.dbhelper.get_brushtask_torrents(taskid)
+                task_torrents = self.get_brushtask_torrents(taskid)
                 torrent_ids = [item.DOWNLOAD_ID for item in task_torrents if item.DOWNLOAD_ID]
                 # 避免种子被全删，没有种子ID的不处理
                 if not torrent_ids:
