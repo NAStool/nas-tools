@@ -28,7 +28,7 @@ class ChromeHelper(object):
 
         self._executable_path = SystemUtils.get_webdriver_path() or driver_executable_path
 
-        if SystemUtils.is_windows():
+        if SystemUtils.is_windows() or SystemUtils.is_macos():
             self._headless = False
         elif not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
@@ -136,8 +136,8 @@ class ChromeHelper(object):
             print(str(err))
             return False
 
-    def pass_cloudflare(self, wait_time=30):
-        challenge = CloudflareHelper.resolve_challenge(driver=self._chrome, timeout=wait_time)
+    def pass_cloudflare(self):
+        challenge = CloudflareHelper.resolve_challenge(driver=self._chrome)
         return challenge
 
     def execute_script(self, script):
