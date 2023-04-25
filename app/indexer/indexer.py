@@ -2,7 +2,7 @@ import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
-from app.helper import ProgressHelper, SubmoduleHelper
+from app.helper import ProgressHelper, SubmoduleHelper, DbHelper
 from app.utils import ExceptionUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, IndexerType, ProgressKey
@@ -15,6 +15,7 @@ class Indexer(object):
     _client = None
     _client_type = None
     progress = None
+    dbhelper = None
 
     def __init__(self):
         self._indexer_schemas = SubmoduleHelper.import_submodules(
@@ -26,6 +27,7 @@ class Indexer(object):
 
     def init_config(self):
         self.progress = ProgressHelper()
+        self.dbhelper = DbHelper()
         indexer = Config().get_config("pt").get('search_indexer') or 'builtin'
         self._client = self.__get_client(indexer)
         if self._client:
@@ -166,3 +168,9 @@ class Indexer(object):
                                   % (len(ret_array), (end_time - start_time).seconds),
                              value=100)
         return ret_array
+
+    def get_indexer_statistics(self):
+        """
+        获取索引器统计信息
+        """
+        return self.dbhelper.get_indexer_statistics()

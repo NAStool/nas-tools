@@ -175,6 +175,16 @@ class Sites:
                 return self._siteByUrls[key]
         return {}
 
+    def get_sites_by_name(self, name):
+        """
+        根据站点名称获取站点配置
+        """
+        ret_sites = []
+        for site in self._siteByIds.values():
+            if site.get("name") == name:
+                ret_sites.append(site)
+        return ret_sites
+
     def get_max_site_pri(self):
         """
         获取最大站点优先级
@@ -329,6 +339,14 @@ class Sites:
                                                cookie=cookie,
                                                note=note,
                                                rss_uses=rss_uses)
+        self.init_config()
+        return ret
+
+    def delete_site(self, siteid):
+        """
+        删除站点
+        """
+        ret = self.dbhelper.delete_config_site(siteid)
         self.init_config()
         return ret
 

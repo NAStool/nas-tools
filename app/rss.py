@@ -675,3 +675,15 @@ class Rss:
         """
         self.dbhelper.simple_insert_rss_torrents(title=title,
                                                  enclosure=enclosure)
+
+    def delete_rss_history(self, rssid):
+        """
+        删除订阅历史
+        """
+        self.dbhelper.delete_rss_history(rssid=rssid)
+
+    def get_rss_history(self, rtype=None, rid=None):
+        """
+        获取订阅历史
+        """
+        return self.dbhelper.get_rss_history(rtype=rtype, rid=rid)

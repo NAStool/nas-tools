@@ -494,13 +494,6 @@ class DbHelper:
         """
         return self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).all()
 
-    def get_site_by_name(self, name):
-        """
-        基于站点名称查询站点信息
-        :return:
-        """
-        return self._db.query(CONFIGSITE).filter(CONFIGSITE.NAME == name).all()
-
     @DbPersist(_db)
     def insert_config_site(self, name, site_pri,
                            rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None):
@@ -1666,7 +1659,7 @@ class DbHelper:
         ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
 
     @DbPersist(_db)
-    def insert_brushtask(self, brush_id, item):
+    def update_brushtask(self, brush_id, item):
         """
         新增刷流任务
         """

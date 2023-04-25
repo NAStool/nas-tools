@@ -420,3 +420,12 @@ class SiteUserInfo(object):
                                "msg_unread": site.MSG_UNREAD
                                })
         return statistics
+
+    def update_site_name(self, old_name, name):
+        """
+        更新站点数据中的站点名称
+        """
+        self.dbhelper.update_site_user_statistics_site_name(name, old_name)
+        self.dbhelper.update_site_seed_info_site_name(name, old_name)
+        self.dbhelper.update_site_statistics_site_name(name, old_name)
+        return True

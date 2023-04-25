@@ -743,3 +743,47 @@ class RssChecker(object):
                 return self.dbhelper.is_userrss_finished(meta_name, meta_name)
             case _:
                 return False
+
+    def delete_userrss_task(self, tid):
+        """
+        删除自定义RSS任务
+        :param tid: 任务ID
+        """
+        ret = self.dbhelper.delete_userrss_task(tid)
+        self.init_config()
+        return ret
+
+    def update_userrss_task(self, item):
+        """
+        更新自定义RSS任务
+        :param item: 任务信息
+        """
+        ret = self.dbhelper.update_userrss_task(item)
+        self.init_config()
+        return ret
+
+    def check_userrss_task(self, tid=None, state=None):
+        """
+        设置自定义RSS任务
+        :param tid: 任务ID
+        :param state: 任务状态
+        """
+        ret = self.dbhelper.check_userrss_task(tid, state)
+        self.init_config()
+        return ret
+
+    def delete_userrss_parser(self, pid):
+        """
+        删除自定义RSS解析器
+        :param pid: 解析器ID
+        """
+        ret = self.dbhelper.delete_userrss_parser(pid)
+        self.init_config()
+        return ret
+
+    def get_userrss_task_history(self, task_id):
+        """
+        获取自定义RSS任务下载记录
+        :param task_id: 任务ID
+        """
+        return self.dbhelper.get_userrss_task_history(task_id)

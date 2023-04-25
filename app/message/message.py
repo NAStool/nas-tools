@@ -667,3 +667,47 @@ class Message(object):
                     title=title,
                     text=text
                 )
+
+    def delete_message_client(self, cid):
+        """
+        删除消息端
+        """
+        ret = self.dbhelper.delete_message_client(cid=cid)
+        self.init_config()
+        return ret
+
+    def check_message_client(self, cid=None, interactive=None, enabled=None, ctype=None):
+        """
+        设置消息端
+        """
+        ret = self.dbhelper.check_message_client(
+            cid=cid,
+            interactive=interactive,
+            enabled=enabled,
+            ctype=ctype
+        )
+        self.init_config()
+        return ret
+
+    def insert_message_client(self,
+                              name,
+                              ctype,
+                              config,
+                              switchs: list,
+                              interactive,
+                              enabled,
+                              note=''):
+        """
+        插入消息端
+        """
+        ret = self.dbhelper.insert_message_client(
+            name=name,
+            ctype=ctype,
+            config=config,
+            switchs=switchs,
+            interactive=interactive,
+            enabled=enabled,
+            note=note
+        )
+        self.init_config()
+        return ret

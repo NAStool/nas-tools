@@ -943,3 +943,33 @@ class BrushTask(object):
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+
+    def update_brushtask(self, brushtask_id, item):
+        """
+        新增刷种任务
+        """
+        ret = self.dbhelper.update_brushtask(brushtask_id, item)
+        self.init_config()
+        return ret
+
+    def delete_brushtask(self, brushtask_id):
+        """
+        删除刷种任务
+        """
+        ret = self.dbhelper.delete_brushtask(brushtask_id)
+        self.init_config()
+        return ret
+
+    def update_brushtask_state(self, state, brushtask_id=None):
+        """
+        更新刷种任务状态
+        """
+        ret = self.dbhelper.update_brushtask_state(tid=brushtask_id, state=state)
+        self.init_config()
+        return ret
+
+    def get_brushtask_torrents(self, brush_id, active=True):
+        """
+        获取刷种任务的种子列表
+        """
+        return self.dbhelper.get_brushtask_torrents(brush_id, active)
