@@ -220,7 +220,7 @@ class ServiceNetworkTest(ClientResource):
 class ServiceRun(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('item', type=str,
-                        help='服务名称（autoremovetorrents、pttransfer、sync、rssdownload、subscribe_search_all）',
+                        help='服务名称（pttransfer、sync、rssdownload、subscribe_search_all）',
                         location='form',
                         required=True)
 
@@ -425,7 +425,6 @@ class SiteList(ClientResource):
     parser.add_argument('basic', type=int, help='只查询基本信息（0-否/1-是）', location='form')
     parser.add_argument('rss', type=int, help='订阅（0-否/1-是）', location='form')
     parser.add_argument('brush', type=int, help='刷流（0-否/1-是）', location='form')
-    parser.add_argument('signin', type=int, help='签到（0-否/1-是）', location='form')
     parser.add_argument('statistic', type=int, help='数据统计（0-否/1-是）', location='form')
 
     def post(self):

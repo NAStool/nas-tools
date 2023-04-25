@@ -193,7 +193,6 @@ class WebAction:
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
             "auto_remove_torrents": self.__auto_remove_torrents,
-            "douban_sync": self.douban_sync,
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
@@ -487,17 +486,15 @@ class WebAction:
                     cfg[keys[0]][keys[1]] = cfg_value.replace("\\", "/")
         return cfg
 
-    def __sch(self, data):
+    @staticmethod
+    def __sch(data):
         """
-        启动定时服务
+        启动服务
         """
         commands = {
-            "autoremovetorrents": TorrentRemover().auto_remove_torrents,
             "pttransfer": Downloader().transfer,
-            "ptsignin": self.site_signin,
             "sync": Sync().transfer_sync,
             "rssdownload": Rss().rssdownload,
-            "douban": self.douban_sync,
             "subscribe_search_all": Subscribe().subscribe_search_all,
         }
         sch_item = data.get("item")

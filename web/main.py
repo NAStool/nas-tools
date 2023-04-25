@@ -701,17 +701,6 @@ def service():
             'state': sta_pttransfer,
         })
 
-    # 删种
-    if "autoremovetorrents" in Services:
-        torrent_remove_tasks = TorrentRemover().get_torrent_remove_tasks()
-        if torrent_remove_tasks:
-            Services['autoremovetorrents'].update({
-                'state': 'ON',
-                'time': '',
-            })
-        else:
-            Services.pop('autoremovetorrents')
-
     # 目录同步
     if "sync" in Services:
         if Sync().monitor_sync_path_ids:
