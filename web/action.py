@@ -340,21 +340,19 @@ class WebAction:
         if not msg:
             return
         commands = {
-            "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desp": "自动删种"},
-            "/ptt": {"func": Downloader().transfer, "desp": "下载文件转移"},
-            "/pts": {"func": self.site_signin, "desp": "站点签到"},
-            "/rst": {"func": Sync().transfer_sync, "desp": "目录同步"},
-            "/rss": {"func": Rss().rssdownload, "desp": "电影/电视剧订阅"},
-            "/db": {"func": self.douban_sync, "desp": "豆瓣同步"},
-            "/ssa": {"func": Subscribe().subscribe_search_all, "desp": "订阅搜索"},
-            "/tbl": {"func": self.truncate_blacklist, "desp": "清理转移缓存"},
-            "/trh": {"func": self.truncate_rsshistory, "desp": "清理RSS缓存"},
-            "/utf": {"func": self.unidentification, "desp": "重新识别"},
-            "/udt": {"func": self.update_system, "desp": "系统更新"},
-            "/sta": {"func": self.user_statistics, "desp": "站点数据统计"}
+            "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desc": "自动删种"},
+            "/ptt": {"func": Downloader().transfer, "desc": "下载文件转移"},
+            "/rst": {"func": Sync().transfer_sync, "desc": "目录同步"},
+            "/rss": {"func": Rss().rssdownload, "desc": "电影/电视剧订阅"},
+            "/ssa": {"func": Subscribe().subscribe_search_all, "desc": "订阅搜索"},
+            "/tbl": {"func": self.truncate_blacklist, "desc": "清理转移缓存"},
+            "/trh": {"func": self.truncate_rsshistory, "desc": "清理RSS缓存"},
+            "/utf": {"func": self.unidentification, "desc": "重新识别"},
+            "/udt": {"func": self.update_system, "desc": "系统更新"},
+            "/sta": {"func": self.user_statistics, "desc": "站点数据统计"}
         }
 
-        # 触发事件
+        # 触发MessageIncoming事件
         EventManager().send_event(EventType.MessageIncoming, {
             "channel": in_from.value,
             "user_id": user_id,
@@ -363,18 +361,30 @@ class WebAction:
 
         })
 
+        # 系统内置命令
         command = commands.get(msg)
-        message = Message()
-
         if command:
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
-            message.send_channel_msg(
-                channel=in_from, title="正在运行 %s ..." % command.get("desp"), user_id=user_id)
-        else:
-            # 站点搜索或者添加订阅
-            ThreadHelper().start_thread(search_media_by_message,
-                                        (msg, in_from, user_id, user_name))
+            # 消息回应
+            Message().send_channel_msg(
+                channel=in_from, title="正在运行 %s ..." % command.get("desc"), user_id=user_id)
+            return
+
+        # 插件命令
+        plugin_commands = PluginManager().get_plugin_commands()
+        for command in plugin_commands:
+            if command.get("cmd") == msg:
+                # 发送事件
+                EventManager().send_event(command.get("event"), command.get("data") or {})
+                # 消息回应
+                Message().send_channel_msg(
+                    channel=in_from, title="正在运行 %s ..." % command.get("desc"), user_id=user_id)
+                return
+
+        # 站点搜索或者添加订阅
+        ThreadHelper().start_thread(search_media_by_message,
+                                    (msg, in_from, user_id, user_name))
 
     @staticmethod
     def set_config_value(cfg, cfg_key, cfg_value):
@@ -5033,22 +5043,6 @@ class WebAction:
     def get_plugins_conf(data=None):
         Plugins = PluginManager().get_plugins_conf(current_user.level)
         return {"code": 0, "result": Plugins}
-
-    @staticmethod
-    def douban_sync(data=None):
-        """
-        启动豆瓣同步
-        """
-        # 触发事件
-        EventManager().send_event(EventType.DoubanSync, {})
-
-    @staticmethod
-    def site_signin(data=None):
-        """
-        启动站点签到
-        """
-        # 触发事件
-        EventManager().send_event(EventType.SiteSignin, {})
 
     @staticmethod
     def update_category_config(data):
