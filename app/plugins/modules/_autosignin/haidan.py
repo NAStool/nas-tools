@@ -11,7 +11,7 @@ class HaiDan(_ISiteSigninHandler):
     site_url = "haidan.video"
 
     # 签到成功
-    _success_text = "已经打卡"
+    _succeed_regex = ['(?<=value=")已经打卡(?=")']
 
     @classmethod
     def match(cls, url):
@@ -34,29 +34,23 @@ class HaiDan(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 签到
-        RequestUtils(cookies=site_cookie,
-                     headers=ua,
-                     proxies=proxy
-                     ).get(url="https://www.haidan.video/signin.php")
-
-        # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
+        sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://www.haidan.video")
-        if not html_res or html_res.status_code != 200:
+                                ).get_res(url="https://www.haidan.video/signin.php")
+        if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
-        if "login.php" in html_res.text:
+        if "login.php" in sign_res.text:
             self.error(f"签到失败，cookie失效")
             return False, f'【{site}】签到失败，cookie失效'
 
-        # 判断是否已签到
-        # '已连续签到278天，此次签到您获得了100魔力值奖励!'
-        if self._success_text in html_res.text:
-            self.info(f"签到成功")
-            return True, f'【{site}】签到成功'
+        sign_status = self.sign_in_result(html_res=sign_res.text,
+                                          regexs=self._succeed_regex)
+        if sign_status:
+            self.info(f"今日已签到")
+            return True, f'【{site}】今日已签到'
 
-        self.error(f"签到失败，签到接口返回 {html_res.text}")
+        self.error(f"签到失败，签到接口返回 {sign_res.text}")
         return False, f'【{site}】签到失败'
