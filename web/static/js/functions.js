@@ -230,6 +230,7 @@ function render_message(ret) {
   let lst_time = ret.lst_time;
   const msgs = ret.message;
   for (let msg of msgs) {
+    // 消息UI
     let html_text = `<div class="list-group-item">
           <div class="row align-items-center">
             <div class="col-auto">
@@ -243,13 +244,16 @@ function render_message(ret) {
           </div>
         </div>`;
     $("#system-messages").prepend(html_text);
+    // 滚动到顶部
     $(".offcanvas-body").animate({scrollTop:0}, 300);
-    if (!OldMessageFlag) {
+    // 浏览器消息提醒
+    if (!OldMessageFlag && !$("#offcanvasEnd").is(":hidden")) {
       browserNotification(msg.title, msg.content);
-    } else {
-      OldMessageFlag = false;
     }
   }
+  // 非旧消息
+  OldMessageFlag = false;
+  // 下一次处理
   setTimeout("get_message('" + lst_time + "')", 3000);
 }
 
@@ -1715,8 +1719,11 @@ function send_web_message(obj) {
   if (!text) {
     return
   }
+  // 清空输入框
   $(obj).val("");
+  // 消息交互
   MessageWS.send(JSON.stringify({"text": text}));
+  // 显示自己发送的消息
   $("#system-messages").prepend(`<div class="list-group-item">
       <div class="row align-items-center">
         <div class="col text-truncate text-end">
@@ -1734,5 +1741,6 @@ function send_web_message(obj) {
         </div>
       </div>
     </div>`);
+  // 滚动到顶部
   $(".offcanvas-body").animate({scrollTop:0}, 300);
 }
