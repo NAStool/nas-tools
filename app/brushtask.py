@@ -10,10 +10,9 @@ from apscheduler.triggers.cron import CronTrigger
 import log
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import DbHelper
+from app.helper import DbHelper, RssHelper
 from app.media.meta import MetaInfo
 from app.message import Message
-from app.rss import Rss
 from app.sites import Sites, SiteConf
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
@@ -28,6 +27,7 @@ class BrushTask(object):
     siteconf = None
     filter = None
     dbhelper = None
+    rsshelper = None
     downloader = None
     _scheduler = None
     _brush_tasks = {}
@@ -40,6 +40,7 @@ class BrushTask(object):
 
     def init_config(self):
         self.dbhelper = DbHelper()
+        self.rsshelper = RssHelper()
         self.message = Message()
         self.sites = Sites()
         self.siteconf = SiteConf()
@@ -198,7 +199,11 @@ class BrushTask(object):
                                            dlcount=rss_rule.get("dlcount")):
             return
 
-        rss_result = Rss.parse_rssxml(url=rss_url, proxy=site_proxy)
+        rss_result = self.rsshelper.parse_rssxml(url=rss_url, proxy=site_proxy)
+        if rss_result is None:
+            # RSS链接过期
+            log.error(f"【Brush】{task_name} RSS链接已过期，请重新获取！")
+            return
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
             return
