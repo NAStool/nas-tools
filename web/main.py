@@ -1649,6 +1649,7 @@ def Img():
 
 
 @Sock.route('/logging')
+@login_required
 def logging_handler(ws):
     """
     实时日志WebSocket
@@ -1671,6 +1672,7 @@ def logging_handler(ws):
 
 
 @Sock.route('/message')
+@login_required
 def message_handler(ws):
     """
     消息中心WebSocket
