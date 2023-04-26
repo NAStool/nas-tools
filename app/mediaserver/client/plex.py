@@ -325,7 +325,7 @@ class Plex(_IMediaClient):
                 "paths": library.locations,
                 "type": library_type,
                 "image_list": image_list_str,
-                "link": f"{self._play_host}#!/media/{self._plex.machineIdentifier}"
+                "link": f"{self._play_host or self._host}#!/media/{self._plex.machineIdentifier}"
                         f"/com.plexapp.plugins.library?source={library.key}"
             })
         return libraries
@@ -365,7 +365,7 @@ class Plex(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f'{self._play_host}#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
+        return f'{self._play_host or self._host}#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
 
     def get_items(self, parent):
         """
