@@ -533,7 +533,7 @@ class Plex(_IMediaClient):
             link = self.get_play_url(item.key)
             title = item.title if item_type == MediaType.MOVIE.value else \
                 "%s 第%s季" % (item.parentTitle, item.index)
-            image = self.get_nt_image_url(item.artUrl)
+            image = self.get_nt_image_url(item.posterUrl)
             ret_resume.append({
                 "id": item.key,
                 "name": title,
