@@ -108,10 +108,10 @@
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <div class="offcanvas-body p-1" style="margin-bottom: 50px">
+  <div class="offcanvas-body p-1" style="margin-bottom: calc(50px + env(safe-area-inset-top) + env(safe-area-inset-bottom))">
     <div class="list-group list-group-flush" id="system-messages">
     </div>
-    <div class="mt-3 w-100 position-absolute bottom-0 mb-2 pe-2" align="center">
+    <div class="mt-3 w-100 position-absolute mb-2 pe-2" align="center" style="bottom: calc(env(safe-area-inset-bottom))">
       <div class="input-group">
         <input type="text" id="message_center_input" class="form-control" autocomplete="off" placeholder="输入消息或命令..."
             onkeydown="if(event.keyCode==13) send_web_message(this)">
