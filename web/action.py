@@ -1402,6 +1402,7 @@ class WebAction:
         filter_rule = data.get("filter_rule")
         filter_include = data.get("filter_include")
         filter_exclude = data.get("filter_exclude")
+        filter_timeframe = data.get("filter_timeframe")
         save_path = data.get("save_path")
         download_setting = data.get("download_setting")
         total_ep = data.get("total_ep")
@@ -1433,6 +1434,7 @@ class WebAction:
                                                                      filter_rule=filter_rule,
                                                                      filter_include=filter_include,
                                                                      filter_exclude=filter_exclude,
+                                                                     filter_timeframe=filter_timeframe,
                                                                      save_path=save_path,
                                                                      download_setting=download_setting,
                                                                      rssid=rssid)
@@ -1456,6 +1458,7 @@ class WebAction:
                                                                  filter_rule=filter_rule,
                                                                  filter_include=filter_include,
                                                                  filter_exclude=filter_exclude,
+                                                                 filter_timeframe=filter_timeframe,
                                                                  save_path=save_path,
                                                                  download_setting=download_setting,
                                                                  total_ep=total_ep,

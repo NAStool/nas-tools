@@ -387,3 +387,13 @@ class Filter:
         根据名称获取过滤规则组ID
         """
         return self.dbhelper.get_filter_groupid_by_name(name)
+    
+    def check_timeframe_filter(self, meta_info, filter_args):
+        if filter_args.get("rule"):
+            # 已设置默认规则
+            match_flag, order_seq, _ = self.check_rules(meta_info, filter_args.get("rule"))
+            return match_flag, order_seq
+        else:
+            # 默认过滤规则
+            match_flag, order_seq, _ = self.check_rules(meta_info)
+            return match_flag, order_seq

@@ -1,6 +1,7 @@
 import log
 from app.helper import DbHelper
 from app.indexer import Indexer
+from app.timeframe import Timeframe
 from app.plugins import EventManager
 from app.utils.commons import singleton
 from config import Config
@@ -33,6 +34,7 @@ class Searcher:
         self.progress = ProgressHelper()
         self.dbhelper = DbHelper()
         self.indexer = Indexer()
+        self.timeframe = Timeframe()
         self.eventmanager = EventManager()
         self._search_auto = Config().get_config("pt").get('search_auto', True)
 
@@ -174,6 +176,14 @@ class Searcher:
                 # 微信未开自动下载时返回
                 if not self._search_auto:
                     return None, no_exists, len(media_list), None
+                
+            # timeframe
+            media_list = self.timeframe.check_torrent_filter(in_from=in_from,
+                                                             mtype=media_info.type,
+                                                             rssid=media_info.rssid,
+                                                             filter_args=filter_args,
+                                                             media_list=media_list)                        
+
             # 择优下载
             download_items, left_medias = self.downloader.batch_download(in_from=in_from,
                                                                          media_list=media_list,
