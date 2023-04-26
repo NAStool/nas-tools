@@ -3,15 +3,15 @@ from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class HaiDan(_ISiteSigninHandler):
+class BTSchool(_ISiteSigninHandler):
     """
-    海胆签到
+    学校签到
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "haidan.video"
+    site_url = "pt.btschool.club"
 
-    # 签到成功
-    _succeed_regex = ['(?<=value=")已经打卡(?=")']
+    # 已签到
+    _sign_text = '每日签到'
 
     @classmethod
     def match(cls, url):
@@ -33,24 +33,33 @@ class HaiDan(_ISiteSigninHandler):
         ua = site_info.get("ua")
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
+        # 首页
+        html_res = RequestUtils(cookies=site_cookie,
+                                headers=ua,
+                                proxies=proxy
+                                ).get_res(url="https://pt.btschool.club")
+        if not html_res or html_res.status_code != 200:
+            self.error(f"签到失败，请检查站点连通性")
+            return False, f'【{site}】签到失败，请检查站点连通性'
+
+        if "login.php" in html_res.text:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
+        # 已签到
+        if self._sign_text not in html_res.text:
+            self.info(f"已签到")
+            return True, f'【{site}】已签到'
+
         # 签到
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://www.haidan.video/signin.php")
+                                ).get_res(url="https://pt.btschool.club/index.php?action=addbonus")
         if not sign_res or sign_res.status_code != 200:
-            self.error(f"签到失败，请检查站点连通性")
-            return False, f'【{site}】签到失败，请检查站点连通性'
+            self.error(f"签到失败，签到接口请求失败")
+            return False, f'【{site}】签到失败，签到接口请求失败'
 
-        if "login.php" in sign_res.text:
-            self.error(f"签到失败，cookie失效")
-            return False, f'【{site}】签到失败，cookie失效'
-
-        sign_status = self.sign_in_result(html_res=sign_res.text,
-                                          regexs=self._succeed_regex)
-        if sign_status:
-            self.info(f"签到成功")
-            return True, f'【{site}】签到成功'
-
-        self.error(f"签到失败，签到接口返回 {sign_res.text}")
-        return False, f'【{site}】签到失败'
+        # 签到成功
+        self.info(f"签到成功")
+        return True, f'【{site}】签到成功'
