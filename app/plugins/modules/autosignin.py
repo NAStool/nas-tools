@@ -332,7 +332,8 @@ class AutoSignIn(_IPluginModule):
             if self._notify:
                 # 签到汇总信息
                 self.send_message(title="【自动签到任务完成】",
-                                  text=f"本次签到站点数量: {len(sign_sites)} \n"
+                                  text=f"本次签到数量: {len(sign_sites)} \n"
+                                       f"命中重试数量: {len(retry_sites)} \n"
                                        f"下次签到数量: {len(retry_sites + self._special_sites)} \n"
                                        f"详见签到消息")
         else:
