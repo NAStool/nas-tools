@@ -233,7 +233,7 @@ function render_message(ret) {
     let html_text = `<div class="list-group-item">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="avatar">N</span>
+              <span class="avatar">NT</span>
             </div>
             <div class="col text-truncate">
               <span class="text-wrap">${msg.title}</span>
@@ -1724,7 +1724,13 @@ function send_web_message(obj) {
           <div class="d-block text-muted text-truncate mt-n1 text-wrap text-end">${new Date().format("yyyy-MM-dd hh:mm:ss")}</div>
         </div>
         <div class="col-auto">
-          <span class="avatar">Y</span>
+          <span class="avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
+               <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+            </svg>
+          </span>
         </div>
       </div>
     </div>`);
