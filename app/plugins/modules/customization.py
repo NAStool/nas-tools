@@ -8,9 +8,9 @@ class Customization(_IPluginModule):
     # 插件描述
     module_desc = "添加自定义占位符识别正则，重命名格式中添加{customization}使用，自定义多个结果间分隔符"
     # 插件图标
-    module_icon = "teamwork.png"
+    module_icon = "regex.png"
     # 主题色
-    module_color = "#00ADEF"
+    module_color = "#E64D1C"
     # 插件版本
     module_version = "1.0"
     # 插件作者
