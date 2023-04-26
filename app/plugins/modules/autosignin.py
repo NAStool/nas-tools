@@ -272,15 +272,15 @@ class AutoSignIn(_IPluginModule):
                 return
 
         # 查询签到站点
-        sites = Sites().get_sites(siteids=sign_sites)
-        if not sites:
+        sign_sites = Sites().get_sites(siteids=sign_sites)
+        if not sign_sites:
             self.info("没有可签到站点，停止运行")
             return
 
         # 执行签到
         self.info("开始执行签到任务")
-        with ThreadPool(min(len(sites), int(self._queue_cnt) if self._queue_cnt else 10)) as p:
-            status = p.map(self.signin_site, sites)
+        with ThreadPool(min(len(sign_sites), int(self._queue_cnt) if self._queue_cnt else 10)) as p:
+            status = p.map(self.signin_site, sign_sites)
 
         if status:
             # 签到详细信息
@@ -329,7 +329,7 @@ class AutoSignIn(_IPluginModule):
             if self._notify:
                 # 签到汇总信息
                 self.send_message(title="【自动签到任务完成】",
-                                  text=f"本次签到站点数量: {len(sites)} \n"
+                                  text=f"本次签到站点数量: {len(sign_sites)} \n"
                                        f"下次签到数量: {len(retry_sites)} \n"
                                        f"详见签到消息")
         else:
