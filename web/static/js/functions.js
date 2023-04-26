@@ -219,7 +219,7 @@ function get_logging_source() {
 // 日志来源筛选
 function logger_select(source) {
   LoggingSource = source
-  if (LoggingSource === "All"){
+  if (LoggingSource === "All") {
     LoggingSource = "";
   }
   $("#logging_content").html("")
@@ -233,11 +233,11 @@ function render_message(ret) {
     let html_text = `<div class="list-group-item">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="status-dot ${msg.level} d-block"></span>
+              <span class="avatar">N</span>
             </div>
             <div class="col text-truncate">
               <span class="text-wrap">${msg.title}</span>
-              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap" title="${msg.content}">${msg.content}</div>
               <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
             </div>
           </div>
@@ -1160,7 +1160,7 @@ function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = fal
 }
 
 // 切换手动输入
-function check_manual_input_path(select_id, input_id, manual_path=null) {
+function check_manual_input_path(select_id, input_id, manual_path = null) {
   let savepath_select = $(`#${select_id}`);
   let savepath_input_manual = $(`#${input_id}`);
   if (manual_path !== null) {
@@ -1438,7 +1438,7 @@ function media_name_test_ui(data, result_div) {
   $(`#${result_div}`).empty();
   const sort_array = ["org_string", "ignored_words", "replaced_words", "offset_words",
     "type", "category", "name", "title", "tmdbid", "year", "season_episode", "part",
-    "restype", "effect", "pix", "video_codec", "audio_codec", "team","customization"]
+    "restype", "effect", "pix", "video_codec", "audio_codec", "team", "customization"]
   // 调用组件实例的自定义方法.. 一次性添加chips
   document.querySelector(`#${result_div}`).add_chips_all(sort_array, data);
 }
@@ -1706,4 +1706,25 @@ function search_tmdbid_by_name(keyid, resultid) {
       $("#" + resultid).html(`<div class="list-group-item text-center text-muted">${ret.msg}</div>`);
     }
   });
+}
+
+//WEB页面发送消息
+function send_web_message(obj) {
+  let text = $(obj).val();
+  if (!text) {
+    return
+  }
+  $(obj).val("");
+  MessageWS.send(JSON.stringify({"text": text}));
+  $("#system-messages").prepend(`<div class="list-group-item">
+      <div class="row align-items-center">
+        <div class="col text-truncate text-end">
+          <span class="text-wrap">${text}</span>
+          <div class="d-block text-muted text-truncate mt-n1 text-wrap text-end">${new Date().format("yyyy-MM-dd hh:mm:ss")}</div>
+        </div>
+        <div class="col-auto">
+          <span class="avatar">Y</span>
+        </div>
+      </div>
+    </div>`);
 }

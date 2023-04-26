@@ -108,13 +108,15 @@
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
+  <div class="offcanvas-body p-1" style="margin-bottom: 50px">
     <div class="list-group list-group-flush" id="system-messages">
     </div>
-    <div class="mt-3" align="center">
-      <button class="btn btn-primary" type="button" data-bs-dismiss="offcanvas">
-        关闭
-      </button>
+    <div class="mt-3 w-100 position-absolute bottom-0 mb-2 pe-2" align="center">
+      <div class="input-group">
+        <input type="text" id="message_center_input" class="form-control" autocomplete="off" placeholder="输入消息或命令..."
+            onkeydown="if(event.keyCode==13) send_web_message(this)">
+        <button class="btn btn-primary" type="button" onclick="send_web_message('#message_center_input')">发送</button>
+      </div>
     </div>
   </div>
 </div>
@@ -372,6 +374,7 @@
           </tr>
         </thead>
         <tbody id="logging_content" class="table-tbody">
+          <tr><td colspan="3" class="text-center">刷新中...</td></tr>
         </tbody>
       </table>
       </div>

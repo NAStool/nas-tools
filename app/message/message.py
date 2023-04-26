@@ -159,6 +159,8 @@ class Message(object):
         """
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        if channel == SearchType.WEB:
+            return True
         # 发送消息
         client = self._active_interactive_clients.get(channel)
         if client:

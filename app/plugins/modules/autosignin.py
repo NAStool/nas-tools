@@ -253,7 +253,7 @@ class AutoSignIn(_IPluginModule):
         }
 
     @EventHandler.register(EventType.SiteSignin)
-    def sign_in(self):
+    def sign_in(self, event=None):
         """
         自动签到
         """

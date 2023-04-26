@@ -1678,27 +1678,38 @@ def message_handler(ws):
     while True:
         try:
             data = ws.receive()
-            system_msg = WebAction().get_system_message(lst_time=json.loads(data).get("lst_time"))
-            messages = system_msg.get("message")
-            lst_time = system_msg.get("lst_time")
-            ret_messages = []
-            for message in list(reversed(messages)):
-                content = re.sub(r"#+", "<br>",
-                                 re.sub(r"<[^>]+>", "",
-                                        re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
-                ret_messages.append({
-                    "level": "bg-red" if message.get("level") == "ERROR" else "",
-                    "title": message.get("title"),
-                    "content": content,
-                    "time": message.get("time")
-                })
-            ws.send((json.dumps({
-                "lst_time": lst_time,
-                "message": ret_messages
-            })))
+            msgbody = json.loads(data)
+            if msgbody.get("text"):
+                # 发送的消息
+                WebAction().handle_message_job(msg=msgbody.get("text"),
+                                               in_from=SearchType.WEB,
+                                               user_id=current_user.username,
+                                               user_name=current_user.username)
+                ws.send((json.dumps({})))
+            else:
+                # 拉取消息
+                system_msg = WebAction().get_system_message(lst_time=msgbody.get("lst_time"))
+                messages = system_msg.get("message")
+                lst_time = system_msg.get("lst_time")
+                ret_messages = []
+                for message in list(reversed(messages)):
+                    content = re.sub(r"#+", "<br>",
+                                     re.sub(r"<[^>]+>", "",
+                                            re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
+                    ret_messages.append({
+                        "level": "bg-red" if message.get("level") == "ERROR" else "",
+                        "title": message.get("title"),
+                        "content": content,
+                        "time": message.get("time")
+                    })
+                ws.send((json.dumps({
+                    "lst_time": lst_time,
+                    "message": ret_messages
+                })))
         except Exception as err:
             print(str(err))
             break
+
 
 # base64模板过滤器
 @App.template_filter('b64encode')
