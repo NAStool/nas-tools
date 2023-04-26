@@ -158,7 +158,7 @@ class Message(object):
         :return: 发送状态、错误信息
         """
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         if channel == SearchType.WEB:
             return True
         # 发送消息
@@ -251,7 +251,7 @@ class Message(object):
             can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_text)
+        self.messagecenter.insert_system_message(title=msg_title, content=msg_text)
         # 发送消息
         for client in self._active_clients:
             if "download_start" in client.get("switchs"):
@@ -286,7 +286,7 @@ class Message(object):
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        self.messagecenter.insert_system_message(title=msg_title, content=msg_str)
         # 发送消息
         for client in self._active_clients:
             if "transfer_finished" in client.get("switchs"):
@@ -318,7 +318,7 @@ class Message(object):
             else:
                 msg_str = f"{msg_str}，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 插入消息中心
-            self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+            self.messagecenter.insert_system_message(title=msg_title, content=msg_str)
             # 发送消息
             for client in self._active_clients:
                 if "transfer_finished" in client.get("switchs"):
@@ -336,7 +336,7 @@ class Message(object):
         title = "添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string())
         text = f"站点：{item.site}\n种子名称：{item.org_string}\n种子链接：{item.enclosure}\n错误信息：{error_msg}"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "download_fail" in client.get("switchs"):
@@ -362,7 +362,7 @@ class Message(object):
         if media_info.user_name:
             msg_str = f"{msg_str}，用户：{media_info.user_name}"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        self.messagecenter.insert_system_message(title=msg_title, content=msg_str)
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -389,7 +389,7 @@ class Message(object):
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        self.messagecenter.insert_system_message(title=msg_title, content=msg_str)
         # 发送消息
         for client in self._active_clients:
             if "rss_finished" in client.get("switchs"):
@@ -410,7 +410,7 @@ class Message(object):
         title = "站点签到"
         text = "\n".join(msgs)
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "site_signin" in client.get("switchs"):
@@ -429,7 +429,7 @@ class Message(object):
         if not text:
             text = ""
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "site_message" in client.get("switchs"):
@@ -448,7 +448,7 @@ class Message(object):
         title = f"【{count} 个文件入库失败】"
         text = f"源路径：{path}\n原因：{text}"
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "transfer_fail" in client.get("switchs"):
@@ -466,7 +466,7 @@ class Message(object):
         if not title or not text:
             return
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "auto_remove_torrents" in client.get("switchs"):
@@ -484,7 +484,7 @@ class Message(object):
         if not title or not text:
             return
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "brushtask_remove" in client.get("switchs"):
@@ -502,7 +502,7 @@ class Message(object):
         if not title or not text:
             return
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "brushtask_added" in client.get("switchs"):
@@ -575,7 +575,7 @@ class Message(object):
 
         # 插入消息中心
         message_content = "\n".join(message_texts)
-        self.messagecenter.insert_system_message(level="INFO", title=message_title, content=message_content)
+        self.messagecenter.insert_system_message(title=message_title, content=message_content)
 
         # 发送消息
         for client in self._active_clients:
@@ -594,7 +594,7 @@ class Message(object):
         if not title:
             return
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "custom_message" in client.get("switchs"):
@@ -614,7 +614,7 @@ class Message(object):
         if not clients:
             return
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if str(client.get("id")) in clients:
@@ -660,7 +660,7 @@ class Message(object):
         title = "站点数据统计"
         text = "\n".join(msgs)
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        self.messagecenter.insert_system_message(title=title, content=text)
         # 发送消息
         for client in self._active_clients:
             if "ptrefresh_date_message" in client.get("switchs"):
