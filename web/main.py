@@ -1672,6 +1672,9 @@ def logging_handler(ws):
 
 @Sock.route('/message')
 def message_handler(ws):
+    """
+    消息中心WebSocket
+    """
     while True:
         try:
             data = ws.receive()
