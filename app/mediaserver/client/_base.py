@@ -162,7 +162,7 @@ class _IMediaClient(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def get_remote_image_url(url, remote=False):
+    def get_nt_image_url(url, remote=False):
         """
         获取NT中转内网图片的地址
         :param: url: 图片的URL

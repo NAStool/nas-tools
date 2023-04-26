@@ -1,15 +1,13 @@
 from functools import lru_cache
-from urllib.parse import quote
-
-from app.utils import ExceptionUtils, ImageUtils
-from app.utils.types import MediaServerType, MediaType
 
 import log
-from config import Config
 from app.mediaserver.client._base import _IMediaClient
+from app.utils import ExceptionUtils
+from app.utils.types import MediaServerType, MediaType
+from config import Config
+from plexapi import media
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
-from plexapi import media
 
 
 class Plex(_IMediaClient):
@@ -342,7 +340,7 @@ class Plex(_IMediaClient):
         poster_urls = []
         for item in items:
             if item.posterUrl is not None:
-                poster_urls.append(f"img?url={quote(item.posterUrl)}")
+                poster_urls.append(self.get_nt_image_url(item.posterUrl))
             if len(poster_urls) == 4:
                 break
         image_list_str = ", ".join([url for url in poster_urls])
@@ -510,11 +508,12 @@ class Plex(_IMediaClient):
                 else:
                     name = "%s 第%s季第%s集" % (item.grandparentTitle, item.parentIndex, item.index)
             link = self.get_play_url(item.key)
+            image = self.get_nt_image_url(item.artUrl)
             ret_resume.append({
                 "id": item.key,
                 "name": name,
                 "type": item_type,
-                "image": f"img?url={quote(item.artUrl)}" if item.artUrl else "",
+                "image": image,
                 "link": link,
                 "percent": item.viewOffset / item.duration * 100
             })
@@ -533,11 +532,12 @@ class Plex(_IMediaClient):
             link = self.get_play_url(item.key)
             title = item.title if item_type == MediaType.MOVIE.value else \
                 "%s 第%s季" % (item.parentTitle, item.index)
+            image = self.get_nt_image_url(item.artUrl)
             ret_resume.append({
                 "id": item.key,
                 "name": title,
                 "type": item_type,
-                "image": f"img?url={quote(item.posterUrl)}" if item.posterUrl else "",
+                "image": image,
                 "link": link
             })
         return ret_resume

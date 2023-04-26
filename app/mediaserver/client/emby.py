@@ -135,8 +135,10 @@ class Emby(_IMediaClient):
     def __get_backdrop_url(self, item_id, image_tag, remote=True, inner=False):
         """
         获取Backdrop图片地址
-        :param: remote 是否远程使用
-        :param: inner 是否内网使用
+        :param: item_id: 在Emby中的ID
+        :param: image_tag: 图片的tag
+        :param: remote 是否远程使用，TG微信等客户端调用应为True
+        :param: inner 是否NT内部调用，为True是会使用NT中转
         """
         if not self._host or not self._apikey:
             return ""
@@ -146,14 +148,14 @@ class Emby(_IMediaClient):
             image_url = f"{self._host}Items/{item_id}/"\
                         f"Images/Backdrop?tag={image_tag}&fillWidth=666&api_key={self._apikey}"
             if inner:
-                return self.get_remote_image_url(image_url)
+                return self.get_nt_image_url(image_url)
             return image_url
         else:
             host = self._play_host or self._host
             image_url = f"{host}Items/{item_id}/"\
                         f"Images/Backdrop?tag={image_tag}&fillWidth=666&api_key={self._apikey}"
             if IpUtils.is_internal(host):
-                return self.get_remote_image_url(url=image_url, remote=True)
+                return self.get_nt_image_url(url=image_url, remote=True)
             return image_url
 
     def get_server_id(self):
@@ -439,22 +441,22 @@ class Emby(_IMediaClient):
     def get_local_image_by_id(self, item_id, remote=True, inner=False):
         """
         根据ItemId从媒体服务器查询本地图片地址
-        :param item_id: 在Emby中的ID
-        :param remote: 是否远程使用
-        :param inner: 是否内部使用
+        :param: item_id: 在Emby中的ID
+        :param: remote 是否远程使用，TG微信等客户端调用应为True
+        :param: inner 是否NT内部调用，为True是会使用NT中转
         """
         if not self._host or not self._apikey:
             return None
         if not remote:
             image_url = "%sItems/%s/Images/Primary" % (self._host, item_id)
             if inner:
-                return self.get_remote_image_url(image_url)
+                return self.get_nt_image_url(image_url)
             return image_url
         else:
             host = self._play_host or self._host
             image_url = "%sItems/%s/Images/Primary" % (host, item_id)
             if IpUtils.is_internal(host):
-                return self.get_remote_image_url(url=image_url, remote=True)
+                return self.get_nt_image_url(url=image_url, remote=True)
             return image_url
 
     def __refresh_emby_library_by_id(self, item_id):
