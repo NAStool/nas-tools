@@ -124,16 +124,9 @@ function hide_wait_modal() {
   $("#modal-wait").modal("hide");
 }
 
-
 //发送刷新日志请求
-function start_logging() {
-  RefreshLoggingFlag = true;
+function get_logging() {
   LoggingWS.send(JSON.stringify({"source": LoggingSource}));
-}
-
-//停止刷新日志
-function stop_logging() {
-  RefreshLoggingFlag = false;
 }
 
 //刷新日志
@@ -189,7 +182,7 @@ function render_logging(log_list) {
     RefreshLoggingFlag = false;
   }
   if (RefreshLoggingFlag) {
-    window.setTimeout("start_logging()", 1000);
+    window.setTimeout("get_logging()", 1000);
   }
 }
 
@@ -198,10 +191,11 @@ function pause_logging() {
   let btn = $("#logging_stop_btn")
   if (btn.text() === "暂停") {
     btn.text("开始")
-    stop_logging();
+    RefreshLoggingFlag = false;
   } else {
-    btn.text("暂停")
-    start_logging();
+    btn.text("暂停");
+    RefreshLoggingFlag = true;
+    get_logging();
   }
 }
 
@@ -209,7 +203,8 @@ function pause_logging() {
 function show_logging_modal() {
   $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
-  setTimeout("start_logging()", 1000);
+  RefreshLoggingFlag = true;
+  setTimeout("get_logging()", 1000);
 }
 
 // 渲染日志来源下拉列表
