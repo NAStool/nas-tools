@@ -127,6 +127,7 @@ class LibraryRefresh(_IPluginModule):
                 "year": year,
                 "type": media_info.get("type"),
                 "category": media_info.get("category"),
+                # 这里不应该是 event_data.get("target_path")么
                 "target_path": event_data.get("dest")
             }])
         else:
