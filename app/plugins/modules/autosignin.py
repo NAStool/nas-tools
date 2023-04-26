@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing.pool import ThreadPool
+from threading import Event
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -62,6 +63,8 @@ class AutoSignIn(_IPluginModule):
     _onlyonce = False
     _notify = False
     _clean = False
+    # 退出事件
+    _event = Event()
 
     @staticmethod
     def get_fields():
@@ -193,6 +196,9 @@ class AutoSignIn(_IPluginModule):
             self._queue_cnt = config.get("queue_cnt")
             self._onlyonce = config.get("onlyonce")
             self._clean = config.get("clean")
+
+        # 停止现有任务
+        self.stop_service()
 
         # 启动服务
         if self._enabled or self._onlyonce:
@@ -334,7 +340,7 @@ class AutoSignIn(_IPluginModule):
                 self.send_message(title="【自动签到任务完成】",
                                   text=f"本次签到数量: {len(sign_sites)} \n"
                                        f"命中重试数量: {len(retry_sites) if self._retry_keyword else 0} \n"
-                                       f"下次签到数量: {len(retry_sites + self._special_sites)} \n"
+                                       f"下次签到数量: {len(set(retry_sites + self._special_sites))} \n"
                                        f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
@@ -428,6 +434,10 @@ class AutoSignIn(_IPluginModule):
                             if not cloudflare:
                                 self.info("%s 仿真签到失败，无法通过Cloudflare" % site)
                                 return f"【{site}】仿真签到失败，无法通过Cloudflare！"
+
+                        # 判断是否已签到   [签到已得125, 补签卡: 0]
+                        if re.search(r'已签|签到已得', chrome.get_html(), re.IGNORECASE):
+                            return f"【{site}】签到成功"
                         self.info("%s 仿真签到成功" % site)
                         return f"【{site}】仿真签到成功"
                 except Exception as e:
@@ -471,7 +481,19 @@ class AutoSignIn(_IPluginModule):
             return f"{site} 签到出错：{str(e)}！"
 
     def stop_service(self):
-        pass
+        """
+        退出插件
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._event.set()
+                    self._scheduler.shutdown()
+                    self._event.clear()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))
 
     def get_state(self):
         return self._enabled and self._cron
