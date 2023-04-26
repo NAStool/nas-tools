@@ -198,6 +198,8 @@ class Config(object):
         domain = (self.get_config('app') or {}).get('domain')
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
+        if domain and str(domain).endswith("/"):
+            domain = domain[:-1]
         return domain
 
     @staticmethod
