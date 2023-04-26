@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 
 import log
@@ -291,11 +292,36 @@ class Plex(_IMediaClient):
 
     def refresh_library_by_items(self, items):
         """
-        按类型、名称、年份来刷新媒体库，未找到对应的API，直接刷整个库
+        按路径刷新媒体库
         """
         if not self._plex:
             return False
-        return self._plex.library.update()
+        # _libraries可能未初始化,初始化一下
+        if not self._libraries:
+            try:
+                self._libraries = self._plex.library.sections()
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+        for item in items:
+            target_path = item.get("target_path")
+            librarie = self.__find_librarie(target_path, self._libraries)
+            if librarie:
+                log.info(f"【{self.client_name}】刷新媒体库：{librarie.key} : {target_path}")
+                librarie.update(path=target_path)
+
+    @staticmethod
+    def __find_librarie(path, libraries):
+        """
+        判断这个path属于哪个媒体库
+        """
+        try:
+            for librarie in libraries:
+                librarie_path = librarie.locations[0]
+                if os.path.commonprefix([path, librarie_path]) == librarie_path:
+                    return librarie
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return None
 
     def get_libraries(self):
         """
