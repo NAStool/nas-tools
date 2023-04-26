@@ -735,8 +735,8 @@
       let rss_sites = select_GetSelectedVAL('userrss_rss_rss_sites');
       let search_sites = select_GetSelectedVAL('userrss_rss_search_sites');
       userrss_detail.sites = {
-        rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
-        search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+        rss_sites: (rss_sites.length === RssSitesLength) ? [] : rss_sites,
+        search_sites: (search_sites.length === SearchSitesLength) ? [] : search_sites
       }
     } else {
       return;

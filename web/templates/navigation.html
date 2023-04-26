@@ -360,7 +360,7 @@
               </div>
            </div>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div id="logging_table" class="table-responsive table-modal-body">
       <table class="table table-vcenter card-table table-hover table-striped">
@@ -376,10 +376,8 @@
       </table>
       </div>
       <div class="modal-footer">
-        <a href="javascript:pause_logging()" class="btn btn-link me-auto" id="logging_stop_btn">
-          暂停
-        </a>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="logging_close_btn">关闭</button>
+        <a href="javascript:pause_logging()" class="btn btn-link me-auto" id="logging_stop_btn">暂停</a>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">关闭</button>
       </div>
     </div>
   </div>
@@ -1168,14 +1166,25 @@
     });
 
     // 全局变量默认值
-    torrent_dropzone = new Dropzone("#torrent_files");
-    torrent_dropzone.options.acceptedFiles = ".torrent";
-    default_transfer_mode = '{{ SyncMod }}';
-    default_path = "{{ DefaultPath }}";
+    TorrentDropZone = new Dropzone("#torrent_files");
+    TorrentDropZone.options.acceptedFiles = ".torrent";
+    DefaultTransferMode = '{{ SyncMod }}';
+    DefaultPath = "{{ DefaultPath }}";
 
     {% if "系统设置" in CurrentUser.pris %}
-      // 刷新消息
-      refresh_message("");
+      // WebSocket刷新日志
+      LoggingWS = new WebSocket('ws://' + window.location.host + '/logging');
+      LoggingWS.onmessage = function (event) {
+        render_logging(JSON.parse(event.data))
+      }
+      // WebSocket刷新消息
+      MessageWS = new WebSocket('ws://' + window.location.host + '/message');
+      MessageWS.onmessage = function (event) {
+        render_message(JSON.parse(event.data))
+      }
+      MessageWS.onopen = function (event) {
+        get_message('');
+      }
     {% endif %}
 
     {% if not TMDBFlag %}

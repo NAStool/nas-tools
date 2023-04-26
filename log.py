@@ -11,6 +11,7 @@ from config import Config
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 lock = threading.Lock()
+
 LOG_QUEUE = deque(maxlen=200)
 LOG_INDEX = 0
 

@@ -18,6 +18,7 @@ from flask import Flask, request, json, render_template, make_response, session,
     redirect, Response
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
+from flask_sock import Sock
 from icalendar import Calendar, Event, Alarm
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -58,6 +59,9 @@ App.config['JSON_AS_ASCII'] = False
 App.config['JSON_SORT_KEYS'] = False
 App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
+
+# Flask Socket
+Sock = Sock(App)
 
 # 启用压缩
 Compress(App)
@@ -1643,6 +1647,55 @@ def Img():
     response.headers.set('Etag', etag)
     return response
 
+
+@Sock.route('/logging')
+def logging_handler(ws):
+    """
+    实时日志WebSocket
+    """
+    while True:
+        try:
+            message = ws.receive()
+            _source = json.loads(message).get("source")
+            if log.LOG_INDEX > 0:
+                logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+                log.LOG_INDEX = 0
+                if _source:
+                    logs = [l for l in logs if l.get("source") == _source]
+                ws.send((json.dumps(logs)))
+            else:
+                ws.send(json.dumps([]))
+        except Exception as err:
+            print(str(err))
+            break
+
+
+@Sock.route('/message')
+def message_handler(ws):
+    while True:
+        try:
+            data = ws.receive()
+            system_msg = WebAction().get_system_message(lst_time=json.loads(data).get("lst_time"))
+            messages = system_msg.get("message")
+            lst_time = system_msg.get("lst_time")
+            ret_messages = []
+            for message in list(reversed(messages)):
+                content = re.sub(r"#+", "<br>",
+                                 re.sub(r"<[^>]+>", "",
+                                        re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
+                ret_messages.append({
+                    "level": "bg-red" if message.get("level") == "ERROR" else "",
+                    "title": message.get("title"),
+                    "content": content,
+                    "time": message.get("time")
+                })
+            ws.send((json.dumps({
+                "lst_time": lst_time,
+                "message": ret_messages
+            })))
+        except Exception as err:
+            print(str(err))
+            break
 
 # base64模板过滤器
 @App.template_filter('b64encode')

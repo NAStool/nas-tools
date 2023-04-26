@@ -702,9 +702,15 @@
 
     // 响应大小调整
     window.onresize = function () {
-      pie_ul.resize();
-      pie_dl.resize();
-      chart_history.resize();
+      if (pie_ul) {
+        pie_ul.resize();
+      }
+      if (pie_dl) {
+        pie_dl.resize();
+      }
+      if (chart_history) {
+        chart_history.resize();
+      }
     };
 
     function switch_date(date_offset){

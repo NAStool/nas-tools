@@ -505,7 +505,9 @@
   $(document).ready(function () {
     // 响应大小调整
     window.onresize = function () {
-      chart_statistics.resize();
+      if(chart_statistics) {
+        chart_statistics.resize();
+      }
     };
   });
 

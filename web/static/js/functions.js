@@ -1,30 +1,36 @@
 /**
  * 公共变量区
  */
-//刷新LOG标志
-let refresh_logging_flag = false;
-// 日志来源筛选时关掉之前的刷新日志计时器
-let refresh_logging_timer;
-let logger_source = "";
 // 刷新进度
-let refresh_process_flag = false;
-let refresh_fail_count = 0;
+let RefreshProcessFlag = false;
+let RefreshFailCount = 0;
 // 刷新订阅站点列表
-let RSS_SITES_LENGTH = 0;
+let RssSitesLength = 0;
 // 刷新搜索站点列表
-let SEARCH_SITES_LENGTH = 0;
+let SearchSitesLength = 0;
 // 种子上传控件
-let torrent_dropzone;
+let TorrentDropZone;
 // 默认转移模式
-let default_transfer_mode;
+let DefaultTransferMode;
 // 默认路径
-let default_path;
+let DefaultPath;
 // 页面正在加载中的标志
 let NavPageLoading = false;
 // 加载中页面的字柄
 let NavPageXhr;
 // 是否允许打断弹窗
 let GlobalModalAbort = true;
+//实时日志刷新标志
+let RefreshLoggingFlag = false;
+// 日志来源筛选时关掉之前的刷新日志计时器
+let LoggingSource = "";
+// 日志WebSocket
+let LoggingWS;
+// 是否存量消息刷新
+let OldMessageFlag = true;
+// 消息WebSocket
+let MessageWS;
+
 
 /**
  * 公共函数区
@@ -119,108 +125,91 @@ function hide_wait_modal() {
 }
 
 
-//开始刷新日志
+//发送刷新日志请求
 function start_logging() {
-  refresh_logging_flag = true;
-  refresh_logging();
+  RefreshLoggingFlag = true;
+  LoggingWS.send(JSON.stringify({"source": LoggingSource}));
 }
 
 //停止刷新日志
 function stop_logging() {
-  refresh_logging_flag = false;
+  RefreshLoggingFlag = false;
 }
 
 //刷新日志
-function refresh_logging(flag) {
-  let refresh_new = $("#logging_content").children().length;
-  ajax_post("logging", {"refresh_new": refresh_new, "source": logger_source}, function (ret) {
-    if (ret.loglist) {
-      let log_list = ret.loglist;
-      let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
-      let tbody = "";
-      for (let log of log_list) {
-        let text = log.text;
-        const source = log.source;
-        const time = log.time;
-        const level = log.level;
-        let tcolor = '';
-        let bgcolor = '';
-        let tstyle = '-webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;';
-        if (level === "WARN") {
-          tcolor = "text-warning";
-          bgcolor = "bg-warning";
-        } else if (level === "ERROR") {
-          tcolor = "text-danger";
-          bgcolor = "bg-danger";
-        } else if (source === "System") {
-          tcolor = "text-info";
-          bgcolor = "bg-info";
-        } else {
-          tcolor = "text";
-        }
-        if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
-          tstyle = `${tstyle} white-space: pre;`
-          text = text.replace(/\s到\s/, "\n=> ")
-        }
-        if (text.includes("http") || text.includes("magnet")) {
-          tstyle = `${tstyle} word-break: break-all;`
-          text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
-        }
-        tbody = `${tbody}
-                    <tr>
-                    <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
-                    <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
-                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
-                    </tr>`;
+function render_logging(log_list) {
+  if (log_list) {
+    let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
+    let tbody = "";
+    for (let log of log_list) {
+      let text = log.text;
+      const source = log.source;
+      const time = log.time;
+      const level = log.level;
+      let tcolor = '';
+      let bgcolor = '';
+      let tstyle = '-webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;';
+      if (level === "WARN") {
+        tcolor = "text-warning";
+        bgcolor = "bg-warning";
+      } else if (level === "ERROR") {
+        tcolor = "text-danger";
+        bgcolor = "bg-danger";
+      } else if (source === "System") {
+        tcolor = "text-info";
+        bgcolor = "bg-info";
+      } else {
+        tcolor = "text";
       }
-      let logging_table_obj = $("#logging_table");
-      let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
-      $("#logging_content").append(tbody);
-      if (bool_ToScrolTop) {
-        setTimeout(function () {
-          logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
-        }, 500);
+      if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
+        tstyle = `${tstyle} white-space: pre;`
+        text = text.replace(/\s到\s/, "\n=> ")
       }
+      if (text.includes("http") || text.includes("magnet")) {
+        tstyle = `${tstyle} word-break: break-all;`
+        text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
+      }
+      tbody = `${tbody}
+                  <tr>
+                  <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
+                  <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
+                  <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
+                  </tr>`;
     }
-    if ($("#modal-logging").is(":hidden") && flag) {
-      stop_logging();
+    let logging_table_obj = $("#logging_table");
+    let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
+    $("#logging_content").append(tbody);
+    if (bool_ToScrolTop) {
+      setTimeout(function () {
+        logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
+      }, 500);
     }
-    if (refresh_logging_flag === true) {
-      refresh_logging_timer = window.setTimeout("refresh_logging(true)", 2000);
-    }
-  }, true, false);
+  }
+  if ($("#modal-logging").is(":hidden")) {
+    RefreshLoggingFlag = false;
+  }
+  if (RefreshLoggingFlag) {
+    window.setTimeout("start_logging()", 1000);
+  }
 }
 
 //暂停实时日志
 function pause_logging() {
-  if (refresh_logging_flag === true) {
+  let btn = $("#logging_stop_btn")
+  if (btn.text() === "暂停") {
+    btn.text("开始")
     stop_logging();
-    $("#logging_stop_btn").text("开始")
   } else {
+    btn.text("暂停")
     start_logging();
-    $("#logging_stop_btn").text("暂停")
   }
 }
 
-//实时日志关闭
-$("#logging_close_btn").unbind("click").click(function () {
-  stop_logging();
-  // 清空日志
-  $("#logging_content").html("")
-  logger_source = ""
-});
-
-$("#logging_close_head").unbind("click").click(function () {
-  stop_logging();
-  // 清空日志
-  $("#logging_content").html("")
-  logger_source = ""
-});
-
 // 显示实时日志
 function show_logging_modal() {
-  start_logging();
+  $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
+  start_logging();
 }
 
 // 渲染日志来源下拉列表
@@ -234,46 +223,43 @@ function get_logging_source() {
 
 // 日志来源筛选
 function logger_select(source) {
-  logger_source = source
-  if (logger_source === "All") logger_source = "";
-
-  // 关闭之前的定时刷新日志
-  clearTimeout(refresh_logging_timer)
-
-  // 清空日志
+  LoggingSource = source
+  if (LoggingSource === "All"){
+    LoggingSource = "";
+  }
   $("#logging_content").html("")
-
-  // 重新拉取日志
-  refresh_logging()
 }
 
 //刷新消息中心
-function refresh_message(time_str) {
-  ajax_post("refresh_message", {"lst_time": time_str}, function (ret) {
-    if (ret.code === 0) {
-      let lst_time = ret.lst_time;
-      const msgs = ret.message;
-      for (let msg of msgs) {
-        let html_text = `<div class="list-group-item">
-              <div class="row align-items-center">
-                <div class="col-auto">
-                  <span class="status-dot ${msg.level} d-block"></span>
-                </div>
-                <div class="col text-truncate">
-                  <span class="text-wrap">${msg.title}</span>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
-                </div>
-              </div>
-            </div>`;
-        $("#system-messages").prepend(html_text);
-        if (time_str) {
-          browserNotification(msg.title, msg.content);
-        }
-      }
-      setTimeout("refresh_message('" + lst_time + "')", 10000);
+function render_message(ret) {
+  let lst_time = ret.lst_time;
+  const msgs = ret.message;
+  for (let msg of msgs) {
+    let html_text = `<div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="status-dot ${msg.level} d-block"></span>
+            </div>
+            <div class="col text-truncate">
+              <span class="text-wrap">${msg.title}</span>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
+            </div>
+          </div>
+        </div>`;
+    $("#system-messages").prepend(html_text);
+    if (!OldMessageFlag) {
+      browserNotification(msg.title, msg.content);
+    } else {
+      OldMessageFlag = false;
     }
-  }, true, false);
+  }
+  setTimeout("get_message('" + lst_time + "')", 3000);
+}
+
+//发送拉取消息的请求
+function get_message(lst_time) {
+  MessageWS.send(JSON.stringify({"lst_time": lst_time}));
 }
 
 //检查系统是否在线
@@ -388,7 +374,7 @@ function switch_cooperation_sites(obj) {
 
 // 刷新进度条
 function refresh_process(type) {
-  if (!refresh_process_flag) {
+  if (!RefreshProcessFlag) {
     return;
   }
   ajax_post("refresh_process", {type: type}, function (ret) {
@@ -396,9 +382,9 @@ function refresh_process(type) {
       $("#modal_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
       $("#modal_process_text").text(ret.text);
     } else {
-      refresh_fail_count = refresh_fail_count + 1;
+      RefreshFailCount = RefreshFailCount + 1;
     }
-    if (refresh_fail_count < 5) {
+    if (RefreshFailCount < 5) {
       setTimeout("refresh_process('" + type + "')", 200);
     }
   }, true, false);
@@ -415,14 +401,14 @@ function show_refresh_process(title, type) {
   $("#modal_process_text").text("请稍候...");
   $("#modal-process").modal("show");
   //刷新进度
-  refresh_process_flag = true;
-  refresh_fail_count = 0;
+  RefreshProcessFlag = true;
+  RefreshFailCount = 0;
   refresh_process(type);
 }
 
 // 关闭全局进度框
 function hide_refresh_process() {
-  refresh_process_flag = false;
+  RefreshProcessFlag = false;
   $("#modal-process").modal("hide");
 }
 
@@ -744,14 +730,14 @@ function add_rss_manual(flag) {
   }
   //订阅站点
   let rss_sites = select_GetSelectedVAL("rss_sites");
-  if (rss_sites.length === RSS_SITES_LENGTH) {
+  if (rss_sites.length === RssSitesLength) {
     rss_sites = [];
   }
   //搜索站点
   let search_sites = [];
   if (!fuzzy_match) {
     search_sites = select_GetSelectedVAL("search_sites");
-    if (search_sites.length === SEARCH_SITES_LENGTH) {
+    if (search_sites.length === SearchSitesLength) {
       search_sites = [];
     }
   }
@@ -960,8 +946,8 @@ function save_default_rss_setting() {
   const rss_sites = select_GetSelectedVAL("default_rss_sites");
   const search_sites = select_GetSelectedVAL("default_search_sites");
   const sites = {
-    rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
-    search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+    rss_sites: (rss_sites.length === RssSitesLength) ? [] : rss_sites,
+    search_sites: (search_sites.length === SearchSitesLength) ? [] : search_sites
   };
   const common = input_select_GetVal("modal-default-rss-setting", "default_rss_setting_");
   const key = common.mtype === "MOV" ? "DefaultRssSettingMOV" : "DefaultRssSettingTV";
@@ -1094,7 +1080,7 @@ function refresh_rsssites_select(obj_id, item_name, aync = true) {
     if (ret.code === 0) {
       let rsssites_select = $(`#${obj_id}`);
       let rsssites_select_content = "";
-      RSS_SITES_LENGTH = ret.sites.length;
+      RssSitesLength = ret.sites.length;
       if (ret.sites.length > 0) {
         rsssites_select.parent().parent().show();
       } else {
@@ -1118,7 +1104,7 @@ function refresh_searchsites_select(obj_id, item_name, aync = true) {
     if (ret.code === 0) {
       let searchsites_select = $(`#${obj_id}`);
       let searchsites_select_content = "";
-      SEARCH_SITES_LENGTH = ret.indexers.length;
+      SearchSitesLength = ret.indexers.length;
       if (ret.indexers.length > 0) {
         searchsites_select.parent().parent().show();
       } else {
@@ -1275,7 +1261,7 @@ function show_download_modal(id, name, site = undefined, func = undefined, show_
     $("#search_download_btn").unbind("click").click(download_link);
   }
   // 清空
-  torrent_dropzone.removeAllFiles();
+  TorrentDropZone.removeAllFiles();
 
   $("#modal-search-download").modal('show');
 }
@@ -1468,7 +1454,7 @@ function media_name_test_ui(data, result_div) {
 function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
   // 初始化类型
   if (!syncmod) {
-    syncmod = default_transfer_mode;
+    syncmod = DefaultTransferMode;
   }
   let source = CURRENT_PAGE_URI;
   $("#rename_source").val(source);
@@ -1481,7 +1467,7 @@ function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, un
     if (inpath) {
       $("#rename_inpath").val(inpath);
     } else {
-      $("#rename_inpath").val(default_path);
+      $("#rename_inpath").val(DefaultPath);
     }
     $("#rename_outpath").val('');
     $("#rename_syncmod_customize").val(syncmod);

@@ -66,7 +66,6 @@ class WebAction:
             "rename": self.__rename,
             "rename_udf": self.__rename_udf,
             "delete_history": self.delete_history,
-            "logging": self.__logging,
             "version": self.__version,
             "update_site": self.__update_site,
             "get_site": self.__get_site,
@@ -89,7 +88,6 @@ class WebAction:
             "test_connection": self.__test_connection,
             "user_manager": self.__user_manager,
             "refresh_rss": self.__refresh_rss,
-            "refresh_message": self.__refresh_message,
             "delete_tmdb_cache": self.__delete_tmdb_cache,
             "movie_calendar_data": self.__movie_calendar_data,
             "tv_calendar_data": self.__tv_calendar_data,
@@ -1042,37 +1040,6 @@ class WebAction:
             return True, f"{file} 删除失败"
 
     @staticmethod
-    def __logging(data):
-        """
-        查询实时日志
-        """
-        log_list = []
-        refresh_new = data.get('refresh_new')
-        source = data.get('source')
-
-        if not source:
-            if not refresh_new:
-                log_list = list(log.LOG_QUEUE)
-            elif log.LOG_INDEX:
-                if log.LOG_INDEX > len(log.LOG_QUEUE):
-                    log_list = list(log.LOG_QUEUE)
-                else:
-                    log_list = list(log.LOG_QUEUE[-log.LOG_INDEX:])
-            log.LOG_INDEX = 0
-        else:
-            for message in log.LOG_QUEUE:
-                if str(message.get("source")) == source:
-                    log_list.append(message)
-                else:
-                    continue
-            if refresh_new:
-                if int(refresh_new) < len(log_list):
-                    log_list = log_list[int(refresh_new):]
-                elif int(refresh_new) >= len(log_list):
-                    log_list = []
-        return {"loglist": log_list}
-
-    @staticmethod
     def __version(data):
         """
         检查新版本
@@ -1750,27 +1717,6 @@ class WebAction:
             "message": messages,
             "lst_time": lst_time
         }
-
-    def __refresh_message(self, data):
-        """
-        刷新首页消息中心
-        """
-        lst_time = data.get("lst_time")
-        system_msg = self.get_system_message(lst_time=lst_time)
-        messages = system_msg.get("message")
-        lst_time = system_msg.get("lst_time")
-        ret_messages = []
-        for message in list(reversed(messages)):
-            content = re.sub(r"#+", "<br>",
-                             re.sub(r"<[^>]+>", "",
-                                    re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
-            ret_messages.append({
-                "level": "bg-red" if message.get("level") == "ERROR" else "",
-                "title": message.get("title"),
-                "content": content,
-                "time": message.get("time")
-            })
-        return {"code": 0, "message": ret_messages, "lst_time": lst_time}
 
     @staticmethod
     def __delete_tmdb_cache(data):
