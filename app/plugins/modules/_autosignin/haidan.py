@@ -49,8 +49,8 @@ class HaiDan(_ISiteSigninHandler):
         sign_status = self.sign_in_result(html_res=sign_res.text,
                                           regexs=self._succeed_regex)
         if sign_status:
-            self.info(f"今日已签到")
-            return True, f'【{site}】今日已签到'
+            self.info(f"签到成功")
+            return True, f'【{site}】签到成功'
 
         self.error(f"签到失败，签到接口返回 {sign_res.text}")
         return False, f'【{site}】签到失败'

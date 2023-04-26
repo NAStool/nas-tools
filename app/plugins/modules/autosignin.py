@@ -61,6 +61,7 @@ class AutoSignIn(_IPluginModule):
     _special_sites = None
     _onlyonce = False
     _notify = False
+    _clean = False
 
     @staticmethod
     def get_fields():
@@ -91,6 +92,13 @@ class AutoSignIn(_IPluginModule):
                             'tooltip': '打开后立即运行一次',
                             'type': 'switch',
                             'id': 'onlyonce',
+                        },
+                        {
+                            'title': '清理缓存',
+                            'required': "",
+                            'tooltip': '清理本日已签到',
+                            'type': 'switch',
+                            'id': 'clean',
                         }
                     ]
                 ]
@@ -184,6 +192,7 @@ class AutoSignIn(_IPluginModule):
             self._notify = config.get("notify")
             self._queue_cnt = config.get("queue_cnt")
             self._onlyonce = config.get("onlyonce")
+            self._clean = config.get("clean")
 
         # 启动服务
         if self._enabled or self._onlyonce:
@@ -238,7 +247,7 @@ class AutoSignIn(_IPluginModule):
         }
 
     @EventHandler.register(EventType.SiteSignin)
-    def sign_in(self, event=None):
+    def sign_in(self):
         """
         自动签到
         """
@@ -253,7 +262,7 @@ class AutoSignIn(_IPluginModule):
         today = today.strftime('%Y-%m-%d')
         today_history = self.get_history(key=today)
         # 今日没数据
-        if not today_history:
+        if not today_history or self._clean:
             sign_sites = self._sign_sites
             self.info(f"今日 {today} 未签到，开始签到已选站点")
         else:
@@ -263,8 +272,8 @@ class AutoSignIn(_IPluginModule):
             already_sign_sites = today_history['sign']
             # 今日未签站点
             no_sign_sites = [site_id for site_id in self._sign_sites if site_id not in already_sign_sites]
-            # 签到站点 = 需要重签+今日未签
-            sign_sites = list(set(retry_sites + no_sign_sites))
+            # 签到站点 = 需要重签+今日未签+特殊站点
+            sign_sites = list(set(retry_sites + no_sign_sites + self._special_sites))
             if sign_sites:
                 self.info(f"今日 {today} 已签到，开始重签重试站点、特殊站点、未签站点")
             else:
@@ -300,12 +309,6 @@ class AutoSignIn(_IPluginModule):
                             if site_id:
                                 self.debug(f"站点 {site_names[0]} 命中重试关键词 {self._retry_keyword}")
                                 retry_sites.append(str(site_id))
-
-                # 签到站点加入特殊站点
-                retry_sites = retry_sites + self._special_sites
-                # 站点去重
-                if retry_sites:
-                    retry_sites = list(set(retry_sites))
             else:
                 # 没设置重试关键词则重试已选站点
                 retry_sites = self._sign_sites
@@ -330,7 +333,7 @@ class AutoSignIn(_IPluginModule):
                 # 签到汇总信息
                 self.send_message(title="【自动签到任务完成】",
                                   text=f"本次签到站点数量: {len(sign_sites)} \n"
-                                       f"下次签到数量: {len(retry_sites)} \n"
+                                       f"下次签到数量: {len(retry_sites + self._special_sites)} \n"
                                        f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
