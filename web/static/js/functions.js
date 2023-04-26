@@ -243,6 +243,7 @@ function render_message(ret) {
           </div>
         </div>`;
     $("#system-messages").prepend(html_text);
+    $(".offcanvas-body").animate({scrollTop:0}, 300);
     if (!OldMessageFlag) {
       browserNotification(msg.title, msg.content);
     } else {
@@ -1727,4 +1728,5 @@ function send_web_message(obj) {
         </div>
       </div>
     </div>`);
+  $(".offcanvas-body").animate({scrollTop:0}, 300);
 }

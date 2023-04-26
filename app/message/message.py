@@ -158,8 +158,8 @@ class Message(object):
         :return: 发送状态、错误信息
         """
         # 插入消息中心
-        self.messagecenter.insert_system_message(title=title, content=text)
         if channel == SearchType.WEB:
+            self.messagecenter.insert_system_message(title=title, content=text)
             return True
         # 发送消息
         client = self._active_interactive_clients.get(channel)
@@ -198,6 +198,14 @@ class Message(object):
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
+        if channel == SearchType.WEB:
+            texts = []
+            index = 1
+            for media in medias:
+                texts.append(f"{index}. {media.get_title_string()}，{media.get_vote_string()}")
+                index += 1
+            self.messagecenter.insert_system_message(title=title, content="\n".join(texts))
+            return True
         client = self._active_interactive_clients.get(channel)
         if client:
             state = self.__send_list_msg(client=client,
