@@ -1176,16 +1176,27 @@
       LoggingWS = new WebSocket('ws://' + window.location.host + '/logging');
       LoggingWS.onmessage = function (event) {
         render_logging(JSON.parse(event.data))
-      }
-      // WebSocket刷新消息
-      MessageWS = new WebSocket('ws://' + window.location.host + '/message');
-      MessageWS.onmessage = function (event) {
-        render_message(JSON.parse(event.data))
-      }
-      MessageWS.onopen = function (event) {
-        get_message('');
-      }
+      };
+      LoggingWS.onclose = function() {
+        console.log('Logging Connection closed');
+        LoggingWS = new WebSocket('ws://' + window.location.host + '/logging');
+        console.log('Logging Connection Reopen');
+      };
     {% endif %}
+
+    // WebSocket刷新消息
+    MessageWS = new WebSocket('ws://' + window.location.host + '/message');
+    MessageWS.onmessage = function (event) {
+      render_message(JSON.parse(event.data))
+    };
+    MessageWS.onclose = function() {
+      console.log('Message Connection closed');
+      MessageWS = new WebSocket('ws://' + window.location.host + '/message');
+      console.log('Message Connection Reopen');
+    };
+    MessageWS.onopen = function (event) {
+      get_message('');
+    };
 
     {% if not TMDBFlag %}
       // 检查tmdb配置
