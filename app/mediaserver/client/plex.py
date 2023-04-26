@@ -105,7 +105,7 @@ class Plex(_IMediaClient):
             return []
         ret_array = []
         try:
-            # type的含义: 1 电影 4 剧集单集
+            # type的含义: 1 电影 4 剧集单集 详见 plexapi/utils.py中SEARCHTYPES的定义
             # 根据最后播放时间倒序获取数据
             historys = self._plex.library.search(sort='lastViewedAt:desc', limit=num, type='1,4')
             for his in historys:
@@ -315,10 +315,10 @@ class Plex(_IMediaClient):
             match library.type:
                 case "movie":
                     library_type = MediaType.MOVIE.value
-                    image_list_str = self.get_libraries_image(library.key)
+                    image_list_str = self.get_libraries_image(library.key, 1)
                 case "show":
                     library_type = MediaType.TV.value
-                    image_list_str = self.get_libraries_image(library.key)
+                    image_list_str = self.get_libraries_image(library.key, 2)
                 case _:
                     continue
             libraries.append({
@@ -333,12 +333,18 @@ class Plex(_IMediaClient):
         return libraries
 
     @lru_cache(maxsize=10)
-    def get_libraries_image(self, library_key):
+    def get_libraries_image(self, library_key, type):
+        """
+        获取媒体服务器最近添加的媒体的图片列表
+        param: library_key
+        param: type type的含义: 1 电影 2 剧集 详见 plexapi/utils.py中SEARCHTYPES的定义
+        """
         if not self._plex:
             return ""
-        library = self._plex.library.sectionByID(library_key)
         # 担心有些没图片,多获取几个
-        items = library.recentlyAdded(maxresults=8)
+        items = self._plex.fetchItems(f"/hubs/home/recentlyAdded?type={type}&sectionID={library_key}",
+                                      container_size=8,
+                                      container_start=0)
         poster_urls = []
         for item in items:
             if item.posterUrl is not None:
@@ -493,12 +499,7 @@ class Plex(_IMediaClient):
         """
         if not self._plex:
             return []
-        items = self._plex.library.search(**{
-            'sort': 'lastViewedAt:desc',  # 按最后观看时间排序
-            'type': '1,4',  # 1 电影 4 剧集单集
-            'viewOffset!': '0',  # 播放进度不等于0的
-            'limit': num  # 限制结果数量
-        })
+        items = self._plex.fetchItems('/hubs/continueWatching/items', container_start=0, container_size=num)
         ret_resume = []
         for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
@@ -526,9 +527,9 @@ class Plex(_IMediaClient):
         """
         if not self._plex:
             return []
-        items = self._plex.library.recentlyAdded()
+        items = self._plex.fetchItems('/library/recentlyAdded', container_start=0, container_size=num)
         ret_resume = []
-        for item in items[:num]:
+        for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
             link = self.get_play_url(item.key)
             title = item.title if item_type == MediaType.MOVIE.value else \
