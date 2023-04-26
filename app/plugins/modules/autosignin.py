@@ -434,6 +434,10 @@ class AutoSignIn(_IPluginModule):
                             if not cloudflare:
                                 self.info("%s 仿真签到失败，无法通过Cloudflare" % site)
                                 return f"【{site}】仿真签到失败，无法通过Cloudflare！"
+
+                        # 判断是否已签到   [签到已得125, 补签卡: 0]
+                        if re.search(r'已签|签到已得', chrome.get_html(), re.IGNORECASE):
+                            return f"【{site}】签到成功"
                         self.info("%s 仿真签到成功" % site)
                         return f"【{site}】仿真签到成功"
                 except Exception as e:
