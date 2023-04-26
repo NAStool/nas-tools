@@ -209,7 +209,7 @@ function pause_logging() {
 function show_logging_modal() {
   $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
-  start_logging();
+  setTimeout("start_logging()", 1000);
 }
 
 // 渲染日志来源下拉列表
