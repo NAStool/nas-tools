@@ -1764,12 +1764,17 @@ function search_tmdbid_by_name(keyid, resultid) {
 
 //WEB页面发送消息
 function send_web_message(obj) {
-  let text = $(obj).val();
-  if (!text) {
+  if (!obj) {
     return
   }
-  // 清空输入框
-  $(obj).val("");
+  let text;
+  // 如果是jQuery对像
+  if (obj instanceof jQuery) {
+    text = obj.val();
+    obj.val("");
+  } else {
+    text = obj;
+  }
   // 消息交互
   MessageWS.send(JSON.stringify({"text": text}));
   // 显示自己发送的消息

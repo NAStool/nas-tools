@@ -113,9 +113,19 @@
     </div>
     <div class="mt-3 w-100 position-absolute mb-2 pe-2" align="center" style="bottom: calc(env(safe-area-inset-bottom))">
       <div class="input-group">
+        <button type="button" class="btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          /
+        </button>
+        <div class="dropdown-menu" data-popper-placement="bottom-start">
+          {% for Command in Commands %}
+          <a class="dropdown-item" href="javascript:send_web_message('{{ Command.id }}')">
+            {{ Command.name }}
+          </a>
+          {% endfor %}
+        </div>
         <input type="text" id="message_center_input" class="form-control" autocomplete="off" placeholder="输入消息或命令..."
-            onkeydown="if(event.keyCode==13) send_web_message(this)">
-        <button class="btn btn-primary" type="button" onclick="send_web_message('#message_center_input')">发送</button>
+            onkeydown="if(event.keyCode==13) send_web_message($(this))">
+        <button class="btn btn-primary" type="button" onclick="send_web_message($('#message_center_input'))">发送</button>
       </div>
     </div>
   </div>

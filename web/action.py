@@ -50,8 +50,10 @@ from web.backend.web_utils import WebUtils
 
 class WebAction:
     _actions = {}
+    _commands = {}
 
     def __init__(self):
+        # WEB请求响应
         self._actions = {
             "sch": self.__sch,
             "search": self.__search,
@@ -231,6 +233,19 @@ class WebAction:
             "iyuu_bind_site": self.iyuu_bind_site,
             "run_plugin_method": self.run_plugin_method,
         }
+        # 远程命令响应
+        self._commands = {
+            "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desc": "自动删种"},
+            "/ptt": {"func": Downloader().transfer, "desc": "下载文件转移"},
+            "/rst": {"func": Sync().transfer_sync, "desc": "目录同步"},
+            "/rss": {"func": Rss().rssdownload, "desc": "电影/电视剧订阅"},
+            "/ssa": {"func": Subscribe().subscribe_search_all, "desc": "订阅搜索"},
+            "/tbl": {"func": self.truncate_blacklist, "desc": "清理转移缓存"},
+            "/trh": {"func": self.truncate_rsshistory, "desc": "清理RSS缓存"},
+            "/utf": {"func": self.unidentification, "desc": "重新识别"},
+            "/udt": {"func": self.update_system, "desc": "系统更新"},
+            "/sta": {"func": self.user_statistics, "desc": "站点数据统计"}
+        }
 
     def action(self, cmd, data=None):
         func = self._actions.get(cmd)
@@ -337,18 +352,6 @@ class WebAction:
         """
         if not msg:
             return
-        commands = {
-            "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desc": "自动删种"},
-            "/ptt": {"func": Downloader().transfer, "desc": "下载文件转移"},
-            "/rst": {"func": Sync().transfer_sync, "desc": "目录同步"},
-            "/rss": {"func": Rss().rssdownload, "desc": "电影/电视剧订阅"},
-            "/ssa": {"func": Subscribe().subscribe_search_all, "desc": "订阅搜索"},
-            "/tbl": {"func": self.truncate_blacklist, "desc": "清理转移缓存"},
-            "/trh": {"func": self.truncate_rsshistory, "desc": "清理RSS缓存"},
-            "/utf": {"func": self.unidentification, "desc": "重新识别"},
-            "/udt": {"func": self.update_system, "desc": "系统更新"},
-            "/sta": {"func": self.user_statistics, "desc": "站点数据统计"}
-        }
 
         # 触发MessageIncoming事件
         EventManager().send_event(EventType.MessageIncoming, {
@@ -360,7 +363,7 @@ class WebAction:
         })
 
         # 系统内置命令
-        command = commands.get(msg)
+        command = self._commands.get(msg)
         if command:
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
@@ -5137,3 +5140,9 @@ class WebAction:
         data.pop("method")
         result = PluginManager().run_plugin_method(pid=plugin_id, method=method, **data)
         return {"code": 0, "result": result}
+
+    def get_commands(self):
+        """
+        获取命令列表
+        """
+        return [{"id": cid, "name": cmd.get("desc")} for cid, cmd in self._commands.items()]

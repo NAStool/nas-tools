@@ -211,6 +211,7 @@ def web():
     CustomScriptCfg = SystemConfig().get(SystemConfigKey.CustomScript)
     CooperationSites = current_user.get_authsites()
     Menus = WebAction().get_user_menus().get("menus") or []
+    Commands = WebAction().get_commands()
     return render_template('navigation.html',
                            GoPage=GoPage,
                            CurrentUser=current_user,
@@ -227,7 +228,8 @@ def web():
                            CustomScriptCfg=CustomScriptCfg,
                            CooperationSites=CooperationSites,
                            DefaultPath=DefaultPath,
-                           Menus=Menus)
+                           Menus=Menus,
+                           Commands=Commands)
 
 
 # 开始
