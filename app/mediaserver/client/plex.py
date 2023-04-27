@@ -1,5 +1,6 @@
+import os
 from functools import lru_cache
-
+from urllib.parse import quote_plus
 import log
 from app.mediaserver.client._base import _IMediaClient
 from app.utils import ExceptionUtils
@@ -291,11 +292,51 @@ class Plex(_IMediaClient):
 
     def refresh_library_by_items(self, items):
         """
-        按类型、名称、年份来刷新媒体库，未找到对应的API，直接刷整个库
+        按路径刷新媒体库
         """
         if not self._plex:
             return False
-        return self._plex.library.update()
+        # _libraries可能未初始化,初始化一下
+        if not self._libraries:
+            try:
+                self._libraries = self._plex.library.sections()
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+        result_dict = {}
+        for item in items:
+            file_path = item.get("file_path")
+            lib_key, path = self.__find_librarie(file_path, self._libraries)
+            # 如果存在同一剧集的多集,key(path)相同会合并
+            result_dict[path] = lib_key
+        if "" in result_dict:
+            # 如果有匹配失败的,刷新整个库
+            self._plex.library.update()
+        else:
+            # 否则一个一个刷新
+            for path, lib_key in result_dict.items():
+                log.info(f"【{self.client_name}】刷新媒体库：{lib_key} : {path}")
+                self._plex.query(f'/library/sections/{lib_key}/refresh?path={quote_plus(path)}')
+
+    @staticmethod
+    def __find_librarie(path, libraries):
+        """
+        判断这个path属于哪个媒体库
+        多个媒体库配置的目录不应有重复和嵌套,
+        使用os.path.commonprefix([path, location]) == location应该没问题
+        """
+        if path is None:
+            return "", ""
+        # 只要路径,不要文件名
+        dir_path = os.path.dirname(path)
+        try:
+            for lib in libraries:
+                if hasattr(lib, "locations") and lib.locations:
+                    for location in lib.locations:
+                        if os.path.commonprefix([dir_path, location]) == location:
+                            return lib.key, dir_path
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+        return "", ""
 
     def get_libraries(self):
         """
