@@ -306,6 +306,7 @@ class Plex(_IMediaClient):
         for item in items:
             file_path = item.get("file_path")
             lib_key, path = self.__find_librarie(file_path, self._libraries)
+            # 如果存在同一剧集的多集,key(path)相同会合并
             result_dict[path] = lib_key
         if "" in result_dict:
             # 如果有匹配失败的,刷新整个库
