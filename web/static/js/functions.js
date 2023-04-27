@@ -131,20 +131,10 @@ function hide_wait_modal() {
 
 // 连接日志服务
 function connect_logging() {
-  LoggingWS = new WebSocket(WSProtocol + window.location.host + '/logging');
+  LoggingWS = new ReconnectingWebSocket(WSProtocol + window.location.host + '/logging');
   LoggingWS.onmessage = function (event) {
     render_logging(JSON.parse(event.data))
   };
-  LoggingWS.onclose = function(event) {
-    setTimeout(function() {
-      connect_logging();
-    }, 2000);
-  };
-  LoggingWS.onerror = function(event) {
-    setTimeout(function() {
-      connect_logging();
-    }, 2000);
-  }
 }
 
 // 发送刷新日志请求
@@ -251,20 +241,10 @@ function logger_select(source) {
 
 // 连接消息服务
 function connect_message() {
-  MessageWS = new WebSocket(WSProtocol + window.location.host + '/message');
+  MessageWS = new ReconnectingWebSocket(WSProtocol + window.location.host + '/message');
   MessageWS.onmessage = function (event) {
     render_message(JSON.parse(event.data))
   };
-  MessageWS.onclose = function(event) {
-    setTimeout(function() {
-      connect_message();
-    }, 2000);
-  };
-  MessageWS.onerror = function(event) {
-    setTimeout(function() {
-      connect_message();
-    }, 2000);
-  }
   MessageWS.onopen = function (event) {
     get_message('');
   };
