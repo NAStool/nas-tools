@@ -1,5 +1,6 @@
 import random
 import re
+import datetime
 
 from lxml import etree
 
@@ -45,6 +46,12 @@ class U2(_ISiteSigninHandler):
         ua = site_info.get("ua")
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
+        now = datetime.datetime.now()
+        # 判断当前时间是否小于9点
+        if now.hour < 9:
+            self.error(f"签到失败，9点前不签到")
+            return False, f'【{site}】签到失败，9点前不签到'
+        
         # 获取页面html
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
