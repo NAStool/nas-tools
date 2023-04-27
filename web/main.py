@@ -1660,7 +1660,13 @@ def logging_handler(ws):
     source = ""
     while True:
         message = ws.receive()
-        _source = json.loads(message).get("source")
+        if not message:
+            continue
+        try:
+            _source = json.loads(message).get("source")
+        except Exception as err:
+            print(str(err))
+            continue
         if _source != source:
             log.LOG_INDEX = len(log.LOG_QUEUE)
             source = _source
@@ -1682,7 +1688,13 @@ def message_handler(ws):
     """
     while True:
         data = ws.receive()
-        msgbody = json.loads(data)
+        if not data:
+            continue
+        try:
+            msgbody = json.loads(data)
+        except Exception as err:
+            print(str(err))
+            continue
         if msgbody.get("text"):
             # 发送的消息
             WebAction().handle_message_job(msg=msgbody.get("text"),
