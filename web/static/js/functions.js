@@ -264,7 +264,7 @@ function render_message(ret) {
             </div>
             <div class="col text-truncate">
               <span class="text-wrap">${msg.title}</span>
-              <div class="d-block text-muted text-truncate mt-n1 text-wrap" title="${msg.content}">${msg.content}</div>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
               <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
             </div>
           </div>
