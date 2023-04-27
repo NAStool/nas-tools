@@ -30,6 +30,11 @@ let LoggingWS;
 let OldMessageFlag = true;
 // 消息WebSocket
 let MessageWS;
+// 当前协议
+let WSProtocol = "ws://";
+if (window.location.protocol === "https:") {
+  WSProtocol = "wss://"
+}
 
 
 /**
@@ -83,11 +88,11 @@ function navmenu(page, newflag = false) {
         // 刷新filetree控件
         init_filetree_element();
       }
-      if (page !== CURRENT_PAGE_URI) {
+      if (page !== CurrentPageUri) {
         // 切换页面时滚动到顶部
         $(window).scrollTop(0);
         // 记录当前页面ID
-        CURRENT_PAGE_URI = page;
+        CurrentPageUri = page;
       }
       // 并记录当前历史记录
       window_history(!newflag);
@@ -124,12 +129,30 @@ function hide_wait_modal() {
   $("#modal-wait").modal("hide");
 }
 
-//发送刷新日志请求
+// 连接日志服务
+function connect_logging() {
+  LoggingWS = new WebSocket(WSProtocol + window.location.host + '/logging');
+  LoggingWS.onmessage = function (event) {
+    render_logging(JSON.parse(event.data))
+  };
+  LoggingWS.onclose = function(event) {
+    setTimeout(function() {
+      connect_logging();
+    }, 2000);
+  };
+  LoggingWS.onerror = function(event) {
+    setTimeout(function() {
+      connect_logging();
+    }, 2000);
+  }
+}
+
+// 发送刷新日志请求
 function get_logging() {
   LoggingWS.send(JSON.stringify({"source": LoggingSource}));
 }
 
-//刷新日志
+// 刷新日志
 function render_logging(log_list) {
   if (log_list) {
     let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
@@ -186,7 +209,7 @@ function render_logging(log_list) {
   }
 }
 
-//暂停实时日志
+// 暂停实时日志
 function pause_logging() {
   let btn = $("#logging_stop_btn")
   if (btn.text() === "暂停") {
@@ -201,8 +224,12 @@ function pause_logging() {
 
 // 显示实时日志
 function show_logging_modal() {
+  // 显示窗口
   $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
+  // 连接日志服务
+  connect_logging();
+  // 开始获取日志
   RefreshLoggingFlag = true;
   setTimeout("get_logging()", 1000);
 }
@@ -225,7 +252,29 @@ function logger_select(source) {
   $("#logging_content").html("")
 }
 
-//刷新消息中心
+// 连接消息服务
+function connect_message() {
+  MessageWS = new WebSocket(WSProtocol + window.location.host + '/message');
+  MessageWS.onmessage = function (event) {
+    render_message(JSON.parse(event.data))
+  };
+  MessageWS.onclose = function(event) {
+    setTimeout(function() {
+      connect_message();
+    }, 2000);
+  };
+  MessageWS.onerror = function(event) {
+    setTimeout(function() {
+      connect_message();
+    }, 2000);
+  }
+  MessageWS.onopen = function (event) {
+    get_message('');
+  };
+
+}
+
+// 刷新消息中心
 function render_message(ret) {
   let lst_time = ret.lst_time;
   const msgs = ret.message;
@@ -778,7 +827,7 @@ function add_rss_manual(flag) {
   $("#modal-manual-rss").modal("hide");
   ajax_post("add_rss_media", data, function (ret) {
     if (ret.code === 0) {
-      if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+      if (CurrentPageUri.startsWith("tv_rss") || CurrentPageUri.startsWith("movie_rss")) {
         window_history_refresh();
       } else {
         show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！");
@@ -787,7 +836,7 @@ function add_rss_manual(flag) {
         show_add_rss_media_modal(mtype);
       }
     } else {
-      if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+      if (CurrentPageUri.startsWith("tv_rss") || CurrentPageUri.startsWith("movie_rss")) {
         show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`, function () {
           $("#modal-manual-rss").modal("show");
         });
@@ -820,9 +869,9 @@ function change_over_edition_check(obj) {
 function remove_rss_manual(type, name, year, rssid) {
   $("#modal-manual-rss").modal('hide');
   let page;
-  if (CURRENT_PAGE_URI.startsWith("tv_rss")) {
+  if (CurrentPageUri.startsWith("tv_rss")) {
     page = "tv_rss";
-  } else if (CURRENT_PAGE_URI.startsWith("movie_rss")) {
+  } else if (CurrentPageUri.startsWith("movie_rss")) {
     page = "movie_rss";
   } else {
     page = undefined
@@ -1456,7 +1505,7 @@ function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, un
   if (!syncmod) {
     syncmod = DefaultTransferMode;
   }
-  let source = CURRENT_PAGE_URI;
+  let source = CurrentPageUri;
   $("#rename_source").val(source);
   $("#rename_manual_type").val(manual_type);
   if (manual_type === 3) {
@@ -1743,4 +1792,10 @@ function send_web_message(obj) {
     </div>`);
   // 滚动到顶部
   $(".offcanvas-body").animate({scrollTop:0}, 300);
+}
+
+// 初始化DropZone
+function init_dropzone() {
+  TorrentDropZone = new Dropzone("#torrent_files");
+  TorrentDropZone.options.acceptedFiles = ".torrent";
 }

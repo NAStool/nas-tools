@@ -1124,8 +1124,7 @@
     </div>
   </div>
 </div>
-<cmd-dialog theme="light">
-</cmd-dialog>
+<cmd-dialog theme="light"></cmd-dialog>
 <!-- 载入tabler组件 -->
 <script src="../static/js/tabler/tabler.min.js"></script>
 <script src="../static/js/tabler/libs/dropzone-min.js"></script>
@@ -1142,6 +1141,7 @@
 
   // 页面初始事件
   $(document).ready(function () {
+
     // 监听页面状态
     window.addEventListener('popstate', function(e) {
         if (e.state) {
@@ -1149,7 +1149,7 @@
           if (e.state.CurrentPage) {
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
-          CURRENT_PAGE_URI = e.state.page;
+          CurrentPageUri = e.state.page;
           document.querySelector("#navbar-menu").update_active();
           $(window).unbind('scroll');
           document.title = e.state.title;
@@ -1159,9 +1159,6 @@
         }
     });
 
-    // TomSelect下拉框
-    init_tomselect();
-
     // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
     $('body').on('click', 'span[data-bs-toggle="tooltip"]', function (e) {
       e.preventDefault();
@@ -1169,52 +1166,28 @@
     });
 
     // 全局变量默认值
-    TorrentDropZone = new Dropzone("#torrent_files");
-    TorrentDropZone.options.acceptedFiles = ".torrent";
     DefaultTransferMode = '{{ SyncMod }}';
     DefaultPath = "{{ DefaultPath }}";
 
-    // 当前协议
-    let protocol = "ws://";
-    if (window.location.protocol === "https:") {
-      protocol = "wss://"
-    }
+    // TomSelect下拉框
+    init_tomselect();
 
-    {% if "系统设置" in CurrentUser.pris %}
-      // WebSocket刷新日志
-      LoggingWS = new WebSocket(protocol + window.location.host + '/logging');
-      LoggingWS.onmessage = function (event) {
-        render_logging(JSON.parse(event.data))
-      };
-      LoggingWS.onclose = function() {
-        console.log('Logging Connection closed');
-        LoggingWS = new WebSocket(protocol + window.location.host + '/logging');
-        console.log('Logging Connection Reopen');
-      };
-    {% endif %}
+    // Dropzone配置
+    init_dropzone();
 
-    // WebSocket刷新消息
-    MessageWS = new WebSocket(protocol + window.location.host + '/message');
-    MessageWS.onmessage = function (event) {
-      render_message(JSON.parse(event.data))
-    };
-    MessageWS.onclose = function() {
-      console.log('Message Connection closed');
-      MessageWS = new WebSocket(protocol + window.location.host + '/message');
-      console.log('Message Connection Reopen');
-    };
-    MessageWS.onopen = function (event) {
-      get_message('');
-    };
+    // WebSocket刷新消息中心
+    connect_message();
 
     {% if not TMDBFlag %}
       // 检查tmdb配置
       show_init_alert_modal();
     {% elif current_user.level == 1 %}
+      // 用户认证
       show_user_auth_modal();
     {% endif %}
 
   });
+
 </script>
 
 <!-- KBar -->
