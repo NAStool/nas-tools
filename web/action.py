@@ -2090,7 +2090,8 @@ class WebAction:
         meta_info.size = float(size) * 1024 ** 3 if size else 0
         match_flag, res_order, match_msg = \
             Filter().check_torrent_filter(meta_info=meta_info,
-                                          filter_args={"rule": rulegroup})
+                                          filter_args={"rule": rulegroup},
+                                          donthave_original_language=True)
         if match_flag:
             # 重新查询TMDB以适配原始语言过滤
             media_info = Media().get_media_info(title=title)
@@ -2103,7 +2104,8 @@ class WebAction:
             "code": 0,
             "flag": match_flag,
             "text": "匹配" if match_flag else "未匹配",
-            "order": 100 - res_order if res_order else 0
+            "order": 100 - res_order if res_order else 0,
+            "original_language": f"原始语言：{meta_info.original_language}" if meta_info.original_language else False
         }
 
     @staticmethod

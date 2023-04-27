@@ -238,7 +238,7 @@ class RssChecker(object):
                                           mtype=mediatype)
                     cache_info = self.media.get_cache_info(media_info)
                     if taskinfo.get("recognization") == "Y":
-                        if cache_info.get("id") and cache_info.get("original_language") is not None:
+                        if cache_info.get("id") and cache_info.get("original_language"):
                             # 有缓存，直接使用缓存
                             media_info.tmdb_id = cache_info.get("id")
                             media_info.type = cache_info.get("type")
@@ -584,7 +584,7 @@ class RssChecker(object):
         # 识别种子名称，开始搜索TMDB
         media_info = MetaInfo(title=title)
         cache_info = self.media.get_cache_info(media_info)
-        if cache_info.get("id") and cache_info.get("original_language") is not None:
+        if cache_info.get("id") and cache_info.get("original_language"):
             # 有缓存，直接使用缓存
             media_info.tmdb_id = cache_info.get("id")
             media_info.type = cache_info.get("type")

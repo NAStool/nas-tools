@@ -708,7 +708,7 @@ class BrushTask(object):
                 # 识别种子名称，开始搜索TMDB以适配原始语言过滤
                 media_info = MetaInfo(title=title)
                 cache_info = self.media.get_cache_info(media_info)
-                if cache_info.get("id"):
+                if cache_info.get("id") and cache_info.get("original_language"):
                     # 使用缓存信息
                     meta_original_language = cache_info.get("original_language")
                 else:
@@ -723,6 +723,8 @@ class BrushTask(object):
                             return False
                     elif rule_original_language[:2] != meta_original_language[:2]:
                         return False
+                else:
+                    return False
 
             # 检查包含规则
             if rss_rule.get("include"):

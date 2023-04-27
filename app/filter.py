@@ -98,11 +98,12 @@ class Filter:
         first_order = min([int(rule_info.get("pri")) for rule_info in self.get_rules(groupid=rulegroup)] or [0])
         return 100 - first_order
 
-    def check_rules(self, meta_info, rulegroup=None):
+    def check_rules(self, meta_info, rulegroup=None, donthave_original_language=False):
         """
         检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
         :param meta_info: 识别的信息
         :param rulegroup: 规则组ID
+        :param donthave_original_language: 是否忽略原始语言过滤
         :return: 是否匹配，匹配的优先值，规则名称，值越大越优先
         """
         if not meta_info:
@@ -143,6 +144,8 @@ class Filter:
                                 rule_match = False
                         elif rule_original_language[:2] != meta_original_language[:2]:
                             rule_match = False
+                    elif not donthave_original_language:
+                        rule_match = False
                 # 必须包括的项
                 includes = filter_info.get('include')
                 if includes and rule_match:
@@ -262,13 +265,15 @@ class Filter:
                              meta_info,
                              filter_args,
                              uploadvolumefactor=None,
-                             downloadvolumefactor=None):
+                             downloadvolumefactor=None,
+                             donthave_original_language=False):
         """
         对种子进行过滤
         :param meta_info: 名称识别后的MetaBase对象
         :param filter_args: 过滤条件的字典
         :param uploadvolumefactor: 种子的上传因子 传空不过滤
         :param downloadvolumefactor: 种子的下载因子 传空不过滤
+        :param donthave_original_language: 是否忽略原始语言过滤
         :return: 是否匹配，匹配的优先值，匹配信息，值越大越优先
         """
         # 过滤包含，排除，关键字使用的文本
@@ -327,7 +332,7 @@ class Filter:
         # 过滤过滤规则，-1表示不使用过滤规则，空则使用默认过滤规则
         if filter_args.get("rule"):
             # 已设置默认规则
-            match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"))
+            match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"), donthave_original_language=donthave_original_language)
             meta_original_language = f" 原始语言：{meta_info.original_language}" if meta_info.original_language else ""
             match_msg = "%s%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
                 meta_info.org_string,
@@ -339,7 +344,7 @@ class Filter:
             return match_flag, order_seq, match_msg
         else:
             # 默认过滤规则
-            match_flag, order_seq, rule_name = self.check_rules(meta_info)
+            match_flag, order_seq, rule_name = self.check_rules(meta_info, donthave_original_language=donthave_original_language)
             meta_original_language = f" 原始语言：{meta_info.original_language}" if meta_info.original_language else ""
             match_msg = "%s%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (
                 meta_info.org_string,

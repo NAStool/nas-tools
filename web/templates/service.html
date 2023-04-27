@@ -451,6 +451,8 @@
         } else {
           content += `<span class="badge bg-red me-1 mb-1">${ret.text}</span>`;
         }
+        if (ret.original_language)
+          content += `<span class="badge badge-outline text-cyan me-1 mb-1">${ret.original_language}</span>`;
         $("#testrule_result").empty().append(content);
       }
     });

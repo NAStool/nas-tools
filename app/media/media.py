@@ -817,7 +817,7 @@ class Media:
                                                      tmdbid=cache_info.get("id"),
                                                      chinese=chinese,
                                                      append_to_response=append_to_response)
-                if cache_info.get("original_language") is None:
+                if not cache_info.get("original_language"):
                     self.__insert_media_cache(media_key=media_key,
                                           file_media_info=file_media_info)
             else:
@@ -846,7 +846,7 @@ class Media:
                     "type": file_media_info.get("media_type"),
                     "year": cache_year,
                     "title": cache_title,
-                    "original_language": file_media_info.get("original_language") if file_media_info.get("original_language") is not None else '',
+                    "original_language": file_media_info.get("original_language"),
                     "poster_path": file_media_info.get("poster_path"),
                     "backdrop_path": file_media_info.get("backdrop_path")
                 }
@@ -922,6 +922,8 @@ class Media:
                             meta_info.en_name = parent_info.en_name
                         if not meta_info.year:
                             meta_info.year = parent_info.year
+                        if not meta_info.original_language:
+                            meta_info.original_language = parent_info.original_language
                         if parent_info.type and parent_info.type == MediaType.TV \
                                 and meta_info.type != MediaType.TV:
                             meta_info.type = parent_info.type
@@ -986,6 +988,9 @@ class Media:
                                                                  tmdbid=cache_info.get("id"),
                                                                  chinese=chinese,
                                                                  append_to_response=append_to_response)
+                            if not cache_info.get("original_language"):
+                                self.__insert_media_cache(media_key=media_key,
+                                                    file_media_info=file_media_info)
                         else:
                             # 缓存为未识别
                             file_media_info = None
