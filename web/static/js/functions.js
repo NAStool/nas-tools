@@ -234,22 +234,19 @@ function show_logging_modal() {
   setTimeout("get_logging()", 1000);
 }
 
-// 渲染日志来源下拉列表
-function get_logging_source() {
-  $("#dropdown-menu-logger").html('')
-  let menu = ['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover', 'Plugin']
-  for (let i = 0; i < menu.length; i++) {
-    $("#dropdown-menu-logger").append(`<a class="dropdown-item"  href="javascript:logger_select('${menu[i]}')">${menu[i]}</a>`);
-  }
-}
-
 // 日志来源筛选
 function logger_select(source) {
   LoggingSource = source
   if (LoggingSource === "All") {
     LoggingSource = "";
   }
-  $("#logging_content").html("")
+  let logtype = `刷新中...`;
+  if (LoggingSource) {
+    logtype = `【${LoggingSource}】刷新中...`;
+  }
+  $("#logging_content").html(`<tr><td colspan="3" class="text-center">${logtype}</td></tr>`);
+  // 拉取新日志
+  get_logging();
 }
 
 // 连接消息服务

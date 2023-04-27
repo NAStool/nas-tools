@@ -365,10 +365,15 @@
         <div class="select_logger">
           <h5 class="modal-title">实时日志</h5>
            <div class="dropdown">
-              <a href='#' class="btn-action" data-bs-toggle="dropdown" aria-expanded="false" onclick="get_logging_source()">
+              <button class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                 {{ SVG.log_select() }}
-              </a>
+              </button>
               <div class="dropdown-menu dropdown-menu-end" id="dropdown-menu-logger">
+              {% with Loggers = ['All', 'System', 'Rss', 'RssChecker', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover', 'Plugin'] %}
+                {% for Logger in Loggers %}
+                <a class="dropdown-item" href="javascript:void(0)" onclick="logger_select('{{ Logger }}')">{{ Logger }}</a>
+                {% endfor %}
+              {% endwith %}
               </div>
            </div>
         </div>
