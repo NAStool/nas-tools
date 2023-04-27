@@ -112,9 +112,9 @@ class Filter:
         title = meta_info.org_string
         if meta_info.subtitle:
             title = f"{title} {meta_info.subtitle}"
-        if meta_info.tmdb_info.original_language: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
+        if meta_info.tmdb_info['original_language']: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
             for m in self._language_options:
-                if m.get('value') == meta_info.tmdb_info.original_language:
+                if m.get('value') == meta_info.tmdb_info['original_language']:
                     title = f"{title} 原始语言：{m.get('name')}"
                     break
         # 过滤规则组
@@ -267,9 +267,9 @@ class Filter:
         text = meta_info.org_string
         if meta_info.subtitle:
             text = f"{text} {meta_info.subtitle}"
-        if meta_info.tmdb_info.original_language: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
+        if meta_info.tmdb_info['original_language']: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
             for m in self._language_options:
-                if m.get('value') == meta_info.tmdb_info.original_language:
+                if m.get('value') == meta_info.tmdb_info['original_language']:
                     text = f"{text} 原始语言：{m.get('name')}"
                     break
         # 过滤质量
