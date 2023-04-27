@@ -1657,17 +1657,21 @@ def logging_handler(ws):
     """
     实时日志WebSocket
     """
+    source = ""
     while True:
         message = ws.receive()
         _source = json.loads(message).get("source")
+        if _source != source:
+            log.LOG_INDEX = len(log.LOG_QUEUE)
+            source = _source
         if log.LOG_INDEX > 0:
             logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
             log.LOG_INDEX = 0
             if _source:
                 logs = [l for l in logs if l.get("source") == _source]
-            ws.send((json.dumps(logs)))
         else:
-            ws.send(json.dumps([]))
+            logs = []
+        ws.send((json.dumps(logs)))
 
 
 @Sock.route('/message')
