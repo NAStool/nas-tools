@@ -129,6 +129,7 @@ class LibraryRefresh(_IPluginModule):
                 "category": media_info.get("category"),
                 # 这里不应该是 event_data.get("target_path")么
                 "target_path": event_data.get("dest"),
+                # 这个媒体的转移后的最终路径,包含文件名
                 "file_path": event_data.get("target_path")
             }])
         else:

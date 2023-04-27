@@ -321,12 +321,16 @@ class Plex(_IMediaClient):
         多个媒体库配置的目录不应有重复和嵌套,
         使用os.path.commonprefix([path, location]) == location应该没问题
         """
+        if path is None:
+            return "", ""
+        # 只要路径,不要文件名
+        dir_path = os.path.dirname(path)
         try:
             for lib in libraries:
                 if hasattr(lib, "locations") and lib.locations:
                     for location in lib.locations:
-                        if os.path.commonprefix([path, location]) == location:
-                            return lib.key, path
+                        if os.path.commonprefix([dir_path, location]) == location:
+                            return lib.key, dir_path
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         return "", ""
