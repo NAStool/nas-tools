@@ -120,7 +120,7 @@ class HDSky(_ISiteSigninHandler):
                     elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
                         # 验证码错误
                         self.warn(f"签到失败：验证码错误")
-                        return False, f'【{site}】{site}签到失败：验证码错误'
+                        return False, f'【{site}】签到失败：验证码错误'
 
         self.error(f'签到失败：未获取到验证码')
-        return False, f'{site}签到失败：未获取到验证码'
+        return False, f'【{site}】签到失败：未获取到验证码'
