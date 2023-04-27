@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/oops.html' as OOPS %}
+{% with language_dict = {"zh":"中文", "en":"英语", "ja":"日语", "ko":"韩语", "fr":"法语", "de":"德语", "ru":"俄语", "hi":"印地语", "other":"其他"} %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -87,6 +88,10 @@
                               <span class="badge bg-info me-1 mb-1 text-wrap text-start"
                                     title="促销" style='word-break: break-all'>{{ Rule.free_text }}</span>
                             {% endif %}
+                            {% if Rule.original_language and Rule.original_language in language_dict %}
+                              <span class="badge badge-outline text-cyan me-1 mb-1 text-wrap text-start"
+                                    title="指定原始语言" style='word-break: break-all'>原始语言: {{ language_dict.get(Rule.original_language) }}</span>
+                            {% endif %}
                             {% for include in Rule.include %}
                               <span class="badge badge-outline text-info me-1 mb-1 text-wrap text-start"
                                     title="包含规则" style='word-break: break-all'>包含: {{ include }}</span>
@@ -135,7 +140,7 @@
               <input type="text" class="form-control" id="rule_name" placeholder="自定义规则名称">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-3">
             <div class="mb-3">
               <label class="form-label">优先级 <span class="form-help"
                                                      title="同一个规则组内，规则优先级的数值越小优先级越高"
@@ -147,6 +152,19 @@
                   {% else %}
                     <option value="{{ i }}">{{ i }}</option>
                   {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label">指定原始语言 <span class="form-help"
+                                                     title="将该规则用于指定原始语言的媒体"
+                                                     data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="rule_original_language">
+                <option value="" selected="">全部</option>
+                {% for lacode in language_dict: %}
+                <option value="{{ lacode }}">{{ language_dict.get(lacode) }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -227,6 +245,7 @@
     </div>
   </div>
 </div>
+{% endwith %}
 <div class="modal modal-blur fade" id="modal-add-filtergroup" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -358,6 +377,7 @@
     $("#filterrule_id").val('');
     $("#rule_name").val('');
     $("#rule_pri").val('1');
+    $("#rule_original_language").val('');
     $("#rule_include").val('');
     $("#rule_exclude").val('');
     $("#rule_sizelimit").val('');
@@ -405,6 +425,7 @@
       if (ret.info) {
         $("#rule_name").val(ret.info.name);
         $("#rule_pri").val(ret.info.pri);
+        $("#rule_original_language").val(ret.info.original_language);
         $("#rule_include").val(ret.info.include);
         $("#rule_exclude").val(ret.info.exclude);
         $("#rule_sizelimit").val(ret.info.size);
@@ -479,6 +500,7 @@
       group_id: group_id,
       rule_name: rule_name,
       rule_pri: $("#rule_pri").val(),
+      rule_original_language: $("#rule_original_language").val(),
       rule_include: $("#rule_include").val(),
       rule_exclude: $("#rule_exclude").val(),
       rule_sizelimit: rule_sizelimit,

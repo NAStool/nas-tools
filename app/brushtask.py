@@ -8,9 +8,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 import log
+from app.conf import ModuleConf
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, RssHelper
+from app.media import Media
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.sites import Sites, SiteConf
@@ -22,6 +24,7 @@ from config import BRUSH_REMOVE_TORRENTS_INTERVAL, Config
 
 @singleton
 class BrushTask(object):
+    media = None
     message = None
     sites = None
     siteconf = None
@@ -34,11 +37,13 @@ class BrushTask(object):
     _torrents_cache = []
     _qb_client = "qbittorrent"
     _tr_client = "transmission"
+    _language_options = [] # tmdb电影语言列表
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
+        self.media = Media()
         self.dbhelper = DbHelper()
         self.rsshelper = RssHelper()
         self.message = Message()
@@ -46,6 +51,9 @@ class BrushTask(object):
         self.siteconf = SiteConf()
         self.filter = Filter()
         self.downloader = Downloader()
+        self._language_options = [m.get('value') for m in ModuleConf.DISCOVER_FILTER_CONF.get(
+            "tmdb_movie").get("with_original_language").get("options")
+            if m.get('value') and m.get('value') != 'other']
         # 移除现有任务
         self.stop_service()
         # 读取刷流任务列表
@@ -693,6 +701,28 @@ class BrushTask(object):
                         if rule_sizes[0] == "bw" and not float(min_size) * 1024 ** 3 < float(torrent_size) < float(
                                 max_size) * 1024 ** 3:
                             return False
+
+            rule_original_language = rss_rule.get("original_language")
+            if rule_original_language:
+                meta_original_language = ''
+                # 识别种子名称，开始搜索TMDB以适配原始语言过滤
+                media_info = MetaInfo(title=title)
+                cache_info = self.media.get_cache_info(media_info)
+                if cache_info.get("id"):
+                    # 使用缓存信息
+                    meta_original_language = cache_info.get("original_language")
+                else:
+                    # 重新查询TMDB
+                    media_info = self.media.get_media_info(title=title)
+                    if media_info and media_info.original_language:
+                        meta_original_language = media_info.original_language
+                if meta_original_language:
+                    meta_original_language = meta_original_language.strip()
+                    if rule_original_language == 'other':
+                        if meta_original_language[:2] in self._language_options:
+                            return False
+                    elif rule_original_language[:2] != meta_original_language[:2]:
+                        return False
 
             # 检查包含规则
             if rss_rule.get("include"):

@@ -116,7 +116,6 @@ class _IIndexClient(metaclass=ABCMeta):
                                        upload_volume_factor=uploadvolumefactor,
                                        download_volume_factor=downloadvolumefactor,
                                        labels=labels)
-
             # 先过滤掉可以明确的类型
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(
@@ -124,6 +123,16 @@ class _IIndexClient(metaclass=ABCMeta):
                     f"不匹配类型：{filter_args.get('type').value}")
                 index_rule_fail += 1
                 continue
+            # 获取原始语言
+            cache_info = self.media.get_cache_info(meta_info)
+            if cache_info.get("id") and cache_info.get("original_language") is not None:
+                # 使用缓存信息
+                meta_info.original_language = cache_info.get("original_language")
+            else:
+                # 重新查询TMDB
+                media_info = self.media.get_media_info(title=meta_info.title,subtitle=meta_info.subtitle,mtype=meta_info.type)
+                if media_info and media_info.original_language:
+                    meta_info.original_language = media_info.original_language
             # 检查订阅过滤规则匹配
             match_flag, res_order, match_msg = self.filter.check_torrent_filter(
                 meta_info=meta_info,

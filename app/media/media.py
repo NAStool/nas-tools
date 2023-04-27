@@ -170,7 +170,7 @@ class Media:
                       season_number=None):
         """
         搜索tmdb中的媒体信息，匹配返回一条尽可能正确的信息
-        :param file_media_name: 剑索的名称
+        :param file_media_name: 检索的名称
         :param search_type: 类型：电影、电视剧、动漫
         :param first_media_year: 年份，如要是季集需要是首播年份(first_air_date)
         :param media_year: 当前季集年份
@@ -817,6 +817,9 @@ class Media:
                                                      tmdbid=cache_info.get("id"),
                                                      chinese=chinese,
                                                      append_to_response=append_to_response)
+                if cache_info.get("original_language") is None:
+                    self.__insert_media_cache(media_key=media_key,
+                                          file_media_info=file_media_info)
             else:
                 file_media_info = None
         # 赋值TMDB信息并返回
@@ -843,6 +846,7 @@ class Media:
                     "type": file_media_info.get("media_type"),
                     "year": cache_year,
                     "title": cache_title,
+                    "original_language": file_media_info.get("original_language"),
                     "poster_path": file_media_info.get("poster_path"),
                     "backdrop_path": file_media_info.get("backdrop_path")
                 }

@@ -1875,6 +1875,7 @@ class DbHelper:
                 {
                     "ROLE_NAME": item.get("name"),
                     "PRIORITY": item.get("pri"),
+                    "ORIGINAL_LANGUAGE": item.get("original_language"),
                     "INCLUDE": item.get("include"),
                     "EXCLUDE": item.get("exclude"),
                     "SIZE_LIMIT": item.get("size"),
@@ -1886,6 +1887,7 @@ class DbHelper:
                 GROUP_ID=item.get("group"),
                 ROLE_NAME=item.get("name"),
                 PRIORITY=item.get("pri"),
+                ORIGINAL_LANGUAGE=item.get("original_language"),
                 INCLUDE=item.get("include"),
                 EXCLUDE=item.get("exclude"),
                 SIZE_LIMIT=item.get("size"),

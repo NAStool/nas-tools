@@ -2091,6 +2091,14 @@ class WebAction:
         match_flag, res_order, match_msg = \
             Filter().check_torrent_filter(meta_info=meta_info,
                                           filter_args={"rule": rulegroup})
+        if match_flag:
+            # 重新查询TMDB以适配原始语言过滤
+            media_info = Media().get_media_info(title=title)
+            if media_info and media_info.original_language:
+                meta_info.original_language = media_info.original_language
+                match_flag, res_order, match_msg = \
+                Filter().check_torrent_filter(meta_info=meta_info,
+                                            filter_args={"rule": rulegroup})
         return {
             "code": 0,
             "flag": match_flag,
@@ -2235,6 +2243,7 @@ class WebAction:
             "group": data.get("group_id"),
             "name": data.get("rule_name"),
             "pri": data.get("rule_pri"),
+            "original_language": data.get("rule_original_language"),
             "include": data.get("rule_include"),
             "exclude": data.get("rule_exclude"),
             "size": data.get("rule_sizelimit"),
@@ -3282,6 +3291,7 @@ class WebAction:
             rules.append({
                 "name": rule.ROLE_NAME,
                 "pri": rule.PRIORITY,
+                "original_language": rule.ORIGINAL_LANGUAGE,
                 "include": rule.INCLUDE,
                 "exclude": rule.EXCLUDE,
                 "size": rule.SIZE_LIMIT,
@@ -3318,6 +3328,7 @@ class WebAction:
                             "group": group_id,
                             "name": rule.get("name"),
                             "pri": rule.get("pri"),
+                            "original_language": rule.get("original_language"),
                             "include": rule.get("include"),
                             "exclude": rule.get("exclude"),
                             "size": rule.get("size"),
@@ -3948,8 +3959,9 @@ class WebAction:
                         rule_info = {}
                         rule = rule.split(",")
                         rule_info['name'] = rule[2][1:-1]
-                        rule_info['include'] = rule[4][1:-1]
-                        rule_info['exclude'] = rule[5][1:-1]
+                        rule_info['original_language'] = rule[4][1:-1]
+                        rule_info['include'] = rule[5][1:-1]
+                        rule_info['exclude'] = rule[6][1:-1]
                         rulegroup['rules'].append(rule_info)
                     rulegroup["sql"].append(sql_list[i + 1])
                 Init_RuleGroups.append(rulegroup)

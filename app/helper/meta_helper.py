@@ -87,6 +87,7 @@ class MetaHelper(object):
                 "title": v.get("title"),
                 "year": v.get("year"),
                 "media_type": v.get("type").value if isinstance(v.get("type"), Enum) else v.get("type"),
+                "original_language": v.get("original_language"),
                 "poster_path": v.get("poster_path"),
                 "backdrop_path": v.get("backdrop_path")
             },  str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))

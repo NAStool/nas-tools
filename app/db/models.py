@@ -22,6 +22,7 @@ class CONFIGFILTERRULES(Base):
     GROUP_ID = Column(Text, index=True)
     ROLE_NAME = Column(Text)
     PRIORITY = Column(Text)
+    ORIGINAL_LANGUAGE = Column(Text)
     INCLUDE = Column(Text)
     EXCLUDE = Column(Text)
     SIZE_LIMIT = Column(Text)

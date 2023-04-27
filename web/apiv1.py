@@ -1820,6 +1820,7 @@ class FilterRuleUpdate(ClientResource):
     parser.add_argument('group_id', type=int, help='规则组ID', location='form', required=True)
     parser.add_argument('rule_name', type=str, help='规则名称', location='form', required=True)
     parser.add_argument('rule_pri', type=str, help='优先级', location='form', required=True)
+    parser.add_argument('rule_original_language', type=str, help='指定原始语言', location='form')
     parser.add_argument('rule_include', type=str, help='包含', location='form')
     parser.add_argument('rule_exclude', type=str, help='排除', location='form')
     parser.add_argument('rule_sizelimit', type=str, help='大小限制', location='form')
