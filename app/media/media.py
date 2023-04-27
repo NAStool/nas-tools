@@ -846,7 +846,7 @@ class Media:
                     "type": file_media_info.get("media_type"),
                     "year": cache_year,
                     "title": cache_title,
-                    "original_language": file_media_info.get("original_language"),
+                    "original_language": file_media_info.get("original_language") if file_media_info.get("original_language") is not None else '',
                     "poster_path": file_media_info.get("poster_path"),
                     "backdrop_path": file_media_info.get("backdrop_path")
                 }

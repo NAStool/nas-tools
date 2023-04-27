@@ -117,7 +117,8 @@ class _IIndexClient(metaclass=ABCMeta):
                                        download_volume_factor=downloadvolumefactor,
                                        labels=labels)
             # 先过滤掉可以明确的类型
-            if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
+            if (meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE) or \
+                (meta_info.type == MediaType.MOVIE and filter_args.get("type") == MediaType.TV):
                 log.info(
                     f"【{self.client_name}】{torrent_name} 是 {meta_info.type.value}，"
                     f"不匹配类型：{filter_args.get('type').value}")

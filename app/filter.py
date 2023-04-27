@@ -328,9 +328,10 @@ class Filter:
         if filter_args.get("rule"):
             # 已设置默认规则
             match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"))
-            match_msg = "%s 原始语言：%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
+            meta_original_language = f" 原始语言：{meta_info.original_language}" if meta_info.original_language else ""
+            match_msg = "%s%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
                 meta_info.org_string,
-                meta_info.original_language,
+                meta_original_language,
                 StringUtils.str_filesize(meta_info.size),
                 meta_info.get_volume_factor_string(),
                 rule_name
@@ -339,9 +340,10 @@ class Filter:
         else:
             # 默认过滤规则
             match_flag, order_seq, rule_name = self.check_rules(meta_info)
-            match_msg = "%s 原始语言：%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (
+            meta_original_language = f" 原始语言：{meta_info.original_language}" if meta_info.original_language else ""
+            match_msg = "%s%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (
                 meta_info.org_string,
-                meta_info.original_language,
+                meta_original_language,
                 StringUtils.str_filesize(meta_info.size),
                 meta_info.get_volume_factor_string(),
                 rule_name
