@@ -24,11 +24,13 @@ class CustomizationMatcher(object):
         if not self.customization:
             return ""
         customization_re = re.compile(r"%s" % self.customization)
-        # 处理重复多次的情况，保留先后顺序
-        unique_customization = []
+        # 处理重复多次的情况，保留先后顺序（按添加自定义占位符的顺序）
+        unique_customization = {}
         for item in re.findall(customization_re, title):
-            if item not in unique_customization:
-                unique_customization.append(item)
+            for i in range(len(item)):
+                if item[i] and unique_customization.get(item[i]) is None:
+                    unique_customization[item[i]] = i
+        unique_customization = list(dict(sorted(unique_customization.items(), key=lambda x: x[1])).keys())
         separator = self.custom_separator or "@"
         return separator.join(unique_customization)
 

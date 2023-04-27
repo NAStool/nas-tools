@@ -86,7 +86,7 @@ class CustomReleaseGroups(_IPluginModule):
                 if custom_release_groups:
                     self.info("自定义制作组/字幕组已加载")
                 if custom_separator:
-                    self.info(f"自定义分隔符{custom_separator}已加载")
+                    self.info(f"自定义分隔符 {custom_separator} 已加载")
                 self._release_groups_matcher.update_custom(custom_release_groups, custom_separator)
                 self._custom_release_groups = custom_release_groups
                 self._custom_separator = custom_separator

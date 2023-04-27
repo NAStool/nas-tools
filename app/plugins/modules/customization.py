@@ -55,7 +55,7 @@ class Customization(_IPluginModule):
                         {
                             'title': '自定义分隔符',
                             'required': "",
-                            'tooltip': '当匹配到多个结果时，使用此分隔符进行分隔，留空使用@；如名称中识别出A和B，分隔符为@，则结果为A@B',
+                            'tooltip': '当匹配到多个结果时，使用此分隔符进行分隔，留空使用@；如名称中识别出A和B，分隔符为@，则结果为A@B，按添加自定义占位符的顺序',
                             'type': 'text',
                             'content': [
                                 {
@@ -77,15 +77,12 @@ class Customization(_IPluginModule):
             customization = config.get('customization')
             custom_separator = config.get('separator')
             if customization:
-                if customization.startswith(';'):
-                    customization = customization[1:]
-                if customization.endswith(';'):
-                    customization = customization[:-1]
-                customization = customization.replace(";", "|").replace("\n", "|")
+                customization = customization.replace("\n", ";").strip(";").split(";")
+                customization = "|".join([f"({item})" for item in customization])
                 if customization:
                     self.info("自定义占位符已加载")
                     if custom_separator:
-                        self.info(f"自定义分隔符{custom_separator}已加载")
+                        self.info(f"自定义分隔符 {custom_separator} 已加载")
                     self._customization_matcher.update_custom(customization, custom_separator)
                     self._customization = customization
                     self._custom_separator = custom_separator
