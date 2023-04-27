@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-
+from urllib.parse import quote_plus
 import log
 from app.mediaserver.client._base import _IMediaClient
 from app.utils import ExceptionUtils
@@ -302,26 +302,34 @@ class Plex(_IMediaClient):
                 self._libraries = self._plex.library.sections()
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
+        result_dict = {}
         for item in items:
-            target_path = item.get("target_path")
-            librarie = self.__find_librarie(target_path, self._libraries)
-            if librarie:
-                log.info(f"【{self.client_name}】刷新媒体库：{librarie.key} : {target_path}")
-                librarie.update(path=target_path)
+            file_path = item.get("file_path")
+            lib_key, path = self.__find_librarie(file_path, self._libraries)
+            result_dict[path] = lib_key
+        if "" in result_dict:
+            # 如果有匹配失败的,刷新整个库
+            self._plex.library.update()
+        for path, lib_key in result_dict.items():
+            log.info(f"【{self.client_name}】刷新媒体库：{lib_key} : {path}")
+            self._plex.query(f'/library/sections/{lib_key}/refresh?path={quote_plus(path)}')
 
     @staticmethod
     def __find_librarie(path, libraries):
         """
         判断这个path属于哪个媒体库
+        多个媒体库配置的目录不应有重复和嵌套,
+        使用os.path.commonprefix([path, location]) == location应该没问题
         """
         try:
-            for librarie in libraries:
-                librarie_path = librarie.locations[0]
-                if os.path.commonprefix([path, librarie_path]) == librarie_path:
-                    return librarie
+            for lib in libraries:
+                if hasattr(lib, "locations") and lib.locations:
+                    for location in lib.locations:
+                        if os.path.commonprefix([path, location]) == location:
+                            return lib.key, path
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            return None
+        return "", ""
 
     def get_libraries(self):
         """
