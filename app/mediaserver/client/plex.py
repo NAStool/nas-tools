@@ -311,9 +311,11 @@ class Plex(_IMediaClient):
         if "" in result_dict:
             # 如果有匹配失败的,刷新整个库
             self._plex.library.update()
-        for path, lib_key in result_dict.items():
-            log.info(f"【{self.client_name}】刷新媒体库：{lib_key} : {path}")
-            self._plex.query(f'/library/sections/{lib_key}/refresh?path={quote_plus(path)}')
+        else:
+            # 否则一个一个刷新
+            for path, lib_key in result_dict.items():
+                log.info(f"【{self.client_name}】刷新媒体库：{lib_key} : {path}")
+                self._plex.query(f'/library/sections/{lib_key}/refresh?path={quote_plus(path)}')
 
     @staticmethod
     def __find_librarie(path, libraries):
