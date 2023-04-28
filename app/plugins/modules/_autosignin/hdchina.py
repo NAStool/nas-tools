@@ -37,18 +37,36 @@ class HDChina(_ISiteSigninHandler):
         ua = site_info.get("ua")
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
+        # 尝试解决瓷器cookie每天签到后过期,只保留hdchina=部分
+        cookie = ""
+        # 按照分号进行字符串拆分
+        sub_strs = site_cookie.split(";")
+        # 遍历每个子字符串
+        for sub_str in sub_strs:
+            if "hdchina=" in sub_str:
+                # 如果子字符串包含"hdchina="，则保留该子字符串
+                cookie += sub_str + ";"
+
+        if "hdchina=" not in cookie:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
+        site_cookie = cookie
         # 获取页面html
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://hdchina.org/")
+                                ).get_res(url="https://hdchina.org/index.php")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
-        if "login.php" in html_res.text:
+        if "login.php" in html_res.text or "阻断页面" in html_res.text:
             self.error(f"签到失败，cookie失效")
             return False, f'【{site}】签到失败，cookie失效'
+
+        # 获取新返回的cookie进行签到
+        site_cookie = ';'.join(['{}={}'.format(k, v) for k, v in html_res.cookies.get_dict().items()])
 
         # 判断是否已签到
         html_res.encoding = "utf-8"

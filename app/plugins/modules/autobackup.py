@@ -228,10 +228,12 @@ class AutoBackup(_IPluginModule):
 
         # 发送通知
         if self._notify:
+            next_run_time = self._scheduler.get_jobs()[0].next_run_time.strftime('%Y-%m-%d %H:%M:%S')
             self.send_message(title="【自动备份任务完成】",
                               text=f"创建备份{'成功' if zip_file else '失败'}\n"
                                    f"清理备份数量 {del_cnt}\n"
-                                   f"剩余备份数量 {bk_cnt - del_cnt}")
+                                   f"剩余备份数量 {bk_cnt - del_cnt} \n"
+                                   f"下次备份时间: {next_run_time}")
 
     def stop_service(self):
         """
