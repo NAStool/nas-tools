@@ -141,5 +141,5 @@ if __name__ == '__main__':
     # 初始化浏览器驱动
     init_chrome()
 
-    # gunicorn 启动
+    # Flask启动
     App.run(**get_run_config(is_windows_exe))
