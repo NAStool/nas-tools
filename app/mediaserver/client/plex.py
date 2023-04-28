@@ -557,7 +557,7 @@ class Plex(_IMediaClient):
                 "type": item_type,
                 "image": image,
                 "link": link,
-                "percent": item.viewOffset / item.duration * 100
+                "percent": item.viewOffset / item.duration * 100 if item.viewOffset and item.duration else 0
             })
         return ret_resume
 
