@@ -18,6 +18,8 @@ RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso',
                 '.tp']
 # 支持的字幕文件后缀格式
 RMT_SUBEXT = ['.srt', '.ass', '.ssa']
+# 支持的音轨文件后缀格式
+RMT_AUDIO_TRACK_EXT = ['.mka']
 # 电视剧动漫的分类genre_ids
 ANIME_GENREIDS = ['16']
 # 默认过滤的文件大小，150M

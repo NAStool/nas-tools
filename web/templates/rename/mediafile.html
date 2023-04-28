@@ -150,7 +150,7 @@
     } else {
       folder = $("#mediafile_current_dir").val();
     }
-    ajax_post("get_sub_path", {"dir": folder, "filter": "MEDIAFILE|SUBFILE"}, function (ret) {
+    ajax_post("get_sub_path", {"dir": folder, "filter": "MEDIAFILE|SUBFILE|AUDIOTRACKFILE"}, function (ret) {
       $("#mediafile_file_container").empty();
       $("#mediafile_current_files").val('')
       if (ret.data) {
