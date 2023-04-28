@@ -188,10 +188,12 @@ body, .page {
         margin-right: unset!important;
     }
 }
-#chart-recent-upload-title,#chart-recent-download-title{
-    width: 250px;
+.chart-title{
     display: inline-block;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .filter_releasegroup_span {
