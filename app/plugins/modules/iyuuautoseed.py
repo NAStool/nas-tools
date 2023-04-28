@@ -645,6 +645,9 @@ class IYUUAutoSeed(_IPluginModule):
             self.fail += 1
             self.cached += 1
             return False
+        # 强制使用Https
+        if not torrent_url.startswith("https://"):
+            torrent_url = torrent_url.replace("http://", "https://")
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
