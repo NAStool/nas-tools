@@ -5146,4 +5146,10 @@ class WebAction:
         """
         获取命令列表
         """
-        return [{"id": cid, "name": cmd.get("desc")} for cid, cmd in self._commands.items()]
+        return [{
+            "id": cid,
+            "name": cmd.get("desc")
+        } for cid, cmd in self._commands.items()] + [{
+            "id": item.get("cmd"),
+            "name": item.get("desc")
+        } for item in PluginManager().get_plugin_commands()]
