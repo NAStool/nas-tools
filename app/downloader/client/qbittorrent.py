@@ -76,7 +76,7 @@ class Qbittorrent(_IDownloadClient):
                                         username=self.username,
                                         password=self.password,
                                         VERIFY_WEBUI_CERTIFICATE=False,
-                                        REQUESTS_ARGS={'timeout': (10, 30)})
+                                        REQUESTS_ARGS={'timeout': (15, 60)})
             try:
                 qbt.auth_log_in()
                 self.ver = qbt.app_version()
@@ -561,7 +561,7 @@ class Qbittorrent(_IDownloadClient):
             return []
         ret_dirs = []
         try:
-            categories = self.qbc.torrents_categories(requests_args={'timeout': (5, 10)}) or {}
+            categories = self.qbc.torrents_categories(requests_args={'timeout': (10, 30)}) or {}
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return []

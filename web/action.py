@@ -1047,8 +1047,8 @@ class WebAction:
         """
         检查新版本
         """
-        version, url, flag = WebUtils.get_latest_version()
-        if flag:
+        version, url = WebUtils.get_latest_version()
+        if version:
             return {"code": 0, "version": version, "url": url}
         return {"code": -1, "version": "", "url": ""}
 
