@@ -336,11 +336,14 @@ class AutoSignIn(_IPluginModule):
 
             # 发送通知
             if self._notify:
+                next_run_time = self._scheduler.get_jobs()[0].next_run_time.strftime('%Y-%m-%d %H:%M:%S')
                 # 签到汇总信息
                 self.send_message(title="【自动签到任务完成】",
                                   text=f"本次签到数量: {len(sign_sites)} \n"
                                        f"命中重试数量: {len(retry_sites) if self._retry_keyword else 0} \n"
+                                       f"强制签到数量: {len(self._special_sites)} \n"
                                        f"下次签到数量: {len(set(retry_sites + self._special_sites))} \n"
+                                       f"下次签到时间: {next_run_time} \n"
                                        f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
