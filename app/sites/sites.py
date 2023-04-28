@@ -63,16 +63,13 @@ class Sites:
             site_uses = site.INCLUDE or ''
             uses = []
             if site_uses:
-                signin_enable = True if "Q" in site_uses and site_signurl and site_cookie else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
                 brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
                 statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
-                uses.append("Q") if signin_enable else None
                 uses.append("D") if rss_enable else None
                 uses.append("S") if brush_enable else None
                 uses.append("T") if statistic_enable else None
             else:
-                signin_enable = False
                 rss_enable = False
                 brush_enable = False
                 statistic_enable = False
@@ -85,7 +82,6 @@ class Sites:
                 "cookie": site_cookie,
                 "rule": site_note.get("rule"),
                 "download_setting": site_note.get("download_setting"),
-                "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
@@ -133,7 +129,6 @@ class Sites:
                   siteids=None,
                   rss=False,
                   brush=False,
-                  signin=False,
                   statistic=False):
         """
         获取站点配置
@@ -148,8 +143,6 @@ class Sites:
             if rss and not site.get('rss_enable'):
                 continue
             if brush and not site.get('brush_enable'):
-                continue
-            if signin and not site.get('signin_enable'):
                 continue
             if statistic and not site.get('statistic_enable'):
                 continue
@@ -182,6 +175,16 @@ class Sites:
                 return self._siteByUrls[key]
         return {}
 
+    def get_sites_by_name(self, name):
+        """
+        根据站点名称获取站点配置
+        """
+        ret_sites = []
+        for site in self._siteByIds.values():
+            if site.get("name") == name:
+                ret_sites.append(site)
+        return ret_sites
+
     def get_max_site_pri(self):
         """
         获取最大站点优先级
@@ -193,7 +196,6 @@ class Sites:
     def get_site_dict(self,
                       rss=False,
                       brush=False,
-                      signin=False,
                       statistic=False):
         """
         获取站点字典
@@ -205,7 +207,6 @@ class Sites:
             } for site in self.get_sites(
                 rss=rss,
                 brush=brush,
-                signin=signin,
                 statistic=statistic
             )
         ]
@@ -213,7 +214,6 @@ class Sites:
     def get_site_names(self,
                        rss=False,
                        brush=False,
-                       signin=False,
                        statistic=False):
         """
         获取站点名称
@@ -222,7 +222,6 @@ class Sites:
             site.get("name") for site in self.get_sites(
                 rss=rss,
                 brush=brush,
-                signin=signin,
                 statistic=statistic
             )
         ]
@@ -258,7 +257,7 @@ class Sites:
         site_cookie = site_info.get("cookie")
         if not site_cookie:
             return False, "未配置站点Cookie", 0
-        ua = site_info.get("ua")
+        ua = site_info.get("ua") or Config().get_ua()
         site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
         if not site_url:
             return False, "未配置站点地址", 0
@@ -311,3 +310,52 @@ class Sites:
         if note:
             infos = json.loads(note)
         return infos
+
+    def add_site(self, name, site_pri,
+                 rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None):
+        """
+        添加站点
+        """
+        ret = self.dbhelper.insert_config_site(name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note,
+                                               rss_uses=rss_uses)
+        self.init_config()
+        return ret
+
+    def update_site(self, tid, name, site_pri,
+                    rssurl, signurl, cookie, note, rss_uses):
+        """
+        更新站点
+        """
+        ret = self.dbhelper.update_config_site(tid=tid,
+                                               name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note,
+                                               rss_uses=rss_uses)
+        self.init_config()
+        return ret
+
+    def delete_site(self, siteid):
+        """
+        删除站点
+        """
+        ret = self.dbhelper.delete_config_site(siteid)
+        self.init_config()
+        return ret
+
+    def update_site_cookie(self, siteid, cookie, ua=None):
+        """
+        更新站点Cookie和UA
+        """
+        ret = self.dbhelper.update_site_cookie_ua(tid=siteid,
+                                                  cookie=cookie,
+                                                  ua=ua)
+        self.init_config()
+        return ret

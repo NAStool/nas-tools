@@ -6,6 +6,27 @@ String.prototype.replaceAll = function (s1, s2) {
   return this.replace(new RegExp(s1, "gm"), s2)
 }
 
+// 日期时间
+Date.prototype.format = function (format) {
+  const o = {
+    "M+": this.getMonth() + 1, //month
+    "d+": this.getDate(), //day
+    "h+": this.getHours(), //hour
+    "m+": this.getMinutes(), //minute
+    "s+": this.getSeconds(), //second
+    "q+": Math.floor((this.getMonth() + 3) / 3), //quarter
+    "S": this.getMilliseconds() //millisecond
+  };
+  if (/(y+)/.test(format)) format = format.replace(RegExp.$1,
+      (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (const k in o)
+    if (new RegExp("(" + k + ")").test(format))
+      format = format.replace(RegExp.$1,
+          RegExp.$1.length === 1 ? o[k] :
+              ("00" + o[k]).substr(("" + o[k]).length));
+  return format;
+}
+
 // Ajax主方法
 function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
   if (show_progress) {
@@ -383,7 +404,8 @@ function window_history_refresh() {
 }
 
 //当前页面地址
-let CURRENT_PAGE_URI = "";
+let CurrentPageUri = "";
+
 // 保存页面历史
 function window_history(newflag = false, extra = undefined) {
   const state = {
@@ -391,7 +413,7 @@ function window_history(newflag = false, extra = undefined) {
     html: $("#page_content").html(),         // 页面内容
     scroll: $(".page").scrollTop(),  // 页面滚动位置
     CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
-    page: CURRENT_PAGE_URI,                  // 当前页面地址
+    page: CurrentPageUri,                  // 当前页面地址
     extra: extra,                            // 额外的保存数据
   };
   if (newflag) {

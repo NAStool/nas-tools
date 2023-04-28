@@ -28,7 +28,7 @@ class MovieLike(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "movielike_"
     # 加载顺序
-    module_order = 7
+    module_order = 10
     # 可使用的用户级别
     auth_level = 2
 

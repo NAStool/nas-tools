@@ -12,7 +12,7 @@ import log
 from app.helper import MetaHelper
 from app.mediaserver import MediaServer
 from app.rss import Rss
-from app.sites import SiteUserInfo, SiteSignin
+from app.sites import SiteUserInfo
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import ExceptionUtils
@@ -50,11 +50,6 @@ class Scheduler:
         if not self.SCHEDULER:
             return
         if self._pt:
-            # 站点签到
-            ptsignin_cron = self._pt.get('ptsignin_cron')
-            if ptsignin_cron:
-                self.start_job(SiteSignin().signin, "站点自动签到", str(ptsignin_cron))
-
             # 数据统计
             ptrefresh_date_cron = self._pt.get('ptrefresh_date_cron')
             if ptrefresh_date_cron:

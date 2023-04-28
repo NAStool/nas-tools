@@ -442,15 +442,6 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">站点签到时间 <span class="form-help"
-                                                               title="站点自动签到时间，四种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；4、配置5位cron表达式，如：0 8 * * *；配置为空则不启用自动站点签到功能。对于有独立签到页面的站点，可以在站点维护中维护站点地址为签到页面地址实现签到；对于有签到功能但没有独立签到页面的站点，需要在站点维护中开启浏览仿真才能签到；对于没有签到功能的站点仅自动登录一次站点实现保号。"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control"
-                         id="pt.ptsignin_cron" placeholder="留空关闭自动签到" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-lg">
-                <div class="mb-3">
                   <label class="form-label">订阅RSS周期(秒) <span class="form-help"
                                                                   title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能；为了减小站点压力，最小周期不能小于300秒"
                                                                   data-bs-toggle="tooltip">?</span></label>
@@ -476,8 +467,6 @@
                          id="media.mediasync_interval" placeholder="留空关闭媒体库同步" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">站点数据刷新时间 <span class="form-help"
@@ -768,8 +757,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.basic" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.movie.basic %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_movie_basic" {% if
+                        ScraperNfo and ScraperNfo.movie.basic %}checked{% endif %}>
                       <span class="form-check-label">基础信息 </span>
                     </label>
                   </div>
@@ -777,8 +766,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.movie.credits %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_movie_credits" {% if
+                        ScraperNfo and ScraperNfo.movie.credits %}checked{% endif %}>
                       <span class="form-check-label">演职人员 </span>
                     </label>
                   </div>
@@ -786,8 +775,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits_chinese" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.movie.credits_chinese %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_movie_credits_chinese" {% if
+                        ScraperNfo and ScraperNfo.movie.credits_chinese %}checked{% endif %}>
                       <span class="form-check-label">演职人员中文 </span>
                     </label>
                   </div>
@@ -804,8 +793,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.basic" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.basic %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_basic" {% if
+                        ScraperNfo and ScraperNfo.tv.basic %}checked{% endif %}>
                       <span class="form-check-label">基础信息 </span>
                     </label>
                   </div>
@@ -813,8 +802,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.credits %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_credits" {% if
+                        ScraperNfo and ScraperNfo.tv.credits %}checked{% endif %}>
                       <span class="form-check-label">演职人员 </span>
                     </label>
                   </div>
@@ -822,8 +811,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits_chinese" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.credits_chinese %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_credits_chinese" {% if
+                        ScraperNfo and ScraperNfo.tv.credits_chinese %}checked{% endif %}>
                       <span class="form-check-label">演职人员中文 </span>
                     </label>
                   </div>
@@ -840,8 +829,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.season_basic" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.season_basic %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_season_basic" {% if
+                        ScraperNfo and ScraperNfo.tv.season_basic %}checked{% endif %}>
                       <span class="form-check-label">季-基础信息 </span>
                     </label>
                   </div>
@@ -849,8 +838,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_basic" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.episode_basic %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_episode_basic" {% if
+                        ScraperNfo and ScraperNfo.tv.episode_basic %}checked{% endif %}>
                       <span class="form-check-label">集-基础信息 </span>
                     </label>
                   </div>
@@ -858,8 +847,8 @@
                 <div class="col-12 col-lg-4">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_credits" {% if
-                        Config.scraper_nfo and Config.scraper_nfo.tv.episode_credits %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo_tv_episode_credits" {% if
+                        ScraperNfo and ScraperNfo.tv.episode_credits %}checked{% endif %}>
                       <span class="form-check-label">集-演职人员 </span>
                     </label>
                   </div>
@@ -880,8 +869,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.poster" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.poster %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_poster" {% if
+                        ScraperPic and ScraperPic.movie.poster %}checked{% endif %}>
                       <span class="form-check-label">poster </span>
                     </label>
                   </div>
@@ -889,8 +878,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.backdrop" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.backdrop %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_backdrop" {% if
+                        ScraperPic and ScraperPic.movie.backdrop %}checked{% endif %}>
                       <span class="form-check-label">fanart </span>
                     </label>
                   </div>
@@ -898,8 +887,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.background" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.background %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_background" {% if
+                        ScraperPic and ScraperPic.movie.background %}checked{% endif %}>
                       <span class="form-check-label">background </span>
                     </label>
                   </div>
@@ -907,8 +896,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.logo" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.logo %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_logo" {% if
+                        ScraperPic and ScraperPic.movie.logo %}checked{% endif %}>
                       <span class="form-check-label">logo </span>
                     </label>
                   </div>
@@ -918,8 +907,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.disc" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.disc %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_disc" {% if
+                        ScraperPic and ScraperPic.movie.disc %}checked{% endif %}>
                       <span class="form-check-label">disc </span>
                     </label>
                   </div>
@@ -927,8 +916,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.banner" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.banner %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_banner" {% if
+                        ScraperPic and ScraperPic.movie.banner %}checked{% endif %}>
                       <span class="form-check-label">banner </span>
                     </label>
                   </div>
@@ -936,8 +925,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.thumb" {% if
-                        Config.scraper_pic and Config.scraper_pic.movie.thumb %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_movie_thumb" {% if
+                        ScraperPic and ScraperPic.movie.thumb %}checked{% endif %}>
                       <span class="form-check-label">thumb </span>
                     </label>
                   </div>
@@ -954,8 +943,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.poster" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.poster %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_poster" {% if
+                        ScraperPic and ScraperPic.tv.poster %}checked{% endif %}>
                       <span class="form-check-label">poster </span>
                     </label>
                   </div>
@@ -963,8 +952,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.backdrop" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.backdrop %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_backdrop" {% if
+                        ScraperPic and ScraperPic.tv.backdrop %}checked{% endif %}>
                       <span class="form-check-label">fanart </span>
                     </label>
                   </div>
@@ -972,8 +961,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.background" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.background %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_background" {% if
+                        ScraperPic and ScraperPic.tv.background %}checked{% endif %}>
                       <span class="form-check-label">background </span>
                     </label>
                   </div>
@@ -981,8 +970,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.logo" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.logo %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_logo" {% if
+                        ScraperPic and ScraperPic.tv.logo %}checked{% endif %}>
                       <span class="form-check-label">logo </span>
                     </label>
                   </div>
@@ -992,8 +981,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.clearart" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.clearart %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_clearart" {% if
+                        ScraperPic and ScraperPic.tv.clearart %}checked{% endif %}>
                       <span class="form-check-label">clearart </span>
                     </label>
                   </div>
@@ -1001,8 +990,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.banner" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.banner %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_banner" {% if
+                        ScraperPic and ScraperPic.tv.banner %}checked{% endif %}>
                       <span class="form-check-label">banner </span>
                     </label>
                   </div>
@@ -1010,8 +999,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.thumb" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.thumb %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_thumb" {% if
+                        ScraperPic and ScraperPic.tv.thumb %}checked{% endif %}>
                       <span class="form-check-label">thumb </span>
                     </label>
                   </div>
@@ -1028,8 +1017,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_poster" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.season_poster %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_season_poster" {% if
+                        ScraperPic and ScraperPic.tv.season_poster %}checked{% endif %}>
                       <span class="form-check-label">poster </span>
                     </label>
                   </div>
@@ -1037,8 +1026,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_banner" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.season_banner %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_season_banner" {% if
+                        ScraperPic and ScraperPic.tv.season_banner %}checked{% endif %}>
                       <span class="form-check-label">banner </span>
                     </label>
                   </div>
@@ -1046,8 +1035,8 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_thumb" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.season_thumb %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_season_thumb" {% if
+                        ScraperPic and ScraperPic.tv.season_thumb %}checked{% endif %}>
                       <span class="form-check-label">thumb </span>
                     </label>
                   </div>
@@ -1064,17 +1053,17 @@
                 <div class="col-12 col-lg-3">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.episode_thumb" onclick="open_ffmpeg_div('modal_episode_thumb_ffmpeg')" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.episode_thumb %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_episode_thumb" onclick="open_ffmpeg_div('modal_episode_thumb_ffmpeg')" {% if
+                        ScraperPic and ScraperPic.tv.episode_thumb %}checked{% endif %}>
                       <span class="form-check-label">thumb <span class="form-help" title="开启后将查询TMDB生成集缩略图" data-bs-toggle="tooltip">?</span></span>
                     </label>
                   </div>
                 </div>
-                <div class="col-12 col-lg-3 {% if not Config.scraper_pic or not Config.scraper_pic.tv.episode_thumb %}d-none{% endif %}" id="modal_episode_thumb_ffmpeg">
+                <div class="col-12 col-lg-3 {% if not ScraperPic or not ScraperPic.tv.episode_thumb %}d-none{% endif %}" id="modal_episode_thumb_ffmpeg">
                   <div class="mb-3">
                     <label class="form-check">
-                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.episode_thumb_ffmpeg" {% if
-                        Config.scraper_pic and Config.scraper_pic.tv.episode_thumb and Config.scraper_pic.tv.episode_thumb_ffmpeg %}checked{% endif %}>
+                      <input class="form-check-input" type="checkbox" id="scraper_pic_tv_episode_thumb_ffmpeg" {% if
+                        ScraperPic and ScraperPic.tv.episode_thumb and ScraperPic.tv.episode_thumb_ffmpeg %}checked{% endif %}>
                       <span class="form-check-label">thumb-ffmpeg <span class="form-help" title="开始后，如TMDB无数据则读取视频文件生成（需要ffmpeg，最新完整版Docker镜像已包含，lite版本镜像默认不支持该功能）" data-bs-toggle="tooltip">?</span></span>
                     </label>
                   </div>
@@ -1188,10 +1177,58 @@
     });
   }
 
-  // 保存搜刮配置
+  // 保存刮削配置
   function save_scraper_config() {
-    save_basic_config('modal-scraper', false);
-    $("#modal-scraper").modal("hide");
+    debugger;
+    let params = {
+      "key": "UserScraperConf",
+      "value": {
+        scraper_nfo: {
+          movie: {
+            basic: $("#scraper_nfo_movie_basic").prop('checked'),
+            credits: $("#scraper_nfo_movie_credits").prop('checked'),
+            credits_chinese: $("#scraper_nfo_movie_credits_chinese").prop('checked'),
+          },
+          tv: {
+            basic: $("#scraper_nfo_tv_basic").prop('checked'),
+            credits: $("#scraper_nfo_tv_credits").prop('checked'),
+            credits_chinese: $("#scraper_nfo_tv_credits_chinese").prop('checked'),
+            season_basic: $("#scraper_nfo_tv_season_basic").prop('checked'),
+            episode_basic: $("#scraper_nfo_tv_episode_basic").prop('checked'),
+            episode_credits: $("#scraper_nfo_tv_episode_credits").prop('checked'),
+          }
+        },
+        scraper_pic: {
+          movie: {
+            poster: $("#scraper_pic_movie_poster").prop('checked'),
+            backdrop: $("#scraper_pic_movie_backdrop").prop('checked'),
+            background: $("#scraper_pic_movie_background").prop('checked'),
+            logo: $("#scraper_pic_movie_logo").prop('checked'),
+            disc: $("#scraper_pic_movie_disc").prop('checked'),
+            banner: $("#scraper_pic_movie_banner").prop('checked'),
+            thumb: $("#scraper_pic_movie_thumb").prop('checked'),
+          },
+          tv: {
+            poster: $("#scraper_pic_tv_poster").prop('checked'),
+            backdrop: $("#scraper_pic_tv_backdrop").prop('checked'),
+            background: $("#scraper_pic_tv_background").prop('checked'),
+            logo: $("#scraper_pic_tv_logo").prop('checked'),
+            clearart: $("#scraper_pic_tv_clearart").prop('checked'),
+            banner: $("#scraper_pic_tv_banner").prop('checked'),
+            thumb: $("#scraper_pic_tv_thumb").prop('checked'),
+            season_poster: $("#scraper_pic_tv_season_poster").prop('checked'),
+            season_banner: $("#scraper_pic_tv_season_banner").prop('checked'),
+            season_thumb: $("#scraper_pic_tv_season_thumb").prop('checked'),
+            episode_thumb: $("#scraper_pic_tv_episode_thumb").prop('checked'),
+            episode_thumb_ffmpeg: $("#scraper_pic_tv_episode_thumb_ffmpeg").prop('checked')
+          }
+        }
+      }
+    };
+    ajax_post("set_system_config", params, function (ret) {
+      $("#modal-scraper").modal("hide");
+      window_history_refresh();
+    });
   }
 
   // 保存自定义CSS/JavsScript配置

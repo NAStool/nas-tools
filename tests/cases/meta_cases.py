@@ -1,4 +1,36 @@
 meta_cases = [{
+    "title": "The Long Season 2017 2160p WEB-DL H265 AAC-XXX",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "",
+        "en_name": "The Long Season",
+        "year": "2017",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "WEB-DL",
+        "pix": "2160p",
+        "video_codec": "H265",
+        "audio_codec": "AAC"
+    }
+},{
+    "title": "Cherry Season S01 2014 2160p WEB-DL H265 AAC-XXX",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Cherry Season",
+        "year": "2014",
+        "part": "",
+        "season": "S01",
+        "episode": "",
+        "restype": "WEB-DL",
+        "pix": "2160p",
+        "video_codec": "H265",
+        "audio_codec": "AAC"
+    }
+},{
     "title": "【爪爪字幕组】★7月新番[欢迎来到实力至上主义的教室 第二季/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S2][11][1080p][HEVC][GB][MP4][招募翻译校对]",
     "subtitle": "",
     "target": {

@@ -58,6 +58,8 @@ TMDB_API_DOMAIN = 'api.themoviedb.org'
 # TMDB图片地址
 TMDB_IMAGE_DOMAIN = 'image.tmdb.org'
 TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
+# 检查更新的地址
+NASTOOL_UPDATE_URL = "https://nastool.cn/%s/update"
 # 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 电影默认命名格式
@@ -198,6 +200,8 @@ class Config(object):
         domain = (self.get_config('app') or {}).get('domain')
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
+        if domain and str(domain).endswith("/"):
+            domain = domain[:-1]
         return domain
 
     @staticmethod

@@ -1,4 +1,4 @@
-import re
+import regex as re
 from app.utils.commons import singleton
 
 
@@ -9,6 +9,7 @@ class ReleaseGroupsMatcher(object):
     """
     __release_groups = None
     custom_release_groups = None
+    custom_separator = None
     RELEASE_GROUPS = {
         "0ff": ['FF(?:(?:A|WE)B|CD|E(?:DU|B)|TV)'],
         "1pt": [],
@@ -94,12 +95,17 @@ class ReleaseGroupsMatcher(object):
                 groups = self.__release_groups
         title = f"{title} "
         groups_re = re.compile(r"(?<=[-@\[￡【&])(?:%s)(?=[@.\s\]\[】&])" % groups, re.I)
-        # 处理一个制作组识别多次的情况
-        unique_groups = list(set(re.findall(groups_re, title)))
-        return '@'.join(unique_groups)
+        # 处理一个制作组识别多次的情况，保留顺序
+        unique_groups = []
+        for item in re.findall(groups_re, title):
+            if item not in unique_groups:
+                unique_groups.append(item)
+        separator = self.custom_separator or "@"
+        return separator.join(unique_groups)
 
-    def update_custom(self, custom):
+    def update_custom(self, release_groups=None, separator=None):
         """
-        更新自定义制作组/字幕组
+        更新自定义制作组/字幕组，自定义分隔符
         """
-        self.custom_release_groups = custom
+        self.custom_release_groups = release_groups
+        self.custom_separator = separator

@@ -509,7 +509,10 @@ class Media:
             try:
                 tmdb_links = []
                 html = etree.HTML(html_text)
-                links = html.xpath("//a[@data-id]/@href")
+                if mtype == MediaType.TV:
+                    links = html.xpath("//a[@data-id and @data-media-type='tv']/@href")
+                else:
+                    links = html.xpath("//a[@data-id]/@href")
                 for link in links:
                     if not link or (not link.startswith("/tv") and not link.startswith("/movie")):
                         continue

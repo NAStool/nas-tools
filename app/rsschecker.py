@@ -11,7 +11,7 @@ from lxml import etree
 import log
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import DbHelper
+from app.helper import DbHelper, RssHelper
 from app.media import Media
 from app.media.meta import MetaInfo
 from app.message import Message
@@ -33,6 +33,7 @@ class RssChecker(object):
     downloader = None
     subscribe = None
     dbhelper = None
+    rsshelper = None
 
     _scheduler = None
     _rss_tasks = []
@@ -48,6 +49,7 @@ class RssChecker(object):
 
     def init_config(self):
         self.dbhelper = DbHelper()
+        self.rsshelper = RssHelper()
         self.message = Message()
         self.searcher = Searcher()
         self.filter = Filter()
@@ -339,7 +341,7 @@ class RssChecker(object):
                     # 订阅meta_name存enclosure与下载区别
                     media_info.set_torrent_info(enclosure=meta_name)
                     # 添加处理历史
-                    self.dbhelper.insert_rss_torrents(media_info)
+                    self.rsshelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
                         rss_subscribe_torrents.append(media_info)
                         res_num = res_num + 1
@@ -361,7 +363,7 @@ class RssChecker(object):
                     proxy=taskinfo.get("proxy"))
                 if ret:
                     # 下载类型的 这里下载成功了 插入数据库
-                    self.dbhelper.insert_rss_torrents(media)
+                    self.rsshelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
                     downloader_name = self.downloader.get_downloader_conf(downloader_id).get("name")
                     self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader_name)
@@ -650,9 +652,9 @@ class RssChecker(object):
                     meta_name = f"{title} {year}" if year else title
                     if not self.is_article_processed(task_type, title, enclosure, year):
                         if task_type == "D":
-                            self.dbhelper.simple_insert_rss_torrents(meta_name, enclosure)
+                            self.rsshelper.simple_insert_rss_torrents(meta_name, enclosure)
                         elif task_type == "R":
-                            self.dbhelper.simple_insert_rss_torrents(meta_name, meta_name)
+                            self.rsshelper.simple_insert_rss_torrents(meta_name, meta_name)
             elif flag == "set_unfinish":
                 for article in articles:
                     title = article.get("title")
@@ -660,9 +662,9 @@ class RssChecker(object):
                     year = article.get("year")
                     meta_name = f"{title} {year}" if year else title
                     if task_type == "D":
-                        self.dbhelper.simple_delete_rss_torrents(meta_name, enclosure)
+                        self.rsshelper.simple_delete_rss_torrents(meta_name, enclosure)
                     elif task_type == "R":
-                        self.dbhelper.simple_delete_rss_torrents(meta_name, meta_name)
+                        self.rsshelper.simple_delete_rss_torrents(meta_name, meta_name)
             else:
                 return False
             return True
@@ -695,7 +697,7 @@ class RssChecker(object):
             downloader_name = self.downloader.get_downloader_conf(downloader_id).get("name")
             if ret:
                 # 插入数据库
-                self.dbhelper.insert_rss_torrents(media)
+                self.rsshelper.insert_rss_torrents(media)
                 # 登记自定义RSS任务下载记录
                 self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader_name)
             else:
@@ -738,8 +740,52 @@ class RssChecker(object):
         meta_name = f"{title} {year}" if year else title
         match task_type:
             case "D":
-                return self.dbhelper.is_userrss_finished(meta_name, enclosure)
+                return self.rsshelper.is_rssd_by_simple(meta_name, enclosure)
             case "R":
-                return self.dbhelper.is_userrss_finished(meta_name, meta_name)
+                return self.rsshelper.is_rssd_by_simple(meta_name, meta_name)
             case _:
                 return False
+
+    def delete_userrss_task(self, tid):
+        """
+        删除自定义RSS任务
+        :param tid: 任务ID
+        """
+        ret = self.dbhelper.delete_userrss_task(tid)
+        self.init_config()
+        return ret
+
+    def update_userrss_task(self, item):
+        """
+        更新自定义RSS任务
+        :param item: 任务信息
+        """
+        ret = self.dbhelper.update_userrss_task(item)
+        self.init_config()
+        return ret
+
+    def check_userrss_task(self, tid=None, state=None):
+        """
+        设置自定义RSS任务
+        :param tid: 任务ID
+        :param state: 任务状态
+        """
+        ret = self.dbhelper.check_userrss_task(tid, state)
+        self.init_config()
+        return ret
+
+    def delete_userrss_parser(self, pid):
+        """
+        删除自定义RSS解析器
+        :param pid: 解析器ID
+        """
+        ret = self.dbhelper.delete_userrss_parser(pid)
+        self.init_config()
+        return ret
+
+    def get_userrss_task_history(self, task_id):
+        """
+        获取自定义RSS任务下载记录
+        :param task_id: 任务ID
+        """
+        return self.dbhelper.get_userrss_task_history(task_id)

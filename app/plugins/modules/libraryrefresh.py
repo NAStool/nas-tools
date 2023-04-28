@@ -27,7 +27,7 @@ class LibraryRefresh(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "libraryrefresh_"
     # 加载顺序
-    module_order = 8
+    module_order = 1
     # 可使用的用户级别
     auth_level = 2
 
@@ -127,7 +127,10 @@ class LibraryRefresh(_IPluginModule):
                 "year": year,
                 "type": media_info.get("type"),
                 "category": media_info.get("category"),
-                "target_path": event_data.get("dest")
+                # 目的媒体库目录
+                "target_path": event_data.get("dest"),
+                # 这个媒体的转移后的最终路径,包含文件名
+                "file_path": event_data.get("target_path")
             }])
         else:
             self.info(f"媒体服务器 {mediaserver_type} 刷新整库 ...")

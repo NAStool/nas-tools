@@ -74,7 +74,7 @@ class Transmission(_IDownloadClient):
                                           port=self.port,
                                           username=self.username,
                                           password=self.password,
-                                          timeout=30)
+                                          timeout=60)
             return trt
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
@@ -468,7 +468,7 @@ class Transmission(_IDownloadClient):
         if not self.trc:
             return []
         try:
-            return [self.trc.get_session(timeout=10).download_dir]
+            return [self.trc.get_session(timeout=30).download_dir]
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return []

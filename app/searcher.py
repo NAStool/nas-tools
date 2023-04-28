@@ -2,6 +2,7 @@ import log
 from app.helper import DbHelper
 from app.indexer import Indexer
 from app.plugins import EventManager
+from app.utils.commons import singleton
 from config import Config
 from app.message import Message
 from app.downloader import Downloader
@@ -10,6 +11,7 @@ from app.helper import ProgressHelper
 from app.utils.types import SearchType, EventType, ProgressKey
 
 
+@singleton
 class Searcher:
     downloader = None
     media = None
@@ -160,7 +162,7 @@ class Searcher:
         else:
             if in_from in self.message.get_search_types():
                 # 保存搜索记录
-                self.dbhelper.delete_all_search_torrents()
+                self.delete_all_search_torrents()
                 # 搜索结果排序
                 media_list = sorted(media_list, key=lambda x: "%s%s%s%s" % (str(x.title).ljust(100, ' '),
                                                                             str(x.res_order).rjust(3, '0'),
@@ -168,7 +170,7 @@ class Searcher:
                                                                             str(x.seeders).rjust(10, '0')),
                                     reverse=True)
                 # 插入数据库
-                self.dbhelper.insert_search_results(media_list)
+                self.insert_search_results(media_list)
                 # 微信未开自动下载时返回
                 if not self._search_auto:
                     return None, no_exists, len(media_list), None
@@ -189,3 +191,33 @@ class Searcher:
                 # 全部下完了
                 else:
                     return download_items[0], no_exists, len(media_list), len(download_items)
+
+    def get_search_result_by_id(self, dl_id):
+        """
+        根据下载ID获取搜索结果
+        :param dl_id: 下载ID
+        :return: 搜索结果
+        """
+        return self.dbhelper.get_search_result_by_id(dl_id)
+
+    def get_search_results(self):
+        """
+        获取搜索结果
+        :return: 搜索结果
+        """
+        return self.dbhelper.get_search_results()
+
+    def delete_all_search_torrents(self):
+        """
+        删除所有搜索结果
+        """
+        self.dbhelper.delete_all_search_torrents()
+
+    def insert_search_results(self, media_items: list, title=None, ident_flag=True):
+        """
+        插入搜索结果
+        :param media_items: 搜索结果
+        :param title: 搜索标题
+        :param ident_flag: 是否标识
+        """
+        self.dbhelper.insert_search_results(media_items, title, ident_flag)

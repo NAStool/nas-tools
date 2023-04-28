@@ -1,23 +1,22 @@
 import re
-import xml.dom.minidom
 from threading import Lock
 
 import log
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import DbHelper
+from app.helper import DbHelper, RssHelper
 from app.media import Media
 from app.media.meta import MetaInfo
-from app.message import Message
 from app.sites import Sites, SiteConf
 from app.subscribe import Subscribe
-from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils, RssTitleUtils, Torrent
+from app.utils import ExceptionUtils, Torrent
+from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
-from config import Config
 
 lock = Lock()
 
 
+@singleton
 class Rss:
     filter = None
     media = None
@@ -26,6 +25,7 @@ class Rss:
     downloader = None
     searcher = None
     dbhelper = None
+    rsshelper = None
     subscribe = None
 
     def __init__(self):
@@ -38,6 +38,7 @@ class Rss:
         self.siteconf = SiteConf()
         self.filter = Filter()
         self.dbhelper = DbHelper()
+        self.rsshelper = RssHelper()
         self.subscribe = Subscribe()
 
     def rssdownload(self):
@@ -126,7 +127,15 @@ class Rss:
                     site_order = 100 - int(site_info.get("pri"))
                 else:
                     site_order = 0
-                rss_acticles = self.parse_rssxml(url=rss_url, site_name=site_name)
+                rss_acticles = self.rsshelper.parse_rssxml(url=rss_url)
+                if rss_acticles is None:
+                    # RSS链接过期
+                    log.error(f"【Rss】站点 {site_name} RSS链接已过期，请重新获取！")
+                    # 发送消息
+                    self.message.send_site_message(title="【RSS链接过期提醒】",
+                                                   text=f"站点：{site_name}\n"
+                                                        f"链接：{rss_url}")
+                    continue
                 if not rss_acticles:
                     log.warn(f"【Rss】{site_name} 未下载到数据")
                     continue
@@ -147,7 +156,7 @@ class Rss:
                         # 开始处理
                         log.info(f"【Rss】开始处理：{title}")
                         # 检查这个种子是不是下过了
-                        if self.dbhelper.is_torrent_rssd(enclosure):
+                        if self.rsshelper.is_rssd_by_enclosure(enclosure):
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
                         # 识别种子名称，开始搜索TMDB
@@ -292,7 +301,7 @@ class Rss:
                         media_info.set_download_info(download_setting=match_info.get("download_setting"),
                                                      save_path=match_info.get("save_path"))
                         # 插入数据库历史记录
-                        self.dbhelper.insert_rss_torrents(media_info)
+                        self.rsshelper.insert_rss_torrents(media_info)
                         # 加入下载列表
                         if media_info not in rss_download_torrents:
                             rss_download_torrents.append(media_info)
@@ -306,102 +315,6 @@ class Rss:
             # 开始择优下载
             self.download_rss_torrent(rss_download_torrents=rss_download_torrents,
                                       rss_no_exists=rss_no_exists)
-
-    @staticmethod
-    def parse_rssxml(url, site_name=None, proxy=False):
-        """
-        解析RSS订阅URL，获取RSS中的种子信息
-        :param url: RSS地址
-        :param site_name: 站点名称
-        :param proxy: 是否使用代理
-        :return: 种子信息列表
-        """
-        _special_title_sites = {
-            'pt.keepfrds.com': RssTitleUtils.keepfriends_title
-        }
-
-        _rss_expired_msg = [
-            "RSS 链接已过期, 您需要获得一个新的!",
-            "RSS Link has expired, You need to get a new one!"
-        ]
-
-        # 开始处理
-        ret_array = []
-        if not url:
-            return []
-        site_domain = StringUtils.get_url_domain(url)
-        try:
-            ret = RequestUtils(proxies=Config().get_proxies() if proxy else None).get_res(url)
-            if not ret:
-                return []
-            ret.encoding = ret.apparent_encoding
-        except Exception as e2:
-            ExceptionUtils.exception_traceback(e2)
-            log.console(str(e2))
-            return []
-        if ret:
-            ret_xml = ret.text
-            try:
-                # 解析XML
-                dom_tree = xml.dom.minidom.parseString(ret_xml)
-                rootNode = dom_tree.documentElement
-                items = rootNode.getElementsByTagName("item")
-                for item in items:
-                    try:
-                        # 标题
-                        title = DomUtils.tag_value(item, "title", default="")
-                        if not title:
-                            continue
-                        # 标题特殊处理
-                        if site_domain and site_domain in _special_title_sites:
-                            title = _special_title_sites.get(site_domain)(title)
-                        # 描述
-                        description = DomUtils.tag_value(item, "description", default="")
-                        # 种子页面
-                        link = DomUtils.tag_value(item, "link", default="")
-                        # 种子链接
-                        enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
-                        if not enclosure and not link:
-                            continue
-                        # 部分RSS只有link没有enclosure
-                        if not enclosure and link:
-                            enclosure = link
-                            link = None
-                        # 大小
-                        size = DomUtils.tag_value(item, "enclosure", "length", default=0)
-                        if size and str(size).isdigit():
-                            size = int(size)
-                        else:
-                            size = 0
-                        # 发布日期
-                        pubdate = DomUtils.tag_value(item, "pubDate", default="")
-                        if pubdate:
-                            # 转换为时间
-                            pubdate = StringUtils.get_time_stamp(pubdate)
-                        # 返回对象
-                        tmp_dict = {'title': title,
-                                    'enclosure': enclosure,
-                                    'size': size,
-                                    'description': description,
-                                    'link': link,
-                                    'pubdate': pubdate}
-                        ret_array.append(tmp_dict)
-                    except Exception as e1:
-                        ExceptionUtils.exception_traceback(e1)
-                        continue
-            except Exception as e2:
-                # RSS过期 观众RSS 链接已过期，您需要获得一个新的！  pthome RSS Link has expired, You need to get a new one!
-                if ret_xml in _rss_expired_msg:
-                    log.error(f"站点 {site_name} RSS链接已过期，请重新获取！")
-                    if site_name:
-                        # 发送消息
-                        Message().send_site_message(title="【RSS链接过期提醒】",
-                                                    text=f"站点：{site_name}\n"
-                                                         f"链接：{url}")
-                    return []
-                ExceptionUtils.exception_traceback(e2)
-                return ret_array
-        return ret_array
 
     def check_torrent_rss(self,
                           media_info,
@@ -661,3 +574,15 @@ class Rss:
             log.info("【Rss】实际下载了 %s 个资源" % len(download_items))
         else:
             log.info("【Rss】未下载到任何资源")
+
+    def delete_rss_history(self, rssid):
+        """
+        删除订阅历史
+        """
+        self.dbhelper.delete_rss_history(rssid=rssid)
+
+    def get_rss_history(self, rtype=None, rid=None):
+        """
+        获取订阅历史
+        """
+        return self.dbhelper.get_rss_history(rtype=rtype, rid=rid)

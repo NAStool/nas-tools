@@ -1,7 +1,7 @@
 import re
 
 import log
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 

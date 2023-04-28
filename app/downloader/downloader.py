@@ -1363,3 +1363,110 @@ class Downloader:
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+
+    def get_download_history(self, date=None, hid=None, num=30, page=1):
+        """
+        获取下载历史记录
+        """
+        return self.dbhelper.get_download_history(date=date, hid=hid, num=num, page=page)
+
+    def get_download_history_by_title(self, title):
+        """
+        根据标题查询下载历史记录
+        :return:
+        """
+        return self.dbhelper.get_download_history_by_title(title=title) or []
+
+    def get_download_history_by_downloader(self, downloader, download_id):
+        """
+        根据下载器和下载ID查询下载历史记录
+        :return:
+        """
+        return self.dbhelper.get_download_history_by_downloader(downloader=downloader,
+                                                                download_id=download_id)
+
+    def update_downloader(self,
+                          did,
+                          name,
+                          enabled,
+                          dtype,
+                          transfer,
+                          only_nastool,
+                          match_path,
+                          rmt_mode,
+                          config,
+                          download_dir):
+        """
+        更新下载器
+        """
+        ret = self.dbhelper.update_downloader(
+            did=did,
+            name=name,
+            enabled=enabled,
+            dtype=dtype,
+            transfer=transfer,
+            only_nastool=only_nastool,
+            match_path=match_path,
+            rmt_mode=rmt_mode,
+            config=config,
+            download_dir=download_dir
+        )
+        self.init_config()
+        return ret
+
+    def delete_downloader(self, did):
+        """
+        删除下载器
+        """
+        ret = self.dbhelper.delete_downloader(did=did)
+        self.init_config()
+        return ret
+
+    def check_downloader(self, did=None, transfer=None, only_nastool=None, enabled=None, match_path=None):
+        """
+        检查下载器
+        """
+        ret = self.dbhelper.check_downloader(did=did,
+                                             transfer=transfer,
+                                             only_nastool=only_nastool,
+                                             enabled=enabled,
+                                             match_path=match_path)
+        self.init_config()
+        return ret
+
+    def delete_download_setting(self, sid):
+        """
+        删除下载设置
+        """
+        ret = self.dbhelper.delete_download_setting(sid=sid)
+        self.init_config()
+        return ret
+
+    def update_download_setting(self,
+                                sid,
+                                name,
+                                category,
+                                tags,
+                                is_paused,
+                                upload_limit,
+                                download_limit,
+                                ratio_limit,
+                                seeding_time_limit,
+                                downloader):
+        """
+        更新下载设置
+        """
+        ret = self.dbhelper.update_download_setting(
+            sid=sid,
+            name=name,
+            category=category,
+            tags=tags,
+            is_paused=is_paused,
+            upload_limit=upload_limit,
+            download_limit=download_limit,
+            ratio_limit=ratio_limit,
+            seeding_time_limit=seeding_time_limit,
+            downloader=downloader
+        )
+        self.init_config()
+        return ret

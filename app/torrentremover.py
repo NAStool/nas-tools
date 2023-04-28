@@ -281,6 +281,7 @@ class TorrentRemover(object):
             downloader=downloader_id,
             config=config,
         )
+        self.init_config()
         return True, "更新成功"
 
     def delete_torrent_remove_task(self, taskid=None):
@@ -291,6 +292,7 @@ class TorrentRemover(object):
             return False
         else:
             self.dbhelper.delete_torrent_remove_task(tid=taskid)
+            self.init_config()
             return True
 
     def get_remove_torrents(self, taskid):

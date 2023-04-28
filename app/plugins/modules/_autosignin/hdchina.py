@@ -1,29 +1,21 @@
-import random
-import re
+import json
 
 from lxml import etree
 
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class U2(_ISiteSigninHandler):
+class HDChina(_ISiteSigninHandler):
     """
-    U2签到 随机
+    瓷器签到
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "u2.dmhy.org"
+    site_url = "hdchina.org"
 
     # 已签到
-    _sign_regex = ['<a href="showup.php">已签到</a>',
-                   '<a href="showup.php">Show Up</a>',
-                   '<a href="showup.php">Показать</a>',
-                   '<a href="showup.php">已簽到</a>',
-                   '<a href="showup.php">已簽到</a>']
-
-    # 签到成功
-    _success_text = "window.location.href = 'showup.php';</script>"
+    _sign_regex = ['<a class="label label-default" href="#">已签到</a>']
 
     @classmethod
     def match(cls, url):
@@ -45,19 +37,37 @@ class U2(_ISiteSigninHandler):
         ua = site_info.get("ua")
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
+        # 尝试解决瓷器cookie每天签到后过期,只保留hdchina=部分
+        cookie = ""
+        # 按照分号进行字符串拆分
+        sub_strs = site_cookie.split(";")
+        # 遍历每个子字符串
+        for sub_str in sub_strs:
+            if "hdchina=" in sub_str:
+                # 如果子字符串包含"hdchina="，则保留该子字符串
+                cookie += sub_str + ";"
+
+        if "hdchina=" not in cookie:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
+        site_cookie = cookie
         # 获取页面html
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://u2.dmhy.org/showup.php")
+                                ).get_res(url="https://hdchina.org/index.php")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
-        if "login.php" in html_res.text:
+        if "login.php" in html_res.text or "阻断页面" in html_res.text:
             self.error(f"签到失败，cookie失效")
             return False, f'【{site}】签到失败，cookie失效'
-        
+
+        # 获取新返回的cookie进行签到
+        site_cookie = ';'.join(['{}={}'.format(k, v) for k, v in html_res.cookies.get_dict().items()])
+
         # 判断是否已签到
         html_res.encoding = "utf-8"
         sign_status = self.sign_in_result(html_res=html_res.text,
@@ -72,40 +82,32 @@ class U2(_ISiteSigninHandler):
         if not html:
             return False, f'【{site}】签到失败'
 
-        # 获取签到参数
-        req = html.xpath("//form//td/input[@name='req']/@value")[0]
-        hash_str = html.xpath("//form//td/input[@name='hash']/@value")[0]
-        form = html.xpath("//form//td/input[@name='form']/@value")[0]
-        submit_name = html.xpath("//form//td/input[@type='submit']/@name")
-        submit_value = html.xpath("//form//td/input[@type='submit']/@value")
-        if not re or not hash_str or not form or not submit_name or not submit_value:
-            self.error("签到失败，未获取到相关签到参数")
+        # x_csrf
+        x_csrf = html.xpath("//meta[@name='x-csrf']/@content")[0]
+        if not x_csrf:
+            self.error("签到失败，获取x-csrf失败")
             return False, f'【{site}】签到失败'
+        self.debug(f"获取到x-csrf {x_csrf}")
 
-        # 随机一个答案
-        answer_num = random.randint(0, 3)
-        data = {
-            'req': req,
-            'hash': hash_str,
-            'form': form,
-            'message': '一切随缘~',
-            submit_name[answer_num]: submit_value[answer_num]
-        }
         # 签到
+        data = {
+            'csrf': x_csrf
+        }
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).post_res(url="https://u2.dmhy.org/showup.php?action=show",
-                                           data=data)
+                                ).post_res(url="https://hdchina.org/plugin_sign-in.php?cmd=signin", data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'
 
-        # 判断是否签到成功
-        # sign_res.text = "<script type="text/javascript">window.location.href = 'showup.php';</script>"
-        if self._success_text in sign_res.text:
+        sign_dict = json.loads(sign_res.text)
+        self.debug(f"签到返回结果 {sign_dict}")
+        if sign_dict['state']:
+            # {'state': 'success', 'signindays': 10, 'integral': 20}
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
         else:
-            self.error(f"签到失败，未知原因")
-            return False, f'【{site}】签到失败，未知原因'
+            # {'state': False, 'msg': '不正确的CSRF / Incorrect CSRF token'}
+            self.error(f"签到失败，不正确的CSRF / Incorrect CSRF token")
+            return False, f'【{site}】签到失败'

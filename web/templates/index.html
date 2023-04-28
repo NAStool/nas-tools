@@ -38,21 +38,32 @@
   </div>
 </div>
 {% if ServerSucess %}
+{% with curdomainleft = request.host.split(':')[0] %}
 <div class="page-body">
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
       {% for Library in Librarys %}
         {% if LibrarySyncConf and Library.id|string in LibrarySyncConf %}
-        <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
-          <custom-img img-class="w-100"
-                      img-src="{{ Library.image }}"
-                      img-ratio="50%"
-                      img-style="object-fit: cover;"
-          ></custom-img>
-          <div class="m-2 text-center">
-            {{ Library.name }}
-          </div>
-        </a>
+        {% set theLibLink = Library.link %}
+          {% if "127.0.0.1" in theLibLink[0:16] %}
+            {% set theLibLink = theLibLink|replace("127.0.0.1",curdomainleft,1) %}
+          {% elif "localhost" in theLibLink[0:16] %}
+            {% set theLibLink = theLibLink|replace("localhost",curdomainleft,1) %}
+          {% endif %}
+          <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ theLibLink }}" target="_blank">
+          {% if Library.image %}
+            <custom-img img-class="w-100"
+                        img-src="{{ Library.image }}"
+                        img-ratio="50%"
+                        img-style="object-fit: cover;"
+            ></custom-img>
+          {% else %}
+            <custom-plex-library-img img-src-list='{{ Library.image_list }}'></custom-plex-library-img>
+          {% endif %}
+            <div class="m-2 text-center">
+              {{ Library.name }}
+            </div>
+          </a>
         {% endif %}
       {% endfor %}
     </div>
@@ -74,7 +85,13 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card align-items-start">
       {% for Resume in Resumes %}
-      <a class="card card-link-pop rounded-3 overflow-hidden resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
+        {% set theLibLink = Resume.link %}
+        {% if "127.0.0.1" in theLibLink[0:16] %}
+          {% set theLibLink = theLibLink|replace("127.0.0.1",curdomainleft,1) %}
+        {% elif "localhost" in theLibLink[0:16] %}
+          {% set theLibLink = theLibLink|replace("localhost",curdomainleft,1) %}
+        {% endif %}
+      <a class="card card-link-pop rounded-3 overflow-hidden resume-{{ Resume.id }}" href="{{ theLibLink }}" target="_blank">
         <custom-img img-class="w-100"
                     img-src="{{ Resume.image }}"
                     img-ratio="50%"
@@ -90,7 +107,7 @@
         </div>
         {% endif %}
         <div class="m-2 text-center" style="-webkit-line-clamp:1; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
-          {% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}
+          {{ Resume.name }}
         </div>
       </a>
       {% endfor %}
@@ -114,7 +131,13 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-media-card align-items-start">
       {% for Latest in Latests %}
-      <a class="card card-link-pop overflow-hidden rounded-3 latest-{{ Latest.id }}" href="{{ Latest.link }}" target="_blank">
+      {% set theLibLink = Latest.link %}
+        {% if "127.0.0.1" in theLibLink[0:16] %}
+          {% set theLibLink = theLibLink|replace("127.0.0.1",curdomainleft,1) %}
+        {% elif "localhost" in theLibLink[0:16] %}
+          {% set theLibLink = theLibLink|replace("localhost",curdomainleft,1) %}
+        {% endif %}
+      <a class="card card-link-pop overflow-hidden rounded-3 latest-{{ Latest.id }}" href="{{ theLibLink }}" target="_blank">
         <custom-img img-class="w-100"
                     img-src="{{ Latest.image }}"
                     img-ratio="150%"
@@ -130,6 +153,7 @@
   </div>
 </div>
 {% endif %}
+{% endwith %}
 {% else %}
 {{ OOPS.systemerror('媒体服务器连接失败！', '当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。') }}
 {% endif %}
@@ -481,7 +505,9 @@
   $(document).ready(function () {
     // 响应大小调整
     window.onresize = function () {
-      chart_statistics.resize();
+      if(chart_statistics) {
+        chart_statistics.resize();
+      }
     };
   });
 

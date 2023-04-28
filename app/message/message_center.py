@@ -13,30 +13,21 @@ class MessageCenter:
     def __init__(self):
         pass
 
-    def insert_system_message(self, level, title, content=None):
+    def insert_system_message(self, title, content=None):
         """
         新增系统消息
-        :param level: 级别
         :param title: 标题
         :param content: 内容
         """
-        if not level or not title:
-            return
-        if not content and title.find("：") != -1:
-            strings = title.split("：")
-            if strings and len(strings) > 1:
-                title = strings[0]
-                content = strings[1]
         title = title.replace("\n", "<br>").strip() if title else ""
         content = content.replace("\n", "<br>").strip() if content else ""
-        self.__append_message_queue(level, title, content)
+        self.__append_message_queue(title, content)
 
-    def __append_message_queue(self, level, title, content):
+    def __append_message_queue(self, title, content):
         """
         将消息增加到队列
         """
-        self._message_queue.appendleft({"level": level,
-                                        "title": title,
+        self._message_queue.appendleft({"title": title,
                                         "content": content,
                                         "time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))})
 

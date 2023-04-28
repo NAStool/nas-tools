@@ -430,15 +430,16 @@ class IYUUAutoSeed(_IPluginModule):
         self.__update_config()
         # 发送消息
         if self._notify:
-            self.send_message(
-                title="【IYUU自动辅种任务完成】",
-                text=f"服务器返回可辅种总数：{self.total}\n"
-                     f"实际可辅种数：{self.realtotal}\n"
-                     f"已存在：{self.exist}\n"
-                     f"成功：{self.success}\n"
-                     f"失败：{self.fail}\n"
-                     f"{self.cached} 条失败记录已加入缓存"
-            )
+            if self.success or self.fail:
+                self.send_message(
+                    title="【IYUU自动辅种任务完成】",
+                    text=f"服务器返回可辅种总数：{self.total}\n"
+                        f"实际可辅种数：{self.realtotal}\n"
+                        f"已存在：{self.exist}\n"
+                        f"成功：{self.success}\n"
+                        f"失败：{self.fail}\n"
+                        f"{self.cached} 条失败记录已加入缓存"
+                )
         self.info("辅种任务执行完成")
 
     def check_recheck(self):
@@ -644,6 +645,9 @@ class IYUUAutoSeed(_IPluginModule):
             self.fail += 1
             self.cached += 1
             return False
+        # 强制使用Https
+        if not torrent_url.startswith("https://"):
+            torrent_url = torrent_url.replace("http://", "https://")
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)

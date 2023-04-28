@@ -137,6 +137,8 @@ class EventType(Enum):
     AutoSeedStart = "autoseed.start"
     # 刷新媒体库
     RefreshMediaServer = "refresh.mediaserver"
+    # 站点签到
+    SiteSignin = "site.signin"
 
 
 # 系统配置Key字典
@@ -161,7 +163,10 @@ class SystemConfigKey(Enum):
     DefaultRssSettingTV = "DefaultRssSettingTV"
     # 用户已安装的插件
     UserInstalledPlugins = "UserInstalledPlugins"
-
+    # 括削配置
+    UserScraperConf = "UserScraperConf"
+    # 索引站点
+    UserIndexerSites = "UserIndexerSites"
 
 # 处理进度Key字典
 class ProgressKey(Enum):

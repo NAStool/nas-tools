@@ -7,6 +7,7 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from threading import Event
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils
 from config import Config
@@ -47,6 +48,8 @@ class AutoBackup(_IPluginModule):
     _bk_path = None
     _onlyonce = False
     _notify = False
+    # 退出事件
+    _event = Event()
 
     @staticmethod
     def get_fields():
@@ -145,6 +148,9 @@ class AutoBackup(_IPluginModule):
             self._notify = config.get("notify")
             self._onlyonce = config.get("onlyonce")
 
+        # 停止现有任务
+        self.stop_service()
+
         # 启动服务
         if self._enabled or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
@@ -222,13 +228,27 @@ class AutoBackup(_IPluginModule):
 
         # 发送通知
         if self._notify:
+            next_run_time = self._scheduler.get_jobs()[0].next_run_time.strftime('%Y-%m-%d %H:%M:%S')
             self.send_message(title="【自动备份任务完成】",
                               text=f"创建备份{'成功' if zip_file else '失败'}\n"
                                    f"清理备份数量 {del_cnt}\n"
-                                   f"剩余备份数量 {bk_cnt - del_cnt}")
+                                   f"剩余备份数量 {bk_cnt - del_cnt} \n"
+                                   f"下次备份时间: {next_run_time}")
 
     def stop_service(self):
-        pass
+        """
+        退出插件
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._event.set()
+                    self._scheduler.shutdown()
+                    self._event.clear()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))
 
     def get_state(self):
         return self._enabled and self._cron

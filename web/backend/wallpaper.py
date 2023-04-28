@@ -7,10 +7,12 @@ from app.utils import RequestUtils, ExceptionUtils
 from config import Config
 
 
-def get_login_wallpaper(time_now=datetime.datetime.now()):
+def get_login_wallpaper(time_now=None):
     """
     获取Base64编码的壁纸图片
     """
+    if not time_now:
+        time_now = datetime.datetime.now()
     wallpaper = Config().get_config('app').get('wallpaper')
     tmdbkey = Config().get_config('app').get('rmt_tmdbkey')
     if (not wallpaper or wallpaper == "themoviedb") and tmdbkey:

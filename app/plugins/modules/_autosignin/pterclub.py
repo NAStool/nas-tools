@@ -1,6 +1,6 @@
 import json
 
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
@@ -45,7 +45,7 @@ class PTerClub(_ISiteSigninHandler):
             return False, f'【{site}】签到失败，请检查cookie是否失效'
 
         sign_dict = json.loads(sign_res.text)
-        self.debug(f"签到返回 {sign_dict}")
+        self.debug(f"签到接口返回参数 {sign_dict}")
         if sign_dict['status'] == 1:
             # {"status":"1","data":" (签到已成功300)","message":"<p>这是您的第<b>237</b>次签到，
             # 已连续签到<b>237</b>天。</p><p>本次签到获得<b>300</b>克猫粮。</p>"}
@@ -53,5 +53,5 @@ class PTerClub(_ISiteSigninHandler):
             return True, f'【{site}】签到成功'
         else:
             # {"status":"0","data":"抱歉","message":"您今天已经签到过了，请勿重复刷新。"}
-            self.error(f"今日已签到")
+            self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'

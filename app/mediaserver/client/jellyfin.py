@@ -1,11 +1,10 @@
 import re
-from urllib.parse import quote
 
 import log
-from config import Config
 from app.mediaserver.client._base import _IMediaClient
-from app.utils.types import MediaServerType, MediaType
 from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
+from app.utils.types import MediaServerType, MediaType
+from config import Config
 
 
 class Jellyfin(_IMediaClient):
@@ -364,7 +363,7 @@ class Jellyfin(_IMediaClient):
 
     def get_remote_image_by_id(self, item_id, image_type):
         """
-        根据ItemId从Jellyfin查询图片地址
+        根据ItemId从Jellyfin查询TMDB图片地址
         :param item_id: 在Emby中的ID
         :param image_type: 图片的类弄地，poster或者backdrop等
         :return: 图片对应在TMDB中的URL
@@ -388,18 +387,26 @@ class Jellyfin(_IMediaClient):
             return None
         return None
 
-    def get_local_image_by_id(self, item_id, remote=True):
+    def get_local_image_by_id(self, item_id, remote=True, inner=False):
         """
         根据ItemId从媒体服务器查询有声书图片地址
-        :param item_id: 在Emby中的ID
-        :param remote: 是否远程使用
+        :param: item_id: 在Emby中的ID
+        :param: remote 是否远程使用，TG微信等客户端调用应为True
+        :param: inner 是否NT内部调用，为True是会使用NT中转
         """
         if not self._host or not self._apikey:
             return None
-        host = self._play_host or self._host
-        if remote and IpUtils.is_internal(host):
-            return None
-        return "%sItems/%s/Images/Primary" % (host, item_id)
+        if not remote:
+            image_url = "%sItems/%s/Images/Primary" % (self._host, item_id)
+            if inner:
+                return self.get_nt_image_url(image_url)
+            return image_url
+        else:
+            host = self._play_host or self._host
+            image_url = "%sItems/%s/Images/Primary" % (host, item_id)
+            if IpUtils.is_internal(host):
+                return self.get_nt_image_url(url=image_url, remote=True)
+            return image_url
 
     def refresh_root_library(self):
         """
@@ -446,7 +453,7 @@ class Jellyfin(_IMediaClient):
                     library_type = MediaType.TV.value
                 case _:
                     continue
-            image = self.get_local_image_by_id(library.get("Id"), remote=False)
+            image = self.get_local_image_by_id(library.get("Id"), remote=False, inner=True)
             link = f"{self._play_host or self._host}web/index.html#!" \
                    f"/movies.html?topParentId={library.get('Id')}" \
                 if library_type == MediaType.MOVIE.value \
@@ -457,21 +464,36 @@ class Jellyfin(_IMediaClient):
                 "name": library.get("Name"),
                 "path": library.get("Path"),
                 "type": library_type,
-                "image": f'img?url={quote(image)}',
+                "image": image,
                 "link": link
             })
         return libraries
 
-    def __get_backdrop_url(self, item_id, image_tag):
+    def __get_backdrop_url(self, item_id, image_tag, remote=True, inner=False):
         """
         获取Backdrop图片地址
+        :param: item_id: 在Emby中的ID
+        :param: image_tag: 图片的tag
+        :param: remote 是否远程使用，TG微信等客户端调用应为True
+        :param: inner 是否NT内部调用，为True是会使用NT中转
         """
         if not self._host or not self._apikey:
             return ""
         if not image_tag or not item_id:
             return ""
-        return f"{self._play_host or self._host}Items/{item_id}/" \
-               f"Images/Backdrop?tag={image_tag}&fillWidth=666&api_key={self._apikey}"
+        if not remote:
+            image_url = f"{self._host}Items/{item_id}/"\
+                        f"Images/Backdrop?tag={image_tag}&fillWidth=666&api_key={self._apikey}"
+            if inner:
+                return self.get_nt_image_url(image_url)
+            return image_url
+        else:
+            host = self._play_host or self._host
+            image_url = f"{host}Items/{item_id}/"\
+                        f"Images/Backdrop?tag={image_tag}&fillWidth=666&api_key={self._apikey}"
+            if IpUtils.is_internal(host):
+                return self.get_nt_image_url(url=image_url, remote=True)
+            return image_url
 
     def get_iteminfo(self, itemid):
         """
@@ -583,30 +605,26 @@ class Jellyfin(_IMediaClient):
                     link = self.get_play_url(item.get("Id"))
                     if item.get("BackdropImageTags"):
                         image = self.__get_backdrop_url(item_id=item.get("Id"),
-                                                        image_tag=item.get("BackdropImageTags")[0])
+                                                        image_tag=item.get("BackdropImageTags")[0],
+                                                        remote=False,
+                                                        inner=True)
                     else:
-                        image = self.get_local_image_by_id(item.get("Id"), remote=False)
+                        image = self.get_local_image_by_id(item.get("Id"), remote=False, inner=True)
                     if item_type == MediaType.MOVIE.value:
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": f"img?url={quote(image)}",
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
+                        title = item.get("Name")
                     else:
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": image,
-                            "season_name": item.get("SeasonName"),
-                            "series_name": item.get("SeriesName"),
-                            "episode_num": item.get("IndexNumber"),
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
+                        if item.get("ParentIndexNumber") == 1:
+                            title = f'{item.get("SeriesName")} 第{item.get("IndexNumber")}集'
+                        else:
+                            title = f'{item.get("SeriesName")} 第{item.get("ParentIndexNumber")}季第{item.get("IndexNumber")}集'
+                    ret_resume.append({
+                        "id": item.get("Id"),
+                        "name": title,
+                        "type": item_type,
+                        "image": image,
+                        "link": link,
+                        "percent": item.get("UserData", {}).get("PlayedPercentage")
+                    })
                 return ret_resume
             else:
                 log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
@@ -631,15 +649,13 @@ class Jellyfin(_IMediaClient):
                     if item.get("Type") not in ["Movie", "Series"]:
                         continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/details?id={item.get('Id')}&context=home&serverId={self._serverid}"
                     link = self.get_play_url(item.get("Id"))
-                    image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
+                    image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False, inner=True)
                     ret_latest.append({
                         "id": item.get("Id"),
                         "name": item.get("Name"),
                         "type": item_type,
-                        "image": f"img?url={quote(image)}" if image else "",
+                        "image": image,
                         "link": link
                     })
                 return ret_latest

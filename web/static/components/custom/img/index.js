@@ -73,7 +73,7 @@ export class CustomImg extends CustomElement {
       </style>
       <div class="placeholder-glow${this.img_ratio ? " ratio" : ""}"
           style=${(this.img_ratio ? "--tblr-aspect-ratio:" + this.img_ratio + ";" : "") + (this.div_style ?? "")}>
-        <div ?hidden=${!this._placeholder || this.img_placeholder != "1"} class="placeholder ${this.img_class}" style=${this.img_style}></div>
+        <div ?hidden=${!this._placeholder || this.img_placeholder != "1"} class="placeholder rounded-0 ${this.img_class}" style=${this.img_style}></div>
         <img ?hidden=${this._placeholder} alt=""
           class=${this.img_class}
           style=${this.img_style}

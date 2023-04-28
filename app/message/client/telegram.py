@@ -34,8 +34,6 @@ class Telegram(_IMessageClient):
         self._interactive = config.get("interactive")
         self._domain = Config().get_domain()
         self._api_key = Config().get_config("security").get("api_key")
-        if self._domain and self._domain.endswith("/"):
-            self._domain = self._domain[:-1]
         self.init_config()
 
     def init_config(self):

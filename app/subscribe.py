@@ -14,12 +14,14 @@ from app.plugins import EventManager
 from app.searcher import Searcher
 from app.sites import Sites
 from app.utils import Torrent
+from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType, EventType, SystemConfigKey, RssType
 from web.backend.web_utils import WebUtils
 
 lock = Lock()
 
 
+@singleton
 class Subscribe:
     dbhelper = None
     metahelper = None
@@ -31,8 +33,12 @@ class Subscribe:
     douban = None
     filter = None
     eventmanager = None
+    indexer = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.dbhelper = DbHelper()
         self.metahelper = MetaHelper()
         self.searcher = Searcher()
@@ -160,6 +166,8 @@ class Subscribe:
             if mediaid:
                 # 根据ID查询
                 media_info = WebUtils.get_mediainfo_from_id(mtype=mtype, mediaid=mediaid)
+                if not season:
+                    season = media_info.begin_season
             else:
                 # 根据名称和年份查询
                 if season:
@@ -207,7 +215,7 @@ class Subscribe:
                 else:
                     lack = total
                 if rssid:
-                    self.dbhelper.delete_rss_tv(rssid=rssid)
+                    self.delete_subscribe(mtype=MediaType.TV, rssid=rssid)
                 code = self.dbhelper.insert_rss_tv(media_info=media_info,
                                                    total=total,
                                                    lack=lack,
@@ -232,7 +240,7 @@ class Subscribe:
             else:
                 # 电影
                 if rssid:
-                    self.dbhelper.delete_rss_movie(rssid=rssid)
+                    self.delete_subscribe(mtype=MediaType.MOVIE, rssid=rssid)
                 code = self.dbhelper.insert_rss_movie(media_info=media_info,
                                                       state=state,
                                                       rss_sites=rss_sites,
@@ -259,7 +267,7 @@ class Subscribe:
                 media_info.begin_season = int(season)
             if mtype == MediaType.MOVIE:
                 if rssid:
-                    self.dbhelper.delete_rss_movie(rssid=rssid)
+                    self.delete_subscribe(mtype=MediaType.MOVIE, rssid=rssid)
                 code = self.dbhelper.insert_rss_movie(media_info=media_info,
                                                       state="R",
                                                       rss_sites=rss_sites,
@@ -277,7 +285,7 @@ class Subscribe:
                                                       keyword=keyword)
             else:
                 if rssid:
-                    self.dbhelper.delete_rss_tv(rssid=rssid)
+                    self.delete_subscribe(mtype=MediaType.TV, rssid=rssid)
                 code = self.dbhelper.insert_rss_tv(media_info=media_info,
                                                    total=0,
                                                    lack=0,
@@ -351,7 +359,7 @@ class Subscribe:
                                              desc=media.overview)
 
             # 删除订阅
-            self.dbhelper.delete_rss_movie(rssid=rssid)
+            self.delete_subscribe(mtype=MediaType.MOVIE, rssid=rssid)
 
         # 电视剧订阅
         else:
@@ -372,7 +380,7 @@ class Subscribe:
                                              total=total,
                                              start=rss[0].CURRENT_EP)
             # 删除订阅
-            self.dbhelper.delete_rss_tv(rssid=rssid)
+            self.delete_subscribe(mtype=MediaType.TV, rssid=rssid)
 
         # 解发事件
         self.eventmanager.send_event(EventType.SubscribeFinished, {
@@ -979,3 +987,43 @@ class Subscribe:
         查询数据库中订阅的电视剧缺失集数
         """
         return self.dbhelper.get_rss_tv_episodes(rssid)
+
+    def check_history(self, type_str, name, year, season):
+        """
+        检查订阅历史是否存在
+        """
+        return self.dbhelper.check_rss_history(type_str=type_str,
+                                               name=name,
+                                               year=year,
+                                               season=season)
+
+    def delete_subscribe(self, mtype,
+                         title=None, year=None, season=None, rssid=None, tmdbid=None):
+        """
+        删除电影订阅
+        """
+        if mtype == MediaType.MOVIE:
+            return self.dbhelper.delete_rss_movie(title=title, year=year, rssid=rssid, tmdbid=tmdbid)
+        else:
+            return self.dbhelper.delete_rss_tv(title=title, season=season, rssid=rssid, tmdbid=tmdbid)
+
+    def get_subscribe_id(self, mtype,
+                         title, year=None, season=None, tmdbid=None):
+        """
+        获取订阅ID
+        """
+        if mtype == MediaType.MOVIE:
+            return self.dbhelper.get_rss_movie_id(title=title,
+                                                  year=year,
+                                                  tmdbid=tmdbid)
+        else:
+            return self.dbhelper.get_rss_tv_id(title=title,
+                                               year=year,
+                                               season=season,
+                                               tmdbid=tmdbid)
+
+    def truncate_rss_episodes(self):
+        """
+        清空订阅缺失集数
+        """
+        self.dbhelper.truncate_rss_episodes()

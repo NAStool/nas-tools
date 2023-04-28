@@ -8,7 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 import log
 from app.conf import ModuleConf
-from app.helper import DbHelper
+from app.helper import RssHelper
 from app.media import Media
 from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
@@ -43,7 +43,7 @@ class MovieRandom(_IPluginModule):
     _event = Event()
     # 私有属性
     mediaserver = None
-    dbhelper = None
+    rsshelper = None
     subscribe = None
     _scheduler = None
     _enable = False
@@ -155,8 +155,8 @@ class MovieRandom(_IPluginModule):
 
     def init_config(self, config: dict = None):
         self.mediaserver = MediaServer()
-        self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
+        self.rsshelper = RssHelper()
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
@@ -263,7 +263,7 @@ class MovieRandom(_IPluginModule):
             f"电影 {title}-{year}（tmdbid:{tmdb_id}）未入库，开始订阅")
 
         # 检查是否已订阅过
-        if self.dbhelper.check_rss_history(
+        if self.subscribe.check_history(
                 type_str="MOV",
                 name=title,
                 year=year,
@@ -272,7 +272,7 @@ class MovieRandom(_IPluginModule):
                 f"{title} 已订阅过")
             return
         # 添加处理历史
-        self.dbhelper.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
+        self.rsshelper.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
         # 添加订阅
         code, msg, rss_media = self.subscribe.add_rss_subscribe(
             mtype=MediaType.MOVIE,
@@ -300,7 +300,7 @@ class MovieRandom(_IPluginModule):
         tmdb_id = media_info.get('id')
         unique_flag = f"movierandom: {title} (DB:{tmdb_id})"
         # 检查是否已处理过
-        if self.dbhelper.is_userrss_finished(torrent_name=unique_flag, enclosure=None):
+        if self.rsshelper.is_rssd_by_simple(torrent_name=unique_flag, enclosure=None):
             self.info(f"已处理过：{title} （tmdbid：{tmdb_id}）")
             return
 

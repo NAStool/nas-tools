@@ -1,7 +1,7 @@
 import os
 import time
 
-from app.helper import DbHelper
+from app.filetransfer import FileTransfer
 from app.media import Media
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
@@ -32,7 +32,7 @@ class MediaSyncDel(_IPluginModule):
     auth_level = 1
 
     # 私有属性
-    dbhelper = None
+    filetransfer = None
     _enable = False
     _del_source = False
     _exclude_path = None
@@ -93,7 +93,7 @@ class MediaSyncDel(_IPluginModule):
         ]
 
     def init_config(self, config=None):
-        self.dbhelper = DbHelper()
+        self.filetransfer = FileTransfer()
 
         # 读取配置
         if config:
@@ -164,12 +164,12 @@ class MediaSyncDel(_IPluginModule):
         if media_type == "Movie":
             msg = f'电影 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
-            transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
+            transfer_history = self.filetransfer.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除电视剧
         elif media_type == "Series":
             msg = f'剧集 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
-            transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
+            transfer_history = self.filetransfer.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
             if not season_num or not str(season_num).isdigit():
@@ -177,7 +177,7 @@ class MediaSyncDel(_IPluginModule):
                 return
             msg = f'剧集 {media_name} S{season_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
-            transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
+            transfer_history = self.filetransfer.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
             if not season_num or not str(season_num).isdigit() or not episode_num or not str(episode_num).isdigit():
@@ -185,7 +185,7 @@ class MediaSyncDel(_IPluginModule):
                 return
             msg = f'剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
-            transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
+            transfer_history = self.filetransfer.get_transfer_info_by(tmdbid=tmdb_id,
                                                                   season_episode=f'S{season_num} E{episode_num}')
         else:
             return

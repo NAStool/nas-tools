@@ -3,6 +3,7 @@ import datetime
 import time
 
 import log
+from app.conf import SystemConfig
 from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper, DbHelper
 from app.indexer.client._base import _IIndexClient
 from app.indexer.client._rarbg import Rarbg
@@ -11,7 +12,7 @@ from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
 from app.sites import Sites
 from app.utils import StringUtils
-from app.utils.types import SearchType, IndexerType, ProgressKey
+from app.utils.types import SearchType, IndexerType, ProgressKey, SystemConfigKey
 from config import Config
 
 
@@ -58,7 +59,7 @@ class BuiltinIndexer(_IIndexClient):
     def get_indexers(self, check=True, indexer_id=None, public=True):
         ret_indexers = []
         # 选中站点配置
-        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
+        indexer_sites = SystemConfig().get(SystemConfigKey.UserIndexerSites) or []
         _indexer_domains = []
         # 检查浏览器状态
         chrome_ok = ChromeHelper().get_status()

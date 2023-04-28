@@ -172,12 +172,12 @@
   function show_torrent_download_modal(type) {
     show_download_modal('', '', '', function(){
       let urls = $("#torrent_urls").val();
-      if ((!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0]) && !urls) {
+      if ((!TorrentDropZone || !TorrentDropZone.files || !TorrentDropZone.files[0]) && !urls) {
         return;
       }
       $("#search_download_btn").text("处理中...").attr("disabled", true);
       const params = {
-        "files": torrent_dropzone.files,
+        "files": TorrentDropZone.files,
         "urls": urls.split("\n"),
         "dl_dir": get_savepath("search_download_dir", "search_download_dir_manual"),
         "dl_setting": $("#search_download_setting").val()
@@ -186,7 +186,7 @@
         $("#search_download_btn").attr("disabled", false).text("下载");
         $("#modal-search-download").modal('hide');
         if (ret.code == 0) {
-          torrent_dropzone.removeAllFiles();
+          TorrentDropZone.removeAllFiles();
           $("#torrent_urls").val("");
           window_history_refresh();
         } else {

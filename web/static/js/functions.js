@@ -1,30 +1,41 @@
 /**
  * 公共变量区
  */
-//刷新LOG标志
-let refresh_logging_flag = false;
-// 日志来源筛选时关掉之前的刷新日志计时器
-let refresh_logging_timer;
-let logger_source = "";
 // 刷新进度
-let refresh_process_flag = false;
-let refresh_fail_count = 0;
+let RefreshProcessFlag = false;
+let RefreshFailCount = 0;
 // 刷新订阅站点列表
-let RSS_SITES_LENGTH = 0;
+let RssSitesLength = 0;
 // 刷新搜索站点列表
-let SEARCH_SITES_LENGTH = 0;
+let SearchSitesLength = 0;
 // 种子上传控件
-let torrent_dropzone;
+let TorrentDropZone;
 // 默认转移模式
-let default_transfer_mode;
+let DefaultTransferMode;
 // 默认路径
-let default_path;
+let DefaultPath;
 // 页面正在加载中的标志
 let NavPageLoading = false;
 // 加载中页面的字柄
 let NavPageXhr;
 // 是否允许打断弹窗
 let GlobalModalAbort = true;
+//实时日志刷新标志
+let RefreshLoggingFlag = false;
+// 日志来源筛选时关掉之前的刷新日志计时器
+let LoggingSource = "";
+// 日志WebSocket
+let LoggingWS;
+// 是否存量消息刷新
+let OldMessageFlag = true;
+// 消息WebSocket
+let MessageWS;
+// 当前协议
+let WSProtocol = "ws://";
+if (window.location.protocol === "https:") {
+  WSProtocol = "wss://"
+}
+
 
 /**
  * 公共函数区
@@ -77,11 +88,11 @@ function navmenu(page, newflag = false) {
         // 刷新filetree控件
         init_filetree_element();
       }
-      if (page !== CURRENT_PAGE_URI) {
+      if (page !== CurrentPageUri) {
         // 切换页面时滚动到顶部
         $(window).scrollTop(0);
         // 记录当前页面ID
-        CURRENT_PAGE_URI = page;
+        CurrentPageUri = page;
       }
       // 并记录当前历史记录
       window_history(!newflag);
@@ -118,162 +129,163 @@ function hide_wait_modal() {
   $("#modal-wait").modal("hide");
 }
 
-
-//开始刷新日志
-function start_logging() {
-  refresh_logging_flag = true;
-  refresh_logging();
+// 连接日志服务
+function connect_logging() {
+  LoggingWS = new ReconnectingWebSocket(WSProtocol + window.location.host + '/logging');
+  LoggingWS.onmessage = function (event) {
+    render_logging(JSON.parse(event.data))
+  };
 }
 
-//停止刷新日志
-function stop_logging() {
-  refresh_logging_flag = false;
+// 发送刷新日志请求
+function get_logging() {
+  LoggingWS.send(JSON.stringify({"source": LoggingSource}));
 }
 
-//刷新日志
-function refresh_logging(flag) {
-  let refresh_new = $("#logging_content").children().length;
-  ajax_post("logging", {"refresh_new": refresh_new, "source": logger_source}, function (ret) {
-    if (ret.loglist) {
-      let log_list = ret.loglist;
-      let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
-      let tbody = "";
-      for (let log of log_list) {
-        let text = log.text;
-        const source = log.source;
-        const time = log.time;
-        const level = log.level;
-        let tcolor = '';
-        let bgcolor = '';
-        let tstyle = '-webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;';
-        if (level === "WARN") {
-          tcolor = "text-warning";
-          bgcolor = "bg-warning";
-        } else if (level === "ERROR") {
-          tcolor = "text-danger";
-          bgcolor = "bg-danger";
-        } else if (source === "System") {
-          tcolor = "text-info";
-          bgcolor = "bg-info";
-        } else {
-          tcolor = "text";
-        }
-        if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
-          tstyle = `${tstyle} white-space: pre;`
-          text = text.replace(/\s到\s/, "\n=> ")
-        }
-        if (text.includes("http") || text.includes("magnet")) {
-          tstyle = `${tstyle} word-break: break-all;`
-          text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
-        }
-        tbody = `${tbody}
-                    <tr>
-                    <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
-                    <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
-                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
-                    </tr>`;
+// 刷新日志
+function render_logging(log_list) {
+  if (log_list) {
+    let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
+    let tbody = "";
+    for (let log of log_list) {
+      let text = log.text;
+      const source = log.source;
+      const time = log.time;
+      const level = log.level;
+      let tcolor = '';
+      let bgcolor = '';
+      let tstyle = '-webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;';
+      if (level === "WARN") {
+        tcolor = "text-warning";
+        bgcolor = "bg-warning";
+      } else if (level === "ERROR") {
+        tcolor = "text-danger";
+        bgcolor = "bg-danger";
+      } else if (source === "System") {
+        tcolor = "text-info";
+        bgcolor = "bg-info";
+      } else {
+        tcolor = "text";
       }
-      let logging_table_obj = $("#logging_table");
-      let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
-      $("#logging_content").append(tbody);
-      if (bool_ToScrolTop) {
-        setTimeout(function () {
-          logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
-        }, 500);
+      if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
+        tstyle = `${tstyle} white-space: pre;`
+        text = text.replace(/\s到\s/, "\n=> ")
       }
+      if (text.includes("http") || text.includes("magnet")) {
+        tstyle = `${tstyle} word-break: break-all;`
+        text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
+      }
+      tbody = `${tbody}
+                  <tr>
+                  <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
+                  <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
+                  <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
+                  </tr>`;
     }
-    if ($("#modal-logging").is(":hidden") && flag) {
-      stop_logging();
+    let logging_table_obj = $("#logging_table");
+    let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
+    $("#logging_content").append(tbody);
+    if (bool_ToScrolTop) {
+      setTimeout(function () {
+        logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
+      }, 500);
     }
-    if (refresh_logging_flag === true) {
-      refresh_logging_timer = window.setTimeout("refresh_logging(true)", 2000);
-    }
-  }, true, false);
-}
-
-//暂停实时日志
-function pause_logging() {
-  if (refresh_logging_flag === true) {
-    stop_logging();
-    $("#logging_stop_btn").text("开始")
-  } else {
-    start_logging();
-    $("#logging_stop_btn").text("暂停")
+  }
+  if ($("#modal-logging").is(":hidden")) {
+    RefreshLoggingFlag = false;
+  }
+  if (RefreshLoggingFlag) {
+    window.setTimeout("get_logging()", 1000);
   }
 }
 
-//实时日志关闭
-$("#logging_close_btn").unbind("click").click(function () {
-  stop_logging();
-  // 清空日志
-  $("#logging_content").html("")
-  logger_source = ""
-});
-
-$("#logging_close_head").unbind("click").click(function () {
-  stop_logging();
-  // 清空日志
-  $("#logging_content").html("")
-  logger_source = ""
-});
+// 暂停实时日志
+function pause_logging() {
+  let btn = $("#logging_stop_btn")
+  if (btn.text() === "暂停") {
+    btn.text("开始")
+    RefreshLoggingFlag = false;
+  } else {
+    btn.text("暂停");
+    RefreshLoggingFlag = true;
+    get_logging();
+  }
+}
 
 // 显示实时日志
 function show_logging_modal() {
-  start_logging();
+  // 显示窗口
+  $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
-}
-
-// 渲染日志来源下拉列表
-function get_logging_source() {
-  $("#dropdown-menu-logger").html('')
-  let menu = ['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover', 'Plugin']
-  for (let i = 0; i < menu.length; i++) {
-    $("#dropdown-menu-logger").append(`<a class="dropdown-item"  href="javascript:logger_select('${menu[i]}')">${menu[i]}</a>`);
-  }
+  // 连接日志服务
+  connect_logging();
+  // 开始获取日志
+  RefreshLoggingFlag = true;
+  setTimeout("get_logging()", 1000);
 }
 
 // 日志来源筛选
 function logger_select(source) {
-  logger_source = source
-  if (logger_source === "All") logger_source = "";
-
-  // 关闭之前的定时刷新日志
-  clearTimeout(refresh_logging_timer)
-
-  // 清空日志
-  $("#logging_content").html("")
-
-  // 重新拉取日志
-  refresh_logging()
+  LoggingSource = source
+  if (LoggingSource === "All") {
+    LoggingSource = "";
+  }
+  let logtype = `刷新中...`;
+  if (LoggingSource) {
+    logtype = `【${LoggingSource}】刷新中...`;
+  }
+  $("#logging_content").html(`<tr><td colspan="3" class="text-center">${logtype}</td></tr>`);
+  // 拉取新日志
+  get_logging();
 }
 
-//刷新消息中心
-function refresh_message(time_str) {
-  ajax_post("refresh_message", {"lst_time": time_str}, function (ret) {
-    if (ret.code === 0) {
-      let lst_time = ret.lst_time;
-      const msgs = ret.message;
-      for (let msg of msgs) {
-        let html_text = `<div class="list-group-item">
-              <div class="row align-items-center">
-                <div class="col-auto">
-                  <span class="status-dot ${msg.level} d-block"></span>
-                </div>
-                <div class="col text-truncate">
-                  <span class="text-wrap">${msg.title}</span>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
-                </div>
-              </div>
-            </div>`;
-        $("#system-messages").prepend(html_text);
-        if (time_str) {
-          browserNotification(msg.title, msg.content);
-        }
-      }
-      setTimeout("refresh_message('" + lst_time + "')", 10000);
+// 连接消息服务
+function connect_message() {
+  MessageWS = new ReconnectingWebSocket(WSProtocol + window.location.host + '/message');
+  MessageWS.onmessage = function (event) {
+    render_message(JSON.parse(event.data))
+  };
+  MessageWS.onopen = function (event) {
+    get_message('');
+  };
+
+}
+
+// 刷新消息中心
+function render_message(ret) {
+  let lst_time = ret.lst_time;
+  const msgs = ret.message;
+  for (let msg of msgs) {
+    // 消息UI
+    let html_text = `<div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="avatar">NT</span>
+            </div>
+            <div class="col text-truncate">
+              <span class="text-wrap">${msg.title}</span>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
+              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
+            </div>
+          </div>
+        </div>`;
+    $("#system-messages").prepend(html_text);
+    // 滚动到顶部
+    $(".offcanvas-body").animate({scrollTop:0}, 300);
+    // 浏览器消息提醒
+    if (!OldMessageFlag && !$("#offcanvasEnd").is(":hidden")) {
+      browserNotification(msg.title, msg.content);
     }
-  }, true, false);
+  }
+  // 非旧消息
+  OldMessageFlag = false;
+  // 下一次处理
+  setTimeout("get_message('" + lst_time + "')", 3000);
+}
+
+//发送拉取消息的请求
+function get_message(lst_time) {
+  MessageWS.send(JSON.stringify({"lst_time": lst_time}));
 }
 
 //检查系统是否在线
@@ -388,7 +400,7 @@ function switch_cooperation_sites(obj) {
 
 // 刷新进度条
 function refresh_process(type) {
-  if (!refresh_process_flag) {
+  if (!RefreshProcessFlag) {
     return;
   }
   ajax_post("refresh_process", {type: type}, function (ret) {
@@ -396,9 +408,9 @@ function refresh_process(type) {
       $("#modal_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
       $("#modal_process_text").text(ret.text);
     } else {
-      refresh_fail_count = refresh_fail_count + 1;
+      RefreshFailCount = RefreshFailCount + 1;
     }
-    if (refresh_fail_count < 5) {
+    if (RefreshFailCount < 5) {
       setTimeout("refresh_process('" + type + "')", 200);
     }
   }, true, false);
@@ -415,14 +427,14 @@ function show_refresh_process(title, type) {
   $("#modal_process_text").text("请稍候...");
   $("#modal-process").modal("show");
   //刷新进度
-  refresh_process_flag = true;
-  refresh_fail_count = 0;
+  RefreshProcessFlag = true;
+  RefreshFailCount = 0;
   refresh_process(type);
 }
 
 // 关闭全局进度框
 function hide_refresh_process() {
-  refresh_process_flag = false;
+  RefreshProcessFlag = false;
   $("#modal-process").modal("hide");
 }
 
@@ -744,14 +756,14 @@ function add_rss_manual(flag) {
   }
   //订阅站点
   let rss_sites = select_GetSelectedVAL("rss_sites");
-  if (rss_sites.length === RSS_SITES_LENGTH) {
+  if (rss_sites.length === RssSitesLength) {
     rss_sites = [];
   }
   //搜索站点
   let search_sites = [];
   if (!fuzzy_match) {
     search_sites = select_GetSelectedVAL("search_sites");
-    if (search_sites.length === SEARCH_SITES_LENGTH) {
+    if (search_sites.length === SearchSitesLength) {
       search_sites = [];
     }
   }
@@ -792,7 +804,7 @@ function add_rss_manual(flag) {
   $("#modal-manual-rss").modal("hide");
   ajax_post("add_rss_media", data, function (ret) {
     if (ret.code === 0) {
-      if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+      if (CurrentPageUri.startsWith("tv_rss") || CurrentPageUri.startsWith("movie_rss")) {
         window_history_refresh();
       } else {
         show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！");
@@ -801,7 +813,7 @@ function add_rss_manual(flag) {
         show_add_rss_media_modal(mtype);
       }
     } else {
-      if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+      if (CurrentPageUri.startsWith("tv_rss") || CurrentPageUri.startsWith("movie_rss")) {
         show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`, function () {
           $("#modal-manual-rss").modal("show");
         });
@@ -834,9 +846,9 @@ function change_over_edition_check(obj) {
 function remove_rss_manual(type, name, year, rssid) {
   $("#modal-manual-rss").modal('hide');
   let page;
-  if (CURRENT_PAGE_URI.startsWith("tv_rss")) {
+  if (CurrentPageUri.startsWith("tv_rss")) {
     page = "tv_rss";
-  } else if (CURRENT_PAGE_URI.startsWith("movie_rss")) {
+  } else if (CurrentPageUri.startsWith("movie_rss")) {
     page = "movie_rss";
   } else {
     page = undefined
@@ -960,8 +972,8 @@ function save_default_rss_setting() {
   const rss_sites = select_GetSelectedVAL("default_rss_sites");
   const search_sites = select_GetSelectedVAL("default_search_sites");
   const sites = {
-    rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
-    search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+    rss_sites: (rss_sites.length === RssSitesLength) ? [] : rss_sites,
+    search_sites: (search_sites.length === SearchSitesLength) ? [] : search_sites
   };
   const common = input_select_GetVal("modal-default-rss-setting", "default_rss_setting_");
   const key = common.mtype === "MOV" ? "DefaultRssSettingMOV" : "DefaultRssSettingTV";
@@ -1094,7 +1106,7 @@ function refresh_rsssites_select(obj_id, item_name, aync = true) {
     if (ret.code === 0) {
       let rsssites_select = $(`#${obj_id}`);
       let rsssites_select_content = "";
-      RSS_SITES_LENGTH = ret.sites.length;
+      RssSitesLength = ret.sites.length;
       if (ret.sites.length > 0) {
         rsssites_select.parent().parent().show();
       } else {
@@ -1118,7 +1130,7 @@ function refresh_searchsites_select(obj_id, item_name, aync = true) {
     if (ret.code === 0) {
       let searchsites_select = $(`#${obj_id}`);
       let searchsites_select_content = "";
-      SEARCH_SITES_LENGTH = ret.indexers.length;
+      SearchSitesLength = ret.indexers.length;
       if (ret.indexers.length > 0) {
         searchsites_select.parent().parent().show();
       } else {
@@ -1179,13 +1191,14 @@ function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = fal
 }
 
 // 切换手动输入
-function check_manual_input_path(select_id, input_id, manual_path=null) {
+function check_manual_input_path(select_id, input_id, manual_path = null) {
   let savepath_select = $(`#${select_id}`);
   let savepath_input_manual = $(`#${input_id}`);
   if (manual_path !== null) {
     savepath_select.val(manual_path)
     if (manual_path !== "" && savepath_select.val() === null) {
       savepath_input_manual.val(manual_path);
+      savepath_select.val("manual");
       savepath_select.hide();
       savepath_input_manual.show();
     } else {
@@ -1200,7 +1213,7 @@ function check_manual_input_path(select_id, input_id, manual_path=null) {
 // 获取保存路径
 function get_savepath(select_id, input_id) {
   let savepath = $(`#${select_id}`).val();
-  if (savepath === "manual") {
+  if (savepath === "manual" || savepath === null) {
     return $(`#${input_id}`).val();
   } else {
     return savepath;
@@ -1274,7 +1287,7 @@ function show_download_modal(id, name, site = undefined, func = undefined, show_
     $("#search_download_btn").unbind("click").click(download_link);
   }
   // 清空
-  torrent_dropzone.removeAllFiles();
+  TorrentDropZone.removeAllFiles();
 
   $("#modal-search-download").modal('show');
 }
@@ -1456,7 +1469,7 @@ function media_name_test_ui(data, result_div) {
   $(`#${result_div}`).empty();
   const sort_array = ["org_string", "ignored_words", "replaced_words", "offset_words",
     "type", "category", "name", "title", "tmdbid", "year", "season_episode", "part",
-    "restype", "effect", "pix", "video_codec", "audio_codec", "team"]
+    "restype", "effect", "pix", "video_codec", "audio_codec", "team", "customization"]
   // 调用组件实例的自定义方法.. 一次性添加chips
   document.querySelector(`#${result_div}`).add_chips_all(sort_array, data);
 }
@@ -1467,9 +1480,9 @@ function media_name_test_ui(data, result_div) {
 function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
   // 初始化类型
   if (!syncmod) {
-    syncmod = default_transfer_mode;
+    syncmod = DefaultTransferMode;
   }
-  let source = CURRENT_PAGE_URI;
+  let source = CurrentPageUri;
   $("#rename_source").val(source);
   $("#rename_manual_type").val(manual_type);
   if (manual_type === 3) {
@@ -1480,7 +1493,7 @@ function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, un
     if (inpath) {
       $("#rename_inpath").val(inpath);
     } else {
-      $("#rename_inpath").val(default_path);
+      $("#rename_inpath").val(DefaultPath);
     }
     $("#rename_outpath").val('');
     $("#rename_syncmod_customize").val(syncmod);
@@ -1724,4 +1737,47 @@ function search_tmdbid_by_name(keyid, resultid) {
       $("#" + resultid).html(`<div class="list-group-item text-center text-muted">${ret.msg}</div>`);
     }
   });
+}
+
+//WEB页面发送消息
+function send_web_message(obj) {
+  if (!obj) {
+    return
+  }
+  let text;
+  // 如果是jQuery对像
+  if (obj instanceof jQuery) {
+    text = obj.val();
+    obj.val("");
+  } else {
+    text = obj;
+  }
+  // 消息交互
+  MessageWS.send(JSON.stringify({"text": text}));
+  // 显示自己发送的消息
+  $("#system-messages").prepend(`<div class="list-group-item">
+      <div class="row align-items-center">
+        <div class="col text-truncate text-end">
+          <span class="text-wrap">${text}</span>
+          <div class="d-block text-muted text-truncate mt-n1 text-wrap text-end">${new Date().format("yyyy-MM-dd hh:mm:ss")}</div>
+        </div>
+        <div class="col-auto">
+          <span class="avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
+               <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>`);
+  // 滚动到顶部
+  $(".offcanvas-body").animate({scrollTop:0}, 300);
+}
+
+// 初始化DropZone
+function init_dropzone() {
+  TorrentDropZone = new Dropzone("#torrent_files");
+  TorrentDropZone.options.acceptedFiles = ".torrent";
 }

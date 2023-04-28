@@ -7,12 +7,15 @@ from watchdog.observers import Observer
 from werkzeug.security import generate_password_hash
 
 import log
+from app.conf import SystemConfig
 from app.helper import DbHelper
 from app.plugins import PluginManager
 from app.media import Category
 from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
+from app.utils.types import SystemConfigKey
 from config import Config
+from web.action import WebAction
 
 _observer = Observer(timeout=10)
 
@@ -233,6 +236,78 @@ def update_config():
             })
             # 删除旧配置
             _config.pop("douban")
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 刮削配置改为存数据库
+    try:
+        scraper_conf = {}
+        # Nfo
+        scraper_nfo = Config().get_config("scraper_nfo")
+        if scraper_nfo:
+            scraper_conf["scraper_nfo"] = scraper_nfo
+            _config.pop("scraper_nfo")
+            overwrite_cofig = True
+        # 图片
+        scraper_pic = Config().get_config("scraper_pic")
+        if scraper_pic:
+            scraper_conf["scraper_pic"] = scraper_pic
+            _config.pop("scraper_pic")
+            overwrite_cofig = True
+        # 保存
+        if scraper_conf:
+            SystemConfig().set(SystemConfigKey.UserScraperConf,
+                               scraper_conf)
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 内建索引器配置改为存数据库
+    try:
+        indexer_sites = Config().get_config("pt").get("indexer_sites")
+        if indexer_sites:
+            SystemConfig().set(SystemConfigKey.UserIndexerSites,
+                               indexer_sites)
+            _config['pt'].pop("indexer_sites")
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 站点签到转为插件
+    try:
+        ptsignin_cron = Config().get_config("pt").get("ptsignin_cron")
+        if ptsignin_cron:
+            # 转换周期
+            ptsignin_cron = str(ptsignin_cron).strip()
+            if ptsignin_cron.isdigit():
+                cron = f"0 */{ptsignin_cron} * * *"
+            elif ptsignin_cron.count(" ") == 4:
+                cron = ptsignin_cron
+            elif "-" in ptsignin_cron:
+                ptsignin_cron = ptsignin_cron.split("-")[0]
+                hour = int(ptsignin_cron.split(":")[0])
+                minute = int(ptsignin_cron.split(":")[1])
+                cron = f"{minute} {hour} * * *"
+            elif ptsignin_cron.count(":"):
+                hour = int(ptsignin_cron.split(":")[0])
+                minute = int(ptsignin_cron.split(":")[1])
+                cron = f"{minute} {hour} * * *"
+            else:
+                cron = "30 8 * * *"
+            # 安装插件
+            WebAction().install_plugin(data={"id": "AutoSignIn"}, reload=False)
+            # 保存配置
+            PluginManager().save_plugin_config(pid="AutoSignIn", conf={
+                "enabled": True,
+                "cron": cron,
+                "retry_keyword": '',
+                "sign_sites": [],
+                "special_sites": [],
+                "notify": True,
+                "onlyonce": False,
+                "queue_cnt": 10
+            })
+            _config['pt'].pop("ptsignin_cron")
             overwrite_cofig = True
     except Exception as e:
         ExceptionUtils.exception_traceback(e)

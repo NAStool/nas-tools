@@ -10,7 +10,7 @@ from lxml import etree
 from bs4 import BeautifulSoup
 
 from app.helper import ChromeHelper
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
@@ -209,7 +209,7 @@ class Tjupt(_ISiteSigninHandler):
             count_results = []
             count_flag = False
             for value, answer in answers:
-                answer_re = re.compile(re.sub(r"\d{1}$", "", answer))
+                answer_re = re.compile(re.sub(r"\d$", "", answer))
                 count = len(re.findall(answer_re, search_results))
                 if count >= min(res_count, 3):
                     count_flag = True
