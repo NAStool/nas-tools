@@ -554,7 +554,6 @@ function show_mediainfo_modal(rtype, name, year, mediaid, page, rssid) {
         if (ret.page.startsWith("movie_rss") || ret.page.startsWith("tv_rss")) {
           //编辑
           $("#system_media_url_btn").text("编辑")
-              .removeAttr("target")
               .attr("href", "javascript:show_edit_rss_media_modal('" + ret.rssid + "', '" + ret.type_str + "')")
               .show();
           //刷新
@@ -564,14 +563,12 @@ function show_mediainfo_modal(rtype, name, year, mediaid, page, rssid) {
         } else {
           //详情按钮
           $("#system_media_url_btn").text("详情")
-              .attr("target", "_blank")
               .attr("href", 'javascript:navmenu("media_detail?type=' + ret.type + '&id=' + ret.tmdbid + '")')
               .show();
         }
       } else {
         //详情按钮
         $("#system_media_url_btn").text("详情")
-            .attr("target", "_blank")
             .attr("href", 'javascript:navmenu("media_detail?type=' + ret.type + '&id=' + ret.tmdbid + '")')
             .show();
         //订阅按钮
