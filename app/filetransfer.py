@@ -19,7 +19,7 @@ from app.plugins import EventManager
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils, NumberUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SyncType, RmtMode, EventType, ProgressKey, MovieTypes
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
+from config import RMT_AUDIO_TRACK_EXT, RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
 
 lock = Lock()
@@ -183,6 +183,22 @@ class FileTransfer:
             log.error("【Rmt】%s" % retmsg)
         return retcode
 
+    def __transfer_other_files(self, org_name, new_name, rmt_mode, over_flag):
+        """
+        根据文件名转移其他相关文件
+        :param org_name: 原文件名
+        :param new_name: 新文件名
+        :param rmt_mode: RmtMode转移方式
+        :param over_flag: 是否覆盖，为True时会先删除再转移
+        """
+        retcode = self.__transfer_subtitles(org_name, new_name, rmt_mode)
+        if retcode != 0: 
+            return retcode
+        retcode = self.__transfer_audio_track_files(org_name, new_name, rmt_mode, over_flag)
+        if retcode != 0: 
+            return retcode
+        return 0
+
     def __transfer_subtitles(self, org_name, new_name, rmt_mode):
         """
         根据文件名转移对应字幕文件
@@ -277,6 +293,47 @@ class FileTransfer:
                             # 否则 循环继续 > 通过new_sub_tag_list 获取新的tag附加到字幕文件名, 继续检查是否能转移
                         except OSError as reason:
                             log.info("【Rmt】字幕 %s 出错了,原因: %s" % (new_file, str(reason)))
+        return 0
+
+    def __transfer_audio_track_files(self, org_name, new_name, rmt_mode, over_flag):
+        """
+        根据文件名转移对应音轨文件
+        :param org_name: 原文件名
+        :param new_name: 新文件名
+        :param rmt_mode: RmtMode转移方式
+        :param over_flag: 是否覆盖，为True时会先删除再转移
+        """
+        dir_name = os.path.dirname(org_name)
+        file_name = os.path.basename(org_name)
+        # 去除扩展名后的文件名
+        file_pre_name = os.path.splitext(file_name)[0]
+        file_list = PathUtils.get_dir_level1_files(dir_name, RMT_AUDIO_TRACK_EXT)
+        pending_file_list = [file for file in file_list if file_pre_name == os.path.splitext(os.path.basename(file))[0]]
+        if len(pending_file_list) == 0:
+            log.debug("【Rmt】%s 目录下没有找到匹配的音轨文件..." % dir_name)
+        else:
+            log.debug("【Rmt】音轨文件清单：" + str(pending_file_list))
+            for track_file in pending_file_list:
+                track_ext = os.path.splitext(track_file)[1].lower()
+                new_track_file = os.path.splitext(new_name)[0] + track_ext
+                if os.path.exists(new_track_file):
+                    if not over_flag:
+                        log.warn("【Rmt】音轨文件已存在：%s" % new_track_file)
+                        continue
+                    else:
+                        log.info("【Rmt】正在删除已存在的音轨文件：%s" % new_track_file)
+                        os.remove(new_track_file)
+                try:
+                    log.info("【Rmt】正在转移音轨文件：%s 到 %s" % (track_file, new_track_file))
+                    retcode = self.__transfer_command(file_item=track_file,
+                                            target_file=new_track_file,
+                                            rmt_mode=rmt_mode)
+                    if retcode == 0:
+                        log.info("【Rmt】音轨文件 %s %s完成" % (file_name, rmt_mode.value))
+                    else:
+                        log.error("【Rmt】音轨文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
+                except OSError as reason:
+                    log.error("【Rmt】音轨文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
         return 0
 
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
@@ -393,7 +450,7 @@ class FileTransfer:
 
     def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False, old_file=None):
         """
-        转移一个文件，同时处理字幕
+        转移一个文件，同时处理其他相关文件
         :param file_item: 原文件路径
         :param new_file: 新文件路径
         :param rmt_mode: RmtMode转移方式
@@ -416,10 +473,11 @@ class FileTransfer:
         else:
             log.error("【Rmt】文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
             return retcode
-        # 处理字幕
-        return self.__transfer_subtitles(org_name=file_item,
+        # 处理其他相关文件
+        return self.__transfer_other_files(org_name=file_item,
                                          new_name=new_file,
-                                         rmt_mode=rmt_mode)
+                                         rmt_mode=rmt_mode,
+                                         over_flag=over_flag)
 
     def transfer_media(self,
                        in_from: Enum,

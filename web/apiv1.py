@@ -949,7 +949,7 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/ALL）', location='form',
+    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/AUDIOTRACKFILE/ALL）', location='form',
                         required=True)
 
     @system.doc(parser=parser)
