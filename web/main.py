@@ -1190,11 +1190,19 @@ def plex_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
-    # 发送消息
-    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
-                                (request_json, MediaServerType.PLEX))
-    # 触发事件
-    EventManager().send_event(EventType.PlexWebhook, request_json)
+    # 事件类型
+    event_match = request_json.get("event") in ["media.play", "media.stop"]
+    # 媒体类型
+    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode"]
+    # 是否直播
+    is_live = request_json.get("Metadata", {}).get("live") == "1"
+    # 如果事件类型匹配,媒体类型匹配,不是直播
+    if event_match and type_match and not is_live:
+        # 发送消息
+        ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                    (request_json, MediaServerType.PLEX))
+        # 触发事件
+        EventManager().send_event(EventType.PlexWebhook, request_json)
     return 'Ok'
 
 
