@@ -60,6 +60,10 @@ TMDB_IMAGE_DOMAIN = 'image.tmdb.org'
 TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
 # 检查更新的地址
 NASTOOL_UPDATE_URL = "https://nastool.cn/%s/update"
+# 插件安装统计地址
+NASTOOL_PLUGIN_INSTALL = "https://nastool.cn/plugin/%s/install"
+# 插件安装统计数据
+NASTOOL_PLUGIN_STATISTIC = "https://nastool.cn/plugin/statistic"
 # 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 电影默认命名格式
