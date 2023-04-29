@@ -40,17 +40,17 @@ class ZhuQue(_ISiteSigninHandler):
                                 proxies=proxy
                                 ).get_res(url="https://zhuque.in")
         if not html_res or html_res.status_code != 200:
-            self.error(f"模拟访问失败，请检查站点连通性")
-            return False, f'【{site}】模拟访问失败，请检查站点连通性'
+            self.error(f"模拟登录失败，请检查站点连通性")
+            return False, f'【{site}】模拟登录失败，请检查站点连通性'
 
         if "login.php" in html_res.text:
-            self.error(f"模拟访问失败，cookie失效")
-            return False, f'【{site}】模拟访问失败，cookie失效'
+            self.error(f"模拟登录失败，cookie失效")
+            return False, f'【{site}】模拟登录失败，cookie失效'
 
         html = etree.HTML(html_res.text)
 
         if not html:
-            return False, f'【{site}】模拟访问失败'
+            return False, f'【{site}】模拟登录失败'
 
         # 释放技能
         msg = '失败'
@@ -70,7 +70,7 @@ class ZhuQue(_ISiteSigninHandler):
                                      proxies=proxy
                                      ).post_res(url="https://zhuque.in/api/gaming/fireGenshinCharacterMagic", json=data)
             if not skill_res or skill_res.status_code != 200:
-                self.error(f"模拟访问失败，释放技能失败")
+                self.error(f"模拟登录失败，释放技能失败")
 
             # '{"status":200,"data":{"code":"FIRE_GENSHIN_CHARACTER_MAGIC_SUCCESS","bonus":0}}'
             skill_dict = json.loads(skill_res.text)
@@ -78,5 +78,5 @@ class ZhuQue(_ISiteSigninHandler):
                 bonus = int(skill_dict['data']['bonus'])
                 msg = f'成功，获得{bonus}魔力'
 
-        self.info(f'【{site}】模拟访问成功，技能释放{msg}')
-        return True, f'【{site}】模拟访问成功，技能释放{msg}'
+        self.info(f'【{site}】模拟登录成功，技能释放{msg}')
+        return True, f'【{site}】模拟登录成功，技能释放{msg}'
