@@ -122,6 +122,7 @@ class TorrentTransfer(_IPluginModule):
                             'id': 'fromdownloader',
                             'type': 'form-selectgroup',
                             'radio': True,
+                            'onclick': 'torrenttransfer_check(this);',
                             'content': downloaders
                         },
                     ],
@@ -164,6 +165,7 @@ class TorrentTransfer(_IPluginModule):
                             'id': 'todownloader',
                             'type': 'form-selectgroup',
                             'radio': True,
+                            'onclick': 'torrenttransfer_check(this);',
                             'content': downloaders
                         },
                     ],
@@ -243,6 +245,33 @@ class TorrentTransfer(_IPluginModule):
             }
         ]
 
+    @staticmethod
+    def get_script():
+        """
+        返回插件额外的JS代码
+        """
+        return """
+        function torrenttransfer_check(obj) {
+            let val = $(obj).val();
+            let name = $(obj).attr("name") === "torrenttransfer_fromdownloader" ? "torrenttransfer_todownloader" : "torrenttransfer_fromdownloader";
+            if ($(obj).prop("checked")) {
+                $(`input[name^=${name}][type=checkbox]`).each(function () {
+                    if ($(this).val() === val) {
+                        $(this).prop('checked',false).prop('disabled', true);
+                    } else {
+                        $(this).prop('disabled', false);
+                    }
+                });
+            } else {
+                $(`input[name^=${name}][type=checkbox]`).each(function () {
+                    if ($(this).val() === val) {
+                        $(this).prop('disabled', false);
+                    }
+                });
+            }
+        }
+        """
+
     def init_config(self, config=None):
         self.downloader = Downloader()
         # 读取配置
@@ -275,6 +304,9 @@ class TorrentTransfer(_IPluginModule):
                 return
             if isinstance(self._todownloader, list) and len(self._todownloader) > 1:
                 self.error(f"目的下载器只能选择一个")
+                return
+            if self._fromdownloader == self._todownloader:
+                self.error(f"源下载器和目的下载器不能相同")
                 return
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
