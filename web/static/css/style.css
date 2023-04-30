@@ -47,6 +47,9 @@ body, .page {
     .custom-border-top {
         border-top: 1px var(--tblr-border-style) rgba(97, 104, 118, .16) !important;
     }
+    .container-fluid {
+        --tblr-gutter-x: 0;
+    }
 }
 
 .page-wrapper {
