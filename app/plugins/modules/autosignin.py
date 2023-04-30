@@ -21,6 +21,7 @@ from app.plugins.modules._base import _IPluginModule
 from app.sites.siteconf import SiteConf
 from app.sites.sites import Sites
 from app.utils import RequestUtils, ExceptionUtils, StringUtils
+from app.utils.scheduler_utils import SchedulerUtils
 from app.utils.types import EventType
 from config import Config
 
@@ -114,7 +115,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '签到周期',
                             'required': "",
-                            'tooltip': '设置自动签到时间周期，支持5位cron表达式',
+                            'tooltip': '自动签到时间，四种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；4、配置5位cron表达式，如：0 */6 * * *；配置为空则不启用自动签到功能。',
                             'type': 'text',
                             'content': [
                                 {
@@ -231,8 +232,10 @@ class AutoSignIn(_IPluginModule):
             # 周期运行
             if self._cron:
                 self.info(f"定时签到服务启动，周期：{self._cron}")
-                self._scheduler.add_job(self.sign_in,
-                                        CronTrigger.from_crontab(self._cron))
+                SchedulerUtils.start_job(scheduler=self._scheduler,
+                                         func=self.sign_in,
+                                         func_desc="自动签到",
+                                         cron=str(self._cron))
 
             # 启动任务
             if self._scheduler.get_jobs():
