@@ -20,8 +20,7 @@ from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.sites.siteconf import SiteConf
 from app.sites.sites import Sites
-from app.utils import RequestUtils, ExceptionUtils, StringUtils
-from app.utils.scheduler_utils import SchedulerUtils
+from app.utils import RequestUtils, ExceptionUtils, StringUtils, SchedulerUtils
 from app.utils.types import EventType
 from config import Config
 

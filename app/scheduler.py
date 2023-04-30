@@ -11,9 +11,8 @@ from app.rss import Rss
 from app.sites import SiteUserInfo
 from app.subscribe import Subscribe
 from app.sync import Sync
-from app.utils import ExceptionUtils
+from app.utils import ExceptionUtils, SchedulerUtils
 from app.utils.commons import singleton
-from app.utils.scheduler_utils import SchedulerUtils
 from config import METAINFO_SAVE_INTERVAL, \
     SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL, Config
