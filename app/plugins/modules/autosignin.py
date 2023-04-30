@@ -99,7 +99,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '清理缓存',
                             'required': "",
-                            'tooltip': '清理本日已签到',
+                            'tooltip': '清理本日已签到（开启后会全签一次)',
                             'type': 'switch',
                             'id': 'clean',
                         }
@@ -114,7 +114,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '签到周期',
                             'required': "",
-                            'tooltip': '自动签到时间，四种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；4、配置5位cron表达式，如：0 */6 * * *；配置为空则不启用自动签到功能。',
+                            'tooltip': '自动签到时间，四种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；4、配置5位cron表达式，如：0 */6 * * *；配置为空则不启用自动签到功能。（每天首次全签，后续签到命中重签关键词的站点）',
                             'type': 'text',
                             'content': [
                                 {
@@ -126,7 +126,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '签到队列',
                             'required': "",
-                            'tooltip': '签到队列数量，默认10',
+                            'tooltip': '签到队列数量，默认10（同时签到站点数量，不懂就默认）',
                             'type': 'text',
                             'content': [
                                 {
@@ -138,7 +138,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '重试关键词',
                             'required': "",
-                            'tooltip': '重新签到关键词，支持正则表达式',
+                            'tooltip': '重新签到关键词，支持正则表达式。每天首次全签，后续如果设置了重试词则只签到命中重试词的站点，否则全签。',
                             'type': 'text',
                             'content': [
                                 {
@@ -168,7 +168,7 @@ class AutoSignIn(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '特殊站点',
-                'tooltip': '选中的站点无论是否匹配重试关键词都会进行重签',
+                'tooltip': '选中的站点无论是否匹配重试关键词都会进行重签（例如朱雀释放技能，无需求无需设置）',
                 'content': [
                     # 同一行
                     [
