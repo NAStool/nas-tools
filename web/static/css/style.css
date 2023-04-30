@@ -139,7 +139,7 @@ body, .page {
         border: none;
     }
     #litLayoutNavbar{
-        padding-bottom: calc(env(safe-area-inset-bottom) + 65px);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 61px);
     }
 }
 
@@ -411,6 +411,6 @@ body, .page {
 }
 
 .main-bottom-menubar svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
 }
