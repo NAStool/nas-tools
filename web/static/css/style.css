@@ -139,7 +139,7 @@ body, .page {
         border: none;
     }
     #litLayoutNavbar{
-        padding-bottom: calc(env(safe-area-inset-bottom) + 53px);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 65px);
     }
 }
 
@@ -408,4 +408,9 @@ body, .page {
 
 .theme-light .main-bottom-menubar {
     background-color: rgba(231, 235, 239, 0.7) !important;
+}
+
+.main-bottom-menubar svg {
+    width: 32px;
+    height: 32px;
 }
