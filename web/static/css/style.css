@@ -141,6 +141,9 @@ body, .page {
     #litLayoutNavbar{
         padding-bottom: calc(env(safe-area-inset-bottom) + 61px);
     }
+    #page_content {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 61px);
+    }
 }
 
 .lit-person-card {
