@@ -398,7 +398,8 @@ body, .page {
     -webkit-backdrop-filter: blur(8px);
     z-index: 9999;
     border-top: 1px solid var(--tblr-border-color);
-    bottom: calc(env(safe-area-inset-bottom));
+    bottom: 0;
+    padding-bottom: calc(env(safe-area-inset-bottom));
 }
 
 .theme-dark .main-bottom-menubar {
