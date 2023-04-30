@@ -97,11 +97,28 @@
       layout-search="{{ CurrentUser.search }}"
       >
   </layout-searchbar>
-  <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
+  <div class="spinner-border" role="status" id="logo_animation"></div>
   <div class="page-wrapper" >
     <div id="page_content" hidden="">
     {{ OOPS.loading() }}
     </div>
+  </div>
+  <div class="position-fixed w-100 d-flex justify-content-between d-sm-none main-bottom-menubar">
+    <a class="card-btn border-0" href="javascript:navmenu('index')">
+      {{ SVG.home() }}
+    </a>
+    <a class="card-btn border-0" href="javascript:navmenu('ranking')">
+      {{ SVG.chart_bar() }}
+    </a>
+    <a class="card-btn border-0" href="javascript:navmenu('service')">
+      {{ SVG.layout_2() }}
+    </a>
+    <a class="card-btn border-0" href="javascript:navmenu('movie_rss')">
+      {{ SVG.movie() }}
+    </a>
+    <a class="card-btn border-0" href="javascript:navmenu('tv_rss')">
+      {{ SVG.device_tv() }}
+    </a>
   </div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
