@@ -283,9 +283,12 @@ class CookieCloud(_IPluginModule):
             # 查询站点
             site_info = self.sites.get_sites_by_suffix(domain_url)
             if site_info:
-                # 已存在的站点更新Cookie
-                self.sites.update_site_cookie(siteid=site_info.get("id"), cookie=cookie_str)
-                update_count += 1
+                # 检查站点连通性
+                success, _, _ = self.sites.test_connection(site_id=site_info.get("id"))
+                if not success:
+                    # 已存在且连通失败的站点更新Cookie
+                    self.sites.update_site_cookie(siteid=site_info.get("id"), cookie=cookie_str)
+                    update_count += 1
             else:
                 # 查询是否在索引器范围
                 indexer_info = self._index_helper.get_indexer_info(domain_url)
