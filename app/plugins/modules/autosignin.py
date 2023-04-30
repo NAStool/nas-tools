@@ -168,7 +168,7 @@ class AutoSignIn(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '特殊站点',
-                'tooltip': '选中的站点无论是否匹配重试关键词都会进行重签（例如朱雀释放技能，无需求无需设置）',
+                'tooltip': '选中的站点无论是否匹配重试关键词都会进行重签（无需求无需设置）',
                 'content': [
                     # 同一行
                     [
