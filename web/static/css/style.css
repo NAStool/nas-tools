@@ -286,10 +286,6 @@ body, .page {
     background-color: rgba(231, 235, 239, 0.7) !important;
 }
 
-.navbar {
-    min-height: 3rem !important;
-}
-
 .navbar .input-group-flat:focus-within {
     box-shadow: none;
 }
