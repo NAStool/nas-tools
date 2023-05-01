@@ -124,7 +124,7 @@
                       </div>
                       <custom-chips class="mt-1" id="testresults_{{ loop.index0 }}"></custom-chips>
                     </td>
-                    <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
+                    <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed or Result.pubdate }}</td>
                     <td class="sort-size" data-size="{{ Result.size }}">
                       <span class="badge badge-outline text-orange">{{ Result.size|str_filesize }}</span>
                     </td>
