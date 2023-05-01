@@ -185,7 +185,7 @@ class Subscribe:
             if media_info.type != MediaType.MOVIE:
                 # 电视剧
                 # 豆瓣来的电视剧且没有季数时，设为第一季
-                if not season and mediaid.startswith("DB:"):
+                if not season and str(mediaid).startswith("DB:"):
                     season = 1
                 if season:
                     total_episode = self.media.get_tmdb_season_episodes_num(tv_info=media_info.tmdb_info,
