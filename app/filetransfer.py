@@ -393,7 +393,7 @@ class FileTransfer:
                 log.warn("【Rmt】%s 文件已存在" % new_file)
                 continue
             new_dir = os.path.dirname(new_file)
-            if not os.path.exists(new_dir):
+            if not os.path.exists(new_dir) and rmt_mode not in ModuleConf.REMOTE_RMT_MODES:
                 os.makedirs(new_dir)
             retcode = self.__transfer_command(file_item=file,
                                               target_file=new_file,
@@ -419,10 +419,10 @@ class FileTransfer:
         if not os.path.exists(file_item):
             log.warn("【Rmt】%s 不存在" % file_item)
             return -1
-        # 计算目录目录
+        # 计算目的目录
         parent_name = os.path.basename(os.path.dirname(file_item))
         target_dir = os.path.join(target_dir, parent_name)
-        if not os.path.exists(target_dir):
+        if not os.path.exists(target_dir) and rmt_mode not in ModuleConf.REMOTE_RMT_MODES:
             log.debug("【Rmt】正在创建目录：%s" % target_dir)
             os.makedirs(target_dir)
         # 目录
@@ -708,7 +708,7 @@ class FileTransfer:
                     if error_message not in alert_messages:
                         alert_messages.append(error_message)
                     continue
-                if dist_path and not os.path.exists(dist_path):
+                if dist_path and not os.path.exists(dist_path) and rmt_mode not in ModuleConf.REMOTE_RMT_MODES:
                     return __finish_transfer(False, "目录不存在：%s" % dist_path)
 
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
@@ -785,8 +785,8 @@ class FileTransfer:
                         if error_message not in alert_messages and is_need_insert_unknown:
                             alert_messages.append(error_message)
                         continue
-                    else:
-                        # 创建电录
+                    elif rmt_mode not in ModuleConf.REMOTE_RMT_MODES:
+                        # 创建目录
                         log.debug("【Rmt】正在创建目录：%s" % ret_dir_path)
                         os.makedirs(ret_dir_path)
                 # 转移蓝光原盘
@@ -878,12 +878,14 @@ class FileTransfer:
                     self.scraper.gen_scraper_files(media=media,
                                                    dir_path=ret_dir_path,
                                                    file_name=os.path.basename(ret_dir_path),
-                                                   file_ext=file_ext)
+                                                   file_ext=file_ext,
+                                                   rmt_mode=rmt_mode)
                 else:
                     self.scraper.gen_scraper_files(media=media,
                                                    dir_path=ret_dir_path,
                                                    file_name=os.path.basename(ret_file_path),
-                                                   file_ext=file_ext)
+                                                   file_ext=file_ext,
+                                                   rmt_mode=rmt_mode)
                 # 更新进度
                 self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=round(total_count / len(Medias) * 100),
@@ -953,7 +955,7 @@ class FileTransfer:
             print("【Rmt】源目录不存在：%s" % s_path)
             return
         if t_path:
-            if not os.path.exists(t_path):
+            if not os.path.exists(t_path) and mode not in ModuleConf.REMOTE_RMT_MODES:
                 print("【Rmt】目的目录不存在：%s" % t_path)
                 return
         rmt_mode = ModuleConf.RMT_MODES.get(mode)
@@ -1205,7 +1207,7 @@ class FileTransfer:
         else:
             new_file = new_file_list[0]
         new_dir = os.path.dirname(new_file)
-        if not os.path.exists(new_dir):
+        if not os.path.exists(new_dir) and sync_transfer_mode not in ModuleConf.REMOTE_RMT_MODES:
             os.makedirs(new_dir)
         return self.__transfer_command(file_item=in_file,
                                        target_file=new_file,

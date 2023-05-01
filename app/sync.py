@@ -91,7 +91,7 @@ class Sync(object):
             log.info(f"【Sync】读取到监控目录：{monpath}，{log_content1}转移方式：{syncmode_enum.value}{log_content2}")
             if not enabled:
                 log.info(f"【Sync】{monpath} 不进行监控和同步：手动关闭")
-            if target_path and not os.path.exists(target_path):
+            if target_path and not os.path.exists(target_path) and syncmode_enum not in ModuleConf.REMOTE_RMT_MODES:
                 log.info(f"【Sync】目的目录不存在，正在创建：{target_path}")
                 os.makedirs(target_path)
             if unknown_path and not os.path.exists(unknown_path):
