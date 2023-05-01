@@ -162,6 +162,19 @@ class UserList(ClientResource):
         return WebAction().api_action(cmd='get_users')
 
 
+@user.route('/auth')
+class UserAuth(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('site', type=str, help='合作站点', location='form', required=True)
+    parser.add_argument('params', type=str, help='认证参数', location='form', required=True)
+
+    @user.doc(parser=parser)
+    def post(self):
+        """
+        用户认证
+        """
+        return WebAction().api_action(cmd='auth_user_level', data=self.parser.parse_args())
+
 @service.route('/mediainfo')
 class ServiceMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
