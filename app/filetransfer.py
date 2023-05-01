@@ -192,10 +192,10 @@ class FileTransfer:
         :param over_flag: 是否覆盖，为True时会先删除再转移
         """
         retcode = self.__transfer_subtitles(org_name, new_name, rmt_mode)
-        if retcode != 0: 
+        if retcode != 0:
             return retcode
         retcode = self.__transfer_audio_track_files(org_name, new_name, rmt_mode, over_flag)
-        if retcode != 0: 
+        if retcode != 0:
             return retcode
         return 0
 
@@ -326,14 +326,14 @@ class FileTransfer:
                 try:
                     log.info("【Rmt】正在转移音轨文件：%s 到 %s" % (track_file, new_track_file))
                     retcode = self.__transfer_command(file_item=track_file,
-                                            target_file=new_track_file,
-                                            rmt_mode=rmt_mode)
+                                                      target_file=new_track_file,
+                                                      rmt_mode=rmt_mode)
                     if retcode == 0:
                         log.info("【Rmt】音轨文件 %s %s完成" % (file_name, rmt_mode.value))
                     else:
                         log.error("【Rmt】音轨文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
                 except OSError as reason:
-                    log.error("【Rmt】音轨文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
+                    log.error("【Rmt】音轨文件 %s %s失败：%s" % (file_name, rmt_mode.value, str(reason)))
         return 0
 
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
@@ -475,9 +475,9 @@ class FileTransfer:
             return retcode
         # 处理其他相关文件
         return self.__transfer_other_files(org_name=file_item,
-                                         new_name=new_file,
-                                         rmt_mode=rmt_mode,
-                                         over_flag=over_flag)
+                                           new_name=new_file,
+                                           rmt_mode=rmt_mode,
+                                           over_flag=over_flag)
 
     def transfer_media(self,
                        in_from: Enum,
@@ -655,7 +655,7 @@ class FileTransfer:
                 file_name = os.path.basename(file_item)
                 # 更新进度
                 self.progress.update(ptype=ProgressKey.FileTransfer,
-                                     value=round(total_count/len(Medias) * 100) - (0.5/len(Medias) * 100),
+                                     value=round(total_count / len(Medias) * 100) - (0.5 / len(Medias) * 100),
                                      text="正在处理：%s ..." % file_name)
 
                 # 数据库记录的路径
@@ -741,7 +741,8 @@ class FileTransfer:
                                 # 新文件
                                 new_file = "%s%s" % (ret_file_path, file_ext)
                                 # 覆盖
-                                log.info(f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
+                                log.info(
+                                    f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=new_file,
                                                            rmt_mode=rmt_mode,
