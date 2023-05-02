@@ -783,6 +783,15 @@ class RssChecker(object):
         self.init_config()
         return ret
 
+    def update_userrss_parser(self, item):
+        """
+        更新自定义RSS解析器
+        :param item: 解析器信息
+        """
+        ret = self.dbhelper.update_userrss_parser(item)
+        self.init_config()
+        return ret
+
     def get_userrss_task_history(self, task_id):
         """
         获取自定义RSS任务下载记录
