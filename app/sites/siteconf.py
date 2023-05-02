@@ -37,11 +37,13 @@ class SiteConf:
     _SITE_LOGIN_XPATH = {
         "username": [
             '//input[@name="username"]',
-            '//input[@id="form_item_username"]'
+            '//input[@id="form_item_username"]',
+            '//input[@id="username"]'
         ],
         "password": [
             '//input[@name="password"]',
-            '//input[@id="form_item_password"]'
+            '//input[@id="form_item_password"]',
+            '//input[@id="password"]'
         ],
         "captcha": [
             '//input[@name="imagestring"]',
