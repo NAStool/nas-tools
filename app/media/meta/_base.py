@@ -708,10 +708,19 @@ class MetaBase(object):
             # x集全
             episode_all_str = re.search(r'%s' % self._subtitle_episode_all_re, title_text, re.IGNORECASE)
             if episode_all_str:
-                self.begin_episode = None
-                self.end_episode = None
-                self.total_episodes = 0
-                self.type = MediaType.TV
+                episode_all = episode_all_str.group(1)
+                if not episode_all:
+                    episode_all = episode_all_str.group(2)
+                if episode_all and self.begin_episode is None:
+                    try:
+                        self.total_episodes = int(cn2an.cn2an(episode_all.strip(), mode='smart'))
+                    except Exception as err:
+                        ExceptionUtils.exception_traceback(err)
+                        return
+                    self.begin_episode = 1
+                    self.end_episode = self.total_episodes
+                    self.type = MediaType.TV
+                    self._subtitle_flag = True
             # 全x季 x季全
             season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
             if season_all_str:
