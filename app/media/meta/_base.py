@@ -1,4 +1,4 @@
-import re
+import regex as re
 import cn2an
 from app.media.fanart import Fanart
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, Config
@@ -142,10 +142,10 @@ class MetaBase(object):
     note = {}
     # 副标题解析
     _subtitle_flag = False
-    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
-    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
-    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十百零EP\-]+)\s*[集话話期]"
-    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十百零]+)\s*集全|全\s*([0-9一二三四五六七八九十百零]+)\s*[集话話期]"
+    _subtitle_season_re = r"(?<![全|共]\s*)[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季(?!\s*[全|共])"
+    _subtitle_season_all_re = r"[全|共]\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季\s*[全|共]"
+    _subtitle_episode_re = r"(?<![全|共]\s*)[第\s]+([0-9一二三四五六七八九十百零EP\-]+)\s*[集话話期](?!\s*[全|共])"
+    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十百零]+)\s*集\s*[全|共]|[全|共]\s*([0-9一二三四五六七八九十百零]+)\s*[集话話期]"
 
     def __init__(self, title, subtitle=None, fileflag=False):
         self.category_handler = Category()
@@ -642,6 +642,7 @@ class MetaBase(object):
     def init_subtitle(self, title_text):
         if not title_text:
             return
+        title_text = f" {title_text} "
         if re.search(r'[全第季集话話期]', title_text, re.IGNORECASE):
             # 第x季
             season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
