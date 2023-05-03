@@ -231,9 +231,12 @@ class IYUUAutoSeed(_IPluginModule):
             self.iyuuhelper = IyuuHelper(token=self._token)
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self.info(f"辅种服务启动，周期：{self._cron}")
-                self._scheduler.add_job(self.auto_seed,
-                                        CronTrigger.from_crontab(self._cron))
+                try:
+                    self._scheduler.add_job(self.auto_seed,
+                                            CronTrigger.from_crontab(self._cron))
+                    self.info(f"辅种服务启动，周期：{self._cron}")
+                except Exception as err:
+                    self.error(f"运行周期格式不正确：{str(err)}")
             if self._onlyonce:
                 self.info(f"辅种服务启动，立即运行一次")
                 self._scheduler.add_job(self.auto_seed, 'date',
@@ -298,8 +301,8 @@ class IYUUAutoSeed(_IPluginModule):
                     </div>
                   </div>
                 """
-        return "IYUU站点绑定",  Template(template).render(AuthSites=auth_sites,
-                                                      IyuuToken = self._token),  "IYUUAutoSeed_user_bind_site()"
+        return "IYUU站点绑定", Template(template).render(AuthSites=auth_sites,
+                                                         IyuuToken=self._token), "IYUUAutoSeed_user_bind_site()"
 
     @staticmethod
     def get_script():
@@ -434,11 +437,11 @@ class IYUUAutoSeed(_IPluginModule):
                 self.send_message(
                     title="【IYUU自动辅种任务完成】",
                     text=f"服务器返回可辅种总数：{self.total}\n"
-                        f"实际可辅种数：{self.realtotal}\n"
-                        f"已存在：{self.exist}\n"
-                        f"成功：{self.success}\n"
-                        f"失败：{self.fail}\n"
-                        f"{self.cached} 条失败记录已加入缓存"
+                         f"实际可辅种数：{self.realtotal}\n"
+                         f"已存在：{self.exist}\n"
+                         f"成功：{self.success}\n"
+                         f"失败：{self.fail}\n"
+                         f"{self.cached} 条失败记录已加入缓存"
                 )
         self.info("辅种任务执行完成")
 
