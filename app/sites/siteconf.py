@@ -25,7 +25,8 @@ class SiteConf:
         '//input[@class="dt_button"][contains(@value, "打卡")]',
         '//a[contains(@href, "sign_in")]',
         '//a[contains(@onclick, "do_signin")]',
-        '//a[@id="do-attendance"]'
+        '//a[@id="do-attendance"]',
+        '//shark-icon-button[@href="attendance.php"]'
     ]
 
     # 站点详情页字幕下载链接识别XPATH
