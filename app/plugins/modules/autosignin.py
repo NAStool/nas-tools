@@ -395,6 +395,8 @@ class AutoSignIn(_IPluginModule):
                 # 首页
                 self.info("开始站点仿真签到：%s" % site)
                 home_url = StringUtils.get_base_url(site_url)
+                if "1ptba" in home_url:
+                    home_url = f"{home_url}/index.php"
                 if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie, proxy=site_info.get("proxy")):
                     self.warn("%s 无法打开网站" % site)
                     return f"【{site}】无法打开网站！"
