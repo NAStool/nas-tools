@@ -520,7 +520,7 @@ class AutoSignIn(_IPluginModule):
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             self.warn("%s 签到失败：%s" % (site, str(e)))
-            return f"【{site}】 签到失败：{str(e)}！"
+            return f"【{site}】签到失败：{str(e)}！"
 
     def stop_service(self):
         """
