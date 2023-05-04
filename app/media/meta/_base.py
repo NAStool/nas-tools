@@ -718,8 +718,8 @@ class MetaBase(object):
                     except Exception as err:
                         ExceptionUtils.exception_traceback(err)
                         return
-                    self.begin_episode = 1
-                    self.end_episode = self.total_episodes
+                    self.begin_episode = None
+                    self.end_episode = None
                     self.type = MediaType.TV
                     self._subtitle_flag = True
             # 全x季 x季全
