@@ -209,6 +209,11 @@ class AutoSignIn(_IPluginModule):
             # 定时服务
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
 
+            # 清理缓存即今日历史
+            if self._clean:
+                self.delete_history(key=datetime.today().strftime('%Y-%m-%d'))
+                self._clean = False
+
             # 运行一次
             if self._onlyonce:
                 self.info(f"签到服务启动，立即运行一次")
@@ -216,6 +221,8 @@ class AutoSignIn(_IPluginModule):
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
+
+            if self._onlyonce or self._clean:
                 self.update_config({
                     "enabled": self._enabled,
                     "cron": self._cron,
@@ -225,6 +232,7 @@ class AutoSignIn(_IPluginModule):
                     "notify": self._notify,
                     "onlyonce": self._onlyonce,
                     "queue_cnt": self._queue_cnt,
+                    "clean": self._clean
                 })
 
             # 周期运行
@@ -269,7 +277,7 @@ class AutoSignIn(_IPluginModule):
         today = today.strftime('%Y-%m-%d')
         today_history = self.get_history(key=today)
         # 今日没数据
-        if not today_history or self._clean:
+        if not today_history:
             sign_sites = self._sign_sites
             self.info(f"今日 {today} 未签到，开始签到已选站点")
         else:
