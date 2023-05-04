@@ -1773,6 +1773,14 @@ class DbHelper:
                 SITEBRUSHTORRENTS.TASK_ID == int(brush_id)
             ).order_by(SITEBRUSHTORRENTS.LST_MOD_DATE.desc()).all()
 
+    def get_brushtask_torrent_by_enclosure(self, enclosure):
+        """
+        根据URL查询刷流任务种子
+        """
+        if not enclosure:
+            return None
+        return self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.ENCLOSURE == enclosure).first()
+
     def is_brushtask_torrent_exists(self, brush_id, title, enclosure):
         """
         查询刷流任务种子是否已存在

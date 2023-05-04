@@ -1,7 +1,5 @@
 import random
 
-import math
-
 from app.downloader import Downloader
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
@@ -10,9 +8,9 @@ from app.utils import Torrent, StringUtils
 
 class AutoUnPack(_IPluginModule):
     # 插件名称
-    module_name = "自动拆包"
+    module_name = "种子自动拆包"
     # 插件描述
-    module_desc = "自动拆包、添加下载器任务。"
+    module_desc = "自动拆包种子、添加下载任务。"
     # 插件图标
     module_icon = "unpack.png"
     # 主题色
@@ -77,7 +75,7 @@ class AutoUnPack(_IPluginModule):
                         {
                             'title': '保留大小',
                             'required': "required",
-                            'tooltip': '拆包后保留大小（单位gb）',
+                            'tooltip': '拆包后保留大小（单位GB）',
                             'type': 'text',
                             'content': [
                                 {
@@ -89,7 +87,7 @@ class AutoUnPack(_IPluginModule):
                         {
                             'title': '下载器',
                             'required': "required",
-                            'tooltip': '添加任务的下载器（只支持qbittorrent）',
+                            'tooltip': '添加任务的下载器（只支持Qbittorrent）',
                             'type': 'select',
                             'content': [
                                 {
@@ -106,7 +104,7 @@ class AutoUnPack(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'path',
-                                    'placeholder': '/downloads/pt',
+                                    'placeholder': '下载器可访问路径',
                                 }
                             ]
                         },
@@ -115,12 +113,12 @@ class AutoUnPack(_IPluginModule):
                         {
                             'title': '种子链接',
                             'required': 'required',
-                            'tooltip': '每一行一个torrent链接',
+                            'tooltip': '每一行一个种子链接',
                             'type': 'textarea',
                             'content':
                                 {
                                     'id': 'torrents',
-                                    'placeholder': 'https://XXXXX',
+                                    'placeholder': 'https://xxxx',
                                     'rows': 5
                                 }
                         }
@@ -291,7 +289,7 @@ class AutoUnPack(_IPluginModule):
         n = len(sorted_file_lst)
         size_sum = 0
         if self._type == '0':  # 从前开始获取文件
-            self.info("开始从前开始拆包")
+            self.info("开始从前部开始拆包")
             for i in range(n):
                 if size_sum + sorted_file_lst[i]['size'] > total_size:
                     break
@@ -314,7 +312,7 @@ class AutoUnPack(_IPluginModule):
                     file_ids.append(file_id)
                     size_sum += file_size
         elif self._type == '2':  # 从后开始获取文件
-            self.info("开始从后开始拆包")
+            self.info("开始从后部开始拆包")
             for i in range(n - 1, -1, -1):
                 if size_sum + sorted_file_lst[i]['size'] > total_size:
                     break

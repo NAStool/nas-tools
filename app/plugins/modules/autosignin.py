@@ -7,7 +7,6 @@ from threading import Event
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from lxml import etree
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as es
