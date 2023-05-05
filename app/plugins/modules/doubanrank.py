@@ -341,20 +341,22 @@ class DoubanRank(_IPluginModule):
         """
         插入历史记录
         """
+        if not media:
+            return
         value = {
-            "id": media.get('tmdbid'),
-            "name": media.get('title'),
-            "year": media.get('year'),
-            "type": media.get('media_type'),
-            "rating": media.get('vote')[0] if media.get('vote') else None,
-            "image": media.get('image'),
+            "id": media.tmdb_id,
+            "name": media.title,
+            "year": media.year,
+            "type": media.type.value,
+            "rating": media.vote_average or 0,
+            "image": media.get_poster_image(),
             "state": state,
             "add_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        if self.get_history(key=media.get('tmdbid')):
-            self.update_history(key=media.get('tmdbid'), value=value)
+        if self.get_history(key=media.tmdb_id):
+            self.update_history(key=media.tmdb_id, value=value)
         else:
-            self.history(key=media.get('tmdbid'), value=value)
+            self.history(key=media.tmdb_id, value=value)
 
     def stop_service(self):
         """
