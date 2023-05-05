@@ -10,9 +10,9 @@ from jinja2 import Template
 from lxml import etree
 
 from app.downloader import Downloader
-from app.helper import IyuuHelper
 from app.media.meta import MetaInfo
 from app.plugins.modules._base import _IPluginModule
+from app.plugins.modules.iyuu.iyuu_helper import IyuuHelper
 from app.sites import Sites
 from app.utils import RequestUtils
 from app.utils.types import DownloaderType
@@ -329,20 +329,29 @@ class IYUUAutoSeed(_IPluginModule):
                 $("#iyuuautoseed_passkey").removeClass("is-invalid");
             }
             // 认证
-            ajax_post("iyuu_bind_site", {"token": token, "site": site, "uid": uid, "passkey": passkey}, function (ret) {
+            ajax_post("run_plugin_method", {"plugin_id": 'IYUUAutoSeed', 'method': 'iyuu_bind_site', "site": site, "uid": uid, "passkey": passkey}, function (ret) {
                 $("#modal-plugin-page").modal('hide');
-                if (ret.code === 0) {
+                if (ret.result.code === 0) {
                     show_success_modal("IYUU用户认证成功！", function () {
                         $("#modal-plugin-IYUUAutoSeed").modal('show');
                     });
                 } else {
-                    show_fail_modal(ret.msg, function(){
+                    show_fail_modal(ret.result.msg, function(){
                         $("#modal-plugin-page").modal('show');
                     });
                 }
             });
           }
         """
+
+    def iyuu_bind_site(self, site, passkey, uid):
+        """
+        IYUU绑定合作站点
+        """
+        state, msg = self.iyuuhelper.bind_site(site=site,
+                                               passkey=passkey,
+                                               uid=uid)
+        return {"code": 0 if state else 1, "msg": msg}
 
     def __update_config(self):
         self.update_config({

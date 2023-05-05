@@ -8,13 +8,14 @@ import shutil
 import signal
 import sqlite3
 import time
+from math import floor
+from pathlib import Path
 from urllib.parse import unquote
 
 import cn2an
 from flask_login import logout_user, current_user
-from math import floor
 from werkzeug.security import generate_password_hash
-from pathlib import Path
+
 import log
 from app.brushtask import BrushTask
 from app.conf import SystemConfig, ModuleConf
@@ -22,7 +23,7 @@ from app.downloader import Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
-    MetaHelper, DisplayHelper, WordsHelper, IndexerHelper, IyuuHelper
+    MetaHelper, DisplayHelper, WordsHelper, IndexerHelper
 from app.helper import RssHelper, PluginHelper
 from app.indexer import Indexer
 from app.media import Category, Media, Bangumi, DouBan, Scraper
@@ -230,7 +231,6 @@ class WebAction:
             "update_category_config": self.update_category_config,
             "get_category_config": self.get_category_config,
             "get_system_processes": self.get_system_processes,
-            "iyuu_bind_site": self.iyuu_bind_site,
             "run_plugin_method": self.run_plugin_method,
         }
         # 远程命令响应
@@ -5119,19 +5119,6 @@ class WebAction:
         获取系统进程
         """
         return {"code": 0, "data": SystemUtils.get_all_processes()}
-
-    @staticmethod
-    def iyuu_bind_site(data):
-        """
-        IYUU绑定合作站点
-        """
-        if not data.get('token'):
-            return {"code": -1, "msg": "请先填写IYUU token并保存后再进行IYUU认证！"}
-        iyuuhelper = IyuuHelper(token=data.get('token'))
-        state, msg = iyuuhelper.bind_site(site=data.get('site'),
-                                          passkey=data.get('passkey'),
-                                          uid=data.get('uid'))
-        return {"code": 0 if state else 1, "msg": msg}
 
     @staticmethod
     def run_plugin_method(data):
