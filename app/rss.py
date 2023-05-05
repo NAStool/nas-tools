@@ -53,15 +53,8 @@ class Rss:
 
         with lock:
             log.info("【Rss】开始RSS订阅...")
-            timeframe_obj = {
-                "rule": None,
-                "timeframe": None
-            }
             # 读取电影订阅
             rss_movies = self.subscribe.get_subscribe_movies(state='R')
-            for rss_movie in rss_movies:
-                timeframe_obj.rule = rss_movie.get("rule")
-                timeframe_obj.timeframe = rss_movie.get("timeframe")
             if not rss_movies:
                 log.warn("【Rss】没有正在订阅的电影")
             else:
@@ -69,9 +62,6 @@ class Rss:
                          % " ".join('%s' % info.get("name") for _, info in rss_movies.items()))
             # 读取电视剧订阅
             rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
-            for rss_tv in rss_tvs:
-                timeframe_obj.rule = rss_tv.get("rule")
-                timeframe_obj.timeframe = rss_tv.get("timeframe")
             if not rss_tvs:
                 log.warn("【Rss】没有正在订阅的电视剧")
             else:
@@ -103,7 +93,6 @@ class Rss:
                 check_sites = []
             else:
                 check_sites = list(set(check_sites))
-
             # 匹配到的资源列表
             rss_download_torrents = []
             # 缺失的资源详情
@@ -311,24 +300,24 @@ class Rss:
                         # 设置下载参数
                         media_info.set_download_info(download_setting=match_info.get("download_setting"),
                                                      save_path=match_info.get("save_path"))
-                        # 插入数据库历史记录
-                        self.rsshelper.insert_rss_torrents(media_info)
+                        
+                        # 判断需要等待的种子
+                        if self.timeframe.check_rss_filter(media_info,
+                            match_info.get('filter_timeframe')) < 0:
+                                continue                                  
+                        else:
+                            # 插入数据库历史记录
+                            self.rsshelper.insert_rss_torrents(media_info)
                         # 加入下载列表
-                        if media_info not in rss_download_torrents:
-                            rss_download_torrents.append(media_info)
-                            res_num = res_num + 1
+                            if media_info not in rss_download_torrents:
+                                rss_download_torrents.append(media_info)
+                                res_num = res_num + 1
                     except Exception as e:
                         ExceptionUtils.exception_traceback(e)
                         log.error("【Rss】处理RSS发生错误：%s" % str(e))
                         continue
                 log.info("【Rss】%s 处理结束，匹配到 %s 个有效资源" % (site_name, res_num))
             log.info("【Rss】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
-            # timeframe
-            rss_download_torrents = self.timeframe.check_torrent_filter(in_form=SearchType.RSS,
-                                                                        mtype=media_info.type,
-                                                                        rssid=media_info.rssid,
-                                                                        filter_args=media_info.filter_rule,
-                                                                        media_list=rss_download_torrents)
             # 开始择优下载
             self.download_rss_torrent(rss_download_torrents=rss_download_torrents,
                                       rss_no_exists=rss_no_exists)
@@ -491,7 +480,6 @@ class Rss:
                 "rule": filter_rule,
                 "include": match_rss_info.get('filter_include'),
                 "exclude": match_rss_info.get('filter_exclude'),
-                "timeframe": match_rss_info.get('filter_timeframe'),
             }
             match_filter_flag, res_order, match_filter_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                                               filter_args=filter_dict)

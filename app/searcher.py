@@ -104,6 +104,7 @@ class Searcher:
                        "episode": search_episode,
                        "year": media_info.year,
                        "type": media_info.type,
+                       "timeframe": media_info.filter_timeframe,
                        "site": sites,
                        "seeders": True}
         if filters:
@@ -178,9 +179,7 @@ class Searcher:
                     return None, no_exists, len(media_list), None
                 
             # timeframe
-            media_list = self.timeframe.check_torrent_filter(in_from=in_from,
-                                                             mtype=media_info.type,
-                                                             rssid=media_info.rssid,
+            media_list = self.timeframe.check_search_filter(in_from=in_from,
                                                              filter_args=filter_args,
                                                              media_list=media_list)                        
 

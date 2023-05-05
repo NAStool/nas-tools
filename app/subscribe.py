@@ -426,6 +426,7 @@ class Subscribe:
             filter_rule = rss_movie.FILTER_RULE
             filter_include = rss_movie.FILTER_INCLUDE
             filter_exclude = rss_movie.FILTER_EXCLUDE
+            filter_timeframe = rss_movie.FILTER_TIMEFRAME
             download_setting = rss_movie.DOWNLOAD_SETTING
             save_path = rss_movie.SAVE_PATH
             fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
@@ -496,6 +497,7 @@ class Subscribe:
             filter_rule = rss_tv.FILTER_RULE
             filter_include = rss_tv.FILTER_INCLUDE
             filter_exclude = rss_tv.FILTER_EXCLUDE
+            filter_timeframe = rss_tv.FILTER_TIMEFRAME
             download_setting = rss_tv.DOWNLOAD_SETTING
             save_path = rss_tv.SAVE_PATH
             total_ep = rss_tv.TOTAL_EP
@@ -542,6 +544,7 @@ class Subscribe:
                 "filter_rule": filter_rule,
                 "filter_include": filter_include,
                 "filter_exclude": filter_exclude,
+                "filter_timeframe": filter_timeframe, 
                 "save_path": save_path,
                 "download_setting": download_setting,
                 "total": rss_tv.TOTAL,

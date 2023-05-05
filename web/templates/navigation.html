@@ -113,9 +113,19 @@
     </div>
     <div class="mt-3 w-100 position-absolute mb-2 pe-2" align="center" style="bottom: calc(env(safe-area-inset-bottom))">
       <div class="input-group">
+        <button type="button" class="btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          /
+        </button>
+        <div class="dropdown-menu" data-popper-placement="bottom-start">
+          {% for Command in Commands %}
+          <a class="dropdown-item" href="javascript:send_web_message('{{ Command.id }}')">
+            {{ Command.name }}
+          </a>
+          {% endfor %}
+        </div>
         <input type="text" id="message_center_input" class="form-control" autocomplete="off" placeholder="输入消息或命令..."
-            onkeydown="if(event.keyCode==13) send_web_message(this)">
-        <button class="btn btn-primary" type="button" onclick="send_web_message('#message_center_input')">发送</button>
+            onkeydown="if(event.keyCode==13) send_web_message($(this))">
+        <button class="btn btn-primary" type="button" onclick="send_web_message($('#message_center_input'))">发送</button>
       </div>
     </div>
   </div>
@@ -472,10 +482,10 @@
           </div>
           <div class="col-lg">
             <div class="mb-3">
-              <label class="form-label">最高优先级等待时间 <span class="form-help"
-                                                       title="在等待时间内仅下载过滤规则组最高优先级的资源"
+              <label class="form-label">等待 <span class="form-help"
+                                                       title="种子标题或副标题中包含对应关键字或匹配对应正则表达式的将会被过滤掉"
                                                        data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="default_rss_setting_timeframe" class="form-control" placeholder="300">
+              <input type="text" value="" id="default_rss_setting_timeframe" class="form-control" placeholder="关键字或正则表达式">
             </div>
           </div>
         </div>
@@ -671,13 +681,12 @@
           </div>
           <div class="col-lg">
             <div class="mb-3">
-              <label class="form-label">最高优先级等待时间 <span class="form-help"
-                                                       title="在等待时间内仅下载过滤规则组最高优先级的资源"
+              <label class="form-label">等待 <span class="form-help"
+                                                       title="种子标题或副标题中包含对应关键字或匹配对应正则表达式的将会被过滤掉"
                                                        data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="rss_timeframe" class="form-control" placeholder="300">
+              <input type="text" value="" id="rss_timeframe" class="form-control" placeholder="关键字或正则表达式">
             </div>
           </div>
-        </div>
         </div>
         <div class="row">
           <div class="col-lg-4">
@@ -1141,8 +1150,7 @@
     </div>
   </div>
 </div>
-<cmd-dialog theme="light">
-</cmd-dialog>
+<cmd-dialog theme="light"></cmd-dialog>
 <!-- 载入tabler组件 -->
 <script src="../static/js/tabler/tabler.min.js"></script>
 <script src="../static/js/tabler/libs/dropzone-min.js"></script>
@@ -1159,6 +1167,7 @@
 
   // 页面初始事件
   $(document).ready(function () {
+
     // 监听页面状态
     window.addEventListener('popstate', function(e) {
         if (e.state) {
@@ -1166,7 +1175,7 @@
           if (e.state.CurrentPage) {
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
-          CURRENT_PAGE_URI = e.state.page;
+          CurrentPageUri = e.state.page;
           document.querySelector("#navbar-menu").update_active();
           $(window).unbind('scroll');
           document.title = e.state.title;
@@ -1176,9 +1185,6 @@
         }
     });
 
-    // TomSelect下拉框
-    init_tomselect();
-
     // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
     $('body').on('click', 'span[data-bs-toggle="tooltip"]', function (e) {
       e.preventDefault();
@@ -1186,52 +1192,28 @@
     });
 
     // 全局变量默认值
-    TorrentDropZone = new Dropzone("#torrent_files");
-    TorrentDropZone.options.acceptedFiles = ".torrent";
     DefaultTransferMode = '{{ SyncMod }}';
     DefaultPath = "{{ DefaultPath }}";
 
-    // 当前协议
-    let protocol = "ws://";
-    if (window.location.protocol === "https:") {
-      protocol = "wss://"
-    }
+    // TomSelect下拉框
+    init_tomselect();
 
-    {% if "系统设置" in CurrentUser.pris %}
-      // WebSocket刷新日志
-      LoggingWS = new WebSocket(protocol + window.location.host + '/logging');
-      LoggingWS.onmessage = function (event) {
-        render_logging(JSON.parse(event.data))
-      };
-      LoggingWS.onclose = function() {
-        console.log('Logging Connection closed');
-        LoggingWS = new WebSocket(protocol + window.location.host + '/logging');
-        console.log('Logging Connection Reopen');
-      };
-    {% endif %}
+    // Dropzone配置
+    init_dropzone();
 
-    // WebSocket刷新消息
-    MessageWS = new WebSocket(protocol + window.location.host + '/message');
-    MessageWS.onmessage = function (event) {
-      render_message(JSON.parse(event.data))
-    };
-    MessageWS.onclose = function() {
-      console.log('Message Connection closed');
-      MessageWS = new WebSocket(protocol + window.location.host + '/message');
-      console.log('Message Connection Reopen');
-    };
-    MessageWS.onopen = function (event) {
-      get_message('');
-    };
+    // WebSocket刷新消息中心
+    connect_message();
 
     {% if not TMDBFlag %}
       // 检查tmdb配置
       show_init_alert_modal();
     {% elif current_user.level == 1 %}
+      // 用户认证
       show_user_auth_modal();
     {% endif %}
 
   });
+
 </script>
 
 <!-- KBar -->
