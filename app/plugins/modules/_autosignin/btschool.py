@@ -48,8 +48,8 @@ class BTSchool(_ISiteSigninHandler):
 
         # 已签到
         if self._sign_text not in html_res.text:
-            self.info(f"已签到")
-            return True, f'【{site}】已签到'
+            self.info(f"今日已签到")
+            return True, f'【{site}】今日已签到'
 
         # 签到
         sign_res = RequestUtils(cookies=site_cookie,
