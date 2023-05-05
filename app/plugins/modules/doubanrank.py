@@ -9,6 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 from jinja2 import Template
 
 from app.helper import RssHelper
+from app.media import Media
 from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
 from app.subscribe import Subscribe
@@ -46,6 +47,7 @@ class DoubanRank(_IPluginModule):
     mediaserver = None
     subscribe = None
     rsshelper = None
+    media = None
     _douban_address = {
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
         'movie-weekly': 'https://rsshub.app/douban/movie/weekly',
@@ -67,6 +69,7 @@ class DoubanRank(_IPluginModule):
         self.mediaserver = MediaServer()
         self.subscribe = Subscribe()
         self.rsshelper = RssHelper()
+        self.media = Media()
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
@@ -409,9 +412,12 @@ class DoubanRank(_IPluginModule):
                         self.info(f"已处理过：{title} （豆瓣id：{douban_id}）")
                         continue
                     # 识别媒体信息
-                    media_info = WebUtils.get_mediainfo_from_id(mtype=mtype,
-                                                                mediaid=f"DB:{douban_id}",
-                                                                wait=True)
+                    if douban_id:
+                        media_info = WebUtils.get_mediainfo_from_id(mtype=mtype,
+                                                                    mediaid=f"DB:{douban_id}",
+                                                                    wait=True)
+                    else:
+                        media_info = self.media.get_media_info(title=title, mtype=mtype)
                     if not media_info:
                         self.warn(f"未查询到媒体信息：{title} （豆瓣id：{douban_id}）")
                         continue
@@ -483,14 +489,14 @@ class DoubanRank(_IPluginModule):
                     title = DomUtils.tag_value(item, "title", default="")
                     # 链接
                     link = DomUtils.tag_value(item, "link", default="")
-                    if not title or not link:
-                        self.warn(f"标题或链接为空：{title} - {link}")
+                    if not title and not link:
+                        self.warn(f"条目标题和链接均为空，无法处理")
                         continue
                     doubanid = re.findall(r"/(\d+)/", link)
                     if doubanid:
                         doubanid = doubanid[0]
-                    if not doubanid or not str(doubanid).isdigit():
-                        self.warn("豆瓣ID解析失败：" + link)
+                    if doubanid and not str(doubanid).isdigit():
+                        self.warn(f"解析的豆瓣ID格式不正确：{doubanid}")
                         continue
                     # 返回对象
                     ret_array.append({
