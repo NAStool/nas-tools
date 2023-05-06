@@ -19,15 +19,16 @@ class RenderSpider(object):
     torrents_info_array = []
     result_num = 100
 
-    def __init__(self):
+    def __init__(self, indexer):
         self.torrentspider = TorrentSpider()
+        self._indexer = indexer
         self.init_config()
 
     def init_config(self):
         self.torrents_info_array = []
         self.result_num = Config().get_config('pt').get('site_search_result_num') or 100
 
-    def search(self, keyword, indexer, page=None, mtype=None):
+    def search(self, keyword, page=None, mtype=None):
         """
         开始搜索
         :param: keyword: 搜索关键字
@@ -36,9 +37,6 @@ class RenderSpider(object):
         :param: mtype: 类型
         :return: (是否发生错误，种子列表)
         """
-
-        if not indexer:
-            return True, []
         if not keyword:
             keyword = ""
         if isinstance(keyword, list):
@@ -47,13 +45,13 @@ class RenderSpider(object):
         if not chrome.get_status():
             return True, []
         # 请求路径
-        torrentspath = indexer.search.get('paths', [{}])[0].get('path', '') or ''
-        search_url = indexer.domain + torrentspath.replace("{keyword}", quote(keyword))
+        torrentspath = self._indexer.search.get('paths', [{}])[0].get('path', '') or ''
+        search_url = self._indexer.domain + torrentspath.replace("{keyword}", quote(keyword))
         # 请求方式，支持GET和浏览仿真
-        method = indexer.search.get('paths', [{}])[0].get('method', '')
+        method = self._indexer.search.get('paths', [{}])[0].get('method', '')
         if method == "chrome":
             # 请求参数
-            params = indexer.search.get('paths', [{}])[0].get('params', {})
+            params = self._indexer.search.get('paths', [{}])[0].get('params', {})
             # 搜索框
             search_input = params.get('keyword')
             # 搜索按钮
@@ -62,16 +60,16 @@ class RenderSpider(object):
             pre_script = params.get('script')
             # referer
             if params.get('referer'):
-                referer = indexer.domain + params.get('referer').replace('{keyword}', quote(keyword))
+                referer = self._indexer.domain + params.get('referer').replace('{keyword}', quote(keyword))
             else:
-                referer = indexer.domain
+                referer = self._indexer.domain
             if not search_input or not search_button:
                 return True, []
             # 使用浏览器打开页面
             if not chrome.visit(url=search_url,
-                                cookie=indexer.cookie,
-                                ua=indexer.ua,
-                                proxy=indexer.proxy):
+                                cookie=self._indexer.cookie,
+                                ua=self._indexer.ua,
+                                proxy=self._indexer.proxy):
                 return True, []
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
@@ -97,12 +95,12 @@ class RenderSpider(object):
                 return True, []
         else:
             # referer
-            referer = indexer.domain
+            referer = self._indexer.domain
             # 使用浏览器获取HTML文本
             if not chrome.visit(url=search_url,
-                                cookie=indexer.cookie,
-                                ua=indexer.ua,
-                                proxy=indexer.proxy):
+                                cookie=self._indexer.cookie,
+                                ua=self._indexer.ua,
+                                proxy=self._indexer.proxy):
                 return True, []
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
@@ -114,16 +112,16 @@ class RenderSpider(object):
         if not html_text:
             return True, []
         # 重新获取Cookie和UA
-        indexer.cookie = chrome.get_cookies()
-        indexer.ua = chrome.get_ua()
+        self._indexer.cookie = chrome.get_cookies()
+        self._indexer.ua = chrome.get_ua()
         # 设置抓虫参数
         self.torrentspider.setparam(keyword=keyword,
-                                    indexer=indexer,
+                                    indexer=self._indexer,
                                     referer=referer,
                                     page=page,
                                     mtype=mtype)
         # 种子筛选器
-        torrents_selector = indexer.torrents.get('list', {}).get('selector', '')
+        torrents_selector = self._indexer.torrents.get('list', {}).get('selector', '')
         if not torrents_selector:
             return False, []
         # 解析HTML文本

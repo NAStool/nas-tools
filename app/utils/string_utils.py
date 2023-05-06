@@ -367,8 +367,10 @@ class StringUtils:
         :param date_format:
         :return:
         """
+        if isinstance(timestamp, str) and not timestamp.isdigit():
+            return timestamp
         try:
-            return datetime.datetime.fromtimestamp(timestamp).strftime(date_format)
+            return datetime.datetime.fromtimestamp(int(timestamp)).strftime(date_format)
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return timestamp
