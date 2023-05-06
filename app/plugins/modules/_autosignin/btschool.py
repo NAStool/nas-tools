@@ -41,14 +41,14 @@ class BTSchool(_ISiteSigninHandler):
         chrome = ChromeHelper()
         if site_info.get("chrome") and chrome.get_status():
             self.info(f"{site} 开始仿真签到")
-            success, msg, html_text = self.__chrome_visit(chrome=chrome,
-                                                          url="https://pt.btschool.club/index.php",
-                                                          ua=ua,
-                                                          site_cookie=site_cookie,
-                                                          proxy=proxy,
-                                                          site=site)
+            msg, html_text = self.__chrome_visit(chrome=chrome,
+                                                 url="https://pt.btschool.club/index.php",
+                                                 ua=ua,
+                                                 site_cookie=site_cookie,
+                                                 proxy=proxy,
+                                                 site=site)
             # 仿真访问失败
-            if not success:
+            if msg:
                 return False, msg
 
             # 已签到
@@ -57,13 +57,13 @@ class BTSchool(_ISiteSigninHandler):
                 return True, f'【{site}】今日已签到'
 
             # 仿真签到
-            success, msg, html_text = self.__chrome_visit(chrome=chrome,
-                                                          url="https://pt.btschool.club/index.php?action=addbonus",
-                                                          ua=ua,
-                                                          site_cookie=site_cookie,
-                                                          proxy=proxy,
-                                                          site=site)
-            if not success:
+            msg, html_text = self.__chrome_visit(chrome=chrome,
+                                                 url="https://pt.btschool.club/index.php?action=addbonus",
+                                                 ua=ua,
+                                                 site_cookie=site_cookie,
+                                                 proxy=proxy,
+                                                 site=site)
+            if msg:
                 return False, msg
 
             # 签到成功
@@ -106,7 +106,7 @@ class BTSchool(_ISiteSigninHandler):
         if not chrome.visit(url=url, ua=ua, cookie=site_cookie,
                             proxy=proxy):
             self.warn("%s 无法打开网站" % site)
-            return False, f"【{site}】仿真签到失败，无法打开网站！", None
+            return f"【{site}】仿真签到失败，无法打开网站！", None
         # 检测是否过cf
         time.sleep(3)
         if under_challenge(chrome.get_html()):
@@ -114,15 +114,15 @@ class BTSchool(_ISiteSigninHandler):
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
                 self.warn("%s 跳转站点失败" % site)
-                return False, f"【{site}】仿真签到失败，跳转站点失败！", None
+                return f"【{site}】仿真签到失败，跳转站点失败！", None
         # 获取html
         html_text = chrome.get_html()
         if not html_text:
             self.warn("%s 获取站点源码失败" % site)
-            return False, f"【{site}】仿真签到失败，获取站点源码失败！", None
+            return f"【{site}】仿真签到失败，获取站点源码失败！", None
         if "魔力值" not in html_text:
             self.error(f"签到失败，站点无法访问")
-            return False, f'【{site}】签到失败，站点无法访问', None
+            return f'【{site}】仿真签到失败，站点无法访问', None
 
         # 站点访问正常，返回html
-        return True, None, html_text
+        return None, html_text
