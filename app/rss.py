@@ -302,7 +302,7 @@ class Rss:
                                                      save_path=match_info.get("save_path"))
                         
                         # 判断需要等待的种子
-                        if self.timeframe.check_rss_filter(media_info,
+                        if not self.timeframe.check_rss_filter(media_info,
                             match_info.get('filter_timeframe')):
                                 continue                                  
                         else:

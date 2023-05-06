@@ -14,14 +14,15 @@ class Timeframe:
     def init_config(self):
         self.dbhelper = DbHelper()
 
-    def check_timeframe_expires(self, timeframe_info, media_wating_title, existing_id, media_wait_time):
+    def check_timeframe_expires(self, timeframe_info, existing_id, media_wating_title, media_wait_time):
         """
         检测是否到期
+        :param timeframe_info: 存在的等待中的电视剧或电影信息
+        :param existing_id: 等待中的电视剧或电影标题
+        :param media_wating_title: 识别的电视剧集数或电影标题
+        :param media_wating_time: 等待事件
         """
-        if media_wating_title:
-            first_seen = timeframe_info[existing_id.index(media_wating_title)].FIRST_SEEN
-        else:
-            first_seen = timeframe_info[existing_id.index(media_wating_title)].FIRST_SEEN
+        first_seen = timeframe_info[existing_id.index(media_wating_title)].FIRST_SEEN
         expires = first_seen + datetime.timedelta(minutes=int(media_wait_time)) 
         if expires <=  datetime.datetime.now():
             return 1
@@ -33,7 +34,7 @@ class Timeframe:
         更新timeframe状态
         :param rssid: 订阅ID
         :param mtype: 媒体类型
-        :param media_wating_title: 需要等待的电视剧集数或电影标题
+        :param media_wating_title: 识别的电视剧集数或电影标题
         """
         if mtype != MediaType.MOVIE:
             self.dbhelper.update_tv_timeframe(rssid=rssid ,episode=media_wating_title)
@@ -63,7 +64,7 @@ class Timeframe:
             return 1
         else:
             if media_wait_title in existing_id:
-                if self.check_timeframe_expires(media_info.rssid, timeframe_info, existing_id, media_wait_time):
+                if self.check_timeframe_expires(timeframe_info, existing_id, media_wait_title, media_wait_time):
                     self.update_timeframe_status(media_info.rssid, media_info.type, media_wait_title)
                     return 1
                 return 0
@@ -113,7 +114,7 @@ class Timeframe:
             else:
                 # 取最高优先级
                 t_item.set_torrent_info(rssid=rssid)
-                if self.check_timeframe_filter(t_item, existing_id, timeframe_info, media_wait_time):
+                if self.check_timeframe_filter(t_item, timeframe_info, existing_id, media_wait_time):
                     timeframe_accept_list_item.append(t_item)
         return timeframe_accept_list_item
     
@@ -140,4 +141,4 @@ class Timeframe:
         if not media_info.res_order:
             return 1
         else:
-            return self.check_timeframe_filter(media_info, existing_id, timeframe_info, media_wait_time)
+            return self.check_timeframe_filter(media_info, timeframe_info, existing_id, media_wait_time)
