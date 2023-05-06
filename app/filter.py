@@ -106,7 +106,7 @@ class Filter:
         if rulegroup and int(rulegroup) == -1:
             return True, 0, "不过滤"
         # 过滤使用的文本
-        title = meta_info.org_string
+        title = meta_info.rev_string
         if meta_info.subtitle:
             title = f"{title} {meta_info.subtitle}"
         # 过滤规则组
@@ -256,7 +256,7 @@ class Filter:
         :return: 是否匹配，匹配的优先值，匹配信息，值越大越优先
         """
         # 过滤包含，排除，关键字使用的文本
-        text = meta_info.org_string
+        text = meta_info.rev_string
         if meta_info.subtitle:
             text = f"{text} {meta_info.subtitle}"
         # 过滤质量
@@ -278,7 +278,7 @@ class Filter:
             team = filter_args.get("team")
             if not meta_info.resource_team:
                 resource_team = self.rg_matcher.match(
-                    title=meta_info.org_string,
+                    title=meta_info.rev_string,
                     groups=team)
                 if not resource_team:
                     return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
