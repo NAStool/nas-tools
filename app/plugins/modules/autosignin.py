@@ -212,17 +212,17 @@ class AutoSignIn(_IPluginModule):
             # 清理缓存即今日历史
             if self._clean:
                 self.delete_history(key=datetime.today().strftime('%Y-%m-%d'))
-                self._clean = False
 
             # 运行一次
             if self._onlyonce:
                 self.info(f"签到服务启动，立即运行一次")
                 self._scheduler.add_job(self.sign_in, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-                # 关闭一次性开关
-                self._onlyonce = False
 
             if self._onlyonce or self._clean:
+                # 关闭一次性开关|清理缓存开关
+                self._clean = False
+                self._onlyonce = False
                 self.update_config({
                     "enabled": self._enabled,
                     "cron": self._cron,
