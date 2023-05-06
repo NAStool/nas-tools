@@ -4,6 +4,7 @@ import hashlib
 import mimetypes
 import os.path
 import re
+import time
 import traceback
 import urllib
 import xml.dom.minidom
@@ -72,7 +73,11 @@ LoginManager = LoginManager()
 LoginManager.login_view = "login"
 LoginManager.init_app(App)
 
-# API注册
+# SSE
+LoggingSource = ""
+LoggingLock = Lock()
+
+# 路由注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
 # fix Windows registry stuff
@@ -1659,34 +1664,39 @@ def Img():
     return response
 
 
-@Sock.route('/logging')
+@App.route('/stream-logging')
 @login_required
-def logging_handler(ws):
+def stream_logging():
     """
-    实时日志WebSocket
+    实时日志EventSources响应
     """
-    source = ""
-    while True:
-        message = ws.receive()
-        if not message:
-            continue
-        try:
-            _source = json.loads(message).get("source")
-        except Exception as err:
-            print(str(err))
-            continue
-        if _source != source:
-            log.LOG_INDEX = len(log.LOG_QUEUE)
-            source = _source
-        if log.LOG_INDEX > 0:
-            logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
-            log.LOG_INDEX = 0
-            if _source:
-                logs = [l for l in logs if l.get("source") == _source]
-        else:
-            logs = []
-        ws.send((json.dumps(logs)))
 
+    def __logging(_source=""):
+        """
+        实时日志
+        """
+        global LoggingSource
+
+        while True:
+            with LoggingLock:
+                print(f"{LoggingSource} {_source} {log.LOG_INDEX}")
+                if _source != LoggingSource:
+                    LoggingSource = _source
+                    log.LOG_INDEX = len(log.LOG_QUEUE)
+                if log.LOG_INDEX > 0:
+                    logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+                    log.LOG_INDEX = 0
+                    if _source:
+                        logs = [l for l in logs if l.get("source") == _source]
+                else:
+                    logs = []
+                time.sleep(1)
+                yield 'data: %s\n\n' % json.dumps(logs)
+
+    return Response(
+        __logging(request.args.get("source") or ""),
+        mimetype='text/event-stream'
+    )
 
 @Sock.route('/message')
 @login_required

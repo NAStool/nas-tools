@@ -20,12 +20,10 @@ let NavPageLoading = false;
 let NavPageXhr;
 // 是否允许打断弹窗
 let GlobalModalAbort = true;
-//实时日志刷新标志
-let RefreshLoggingFlag = false;
 // 日志来源筛选时关掉之前的刷新日志计时器
 let LoggingSource = "";
-// 日志WebSocket
-let LoggingWS;
+// 日志EventSource
+let LoggingES;
 // 是否存量消息刷新
 let OldMessageFlag = true;
 // 消息WebSocket
@@ -129,17 +127,20 @@ function hide_wait_modal() {
   $("#modal-wait").modal("hide");
 }
 
-// 连接日志服务
-function connect_logging() {
-  LoggingWS = new ReconnectingWebSocket(WSProtocol + window.location.host + '/logging');
-  LoggingWS.onmessage = function (event) {
-    render_logging(JSON.parse(event.data))
-  };
+// 停止日志服务
+function stop_logging() {
+  if (LoggingES) {
+    LoggingES.close();
+  }
 }
 
-// 发送刷新日志请求
-function get_logging() {
-  LoggingWS.send(JSON.stringify({"source": LoggingSource}));
+// 连接日志服务
+function start_logging() {
+  stop_logging();
+  LoggingES = new EventSource(`stream-logging?source=${LoggingSource}`);
+  LoggingES.onmessage = function (event) {
+    render_logging(JSON.parse(event.data))
+  };
 }
 
 // 刷新日志
@@ -182,33 +183,35 @@ function render_logging(log_list) {
                   <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
                   </tr>`;
     }
-    let logging_table_obj = $("#logging_table");
-    let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
-    $("#logging_content").append(tbody);
-    if (bool_ToScrolTop) {
-      setTimeout(function () {
-        logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
-      }, 500);
+    if (tbody) {
+      let logging_table_obj = $("#logging_table");
+      let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
+      let logging_content = $("#logging_content");
+      if (logging_content.text().indexOf("刷新中...") !== -1) {
+        logging_content.empty();
+      }
+      logging_content.append(tbody);
+      if (bool_ToScrolTop) {
+        setTimeout(function () {
+          logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
+        }, 500);
+      }
     }
   }
   if ($("#modal-logging").is(":hidden")) {
-    RefreshLoggingFlag = false;
-  }
-  if (RefreshLoggingFlag) {
-    window.setTimeout("get_logging()", 1000);
+    stop_logging();
   }
 }
 
 // 暂停实时日志
 function pause_logging() {
   let btn = $("#logging_stop_btn")
-  if (btn.text() === "暂停") {
-    btn.text("开始")
-    RefreshLoggingFlag = false;
+  if (btn.text() === "开始") {
+    btn.text("暂停")
+    start_logging()
   } else {
-    btn.text("暂停");
-    RefreshLoggingFlag = true;
-    get_logging();
+    btn.text("开始");
+    stop_logging();
   }
 }
 
@@ -218,10 +221,7 @@ function show_logging_modal() {
   $("#logging_stop_btn").text("暂停");
   $('#modal-logging').modal('show');
   // 连接日志服务
-  connect_logging();
-  // 开始获取日志
-  RefreshLoggingFlag = true;
-  setTimeout("get_logging()", 1000);
+  start_logging();
 }
 
 // 日志来源筛选
@@ -236,7 +236,7 @@ function logger_select(source) {
   }
   $("#logging_content").html(`<tr><td colspan="3" class="text-center">${logtype}</td></tr>`);
   // 拉取新日志
-  get_logging();
+  start_logging();
 }
 
 // 连接消息服务
