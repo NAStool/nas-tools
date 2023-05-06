@@ -65,26 +65,26 @@ class Timeframe:
             if media_wait_title in existing_id:
                 if self.check_timeframe_expires(media_info.rssid, timeframe_info, existing_id, media_wait_time):
                     self.update_timeframe_status(media_info.rssid, media_info.type, media_wait_title)
-                    return 0
-                return -1
+                    return 1
+                return 0
             else:
                 self.insert_timeframe_info(media_info.rssid, media_info.type, media_wait_title)
-                return -1
+                return 0
 
-    def check_search_filter(self, in_from, rssid, mtype, filter_args, media_list):
+    def check_search_filter(self, in_from, rssid, mtype, media_wait_time, media_list):
         """
         timeframe search入口
         :param in_from: 来源
         :param mtype: 媒体类型
         :param rssid: 订阅信息
-        :param filter_args: 包含filter_timeframe的过滤规则
+        :param media_wait_time: 等待时间
         :param media_list: 命中并已经识别好的媒体信息列表，包括名称、年份、季、集等信息
         """
         # 只处理RSS
         if in_from != SearchType.RSS:
             return media_list
         # 判断是否需要处理
-        if not filter_args.get("timeframe"):
+        if not media_wait_time:
             return media_list
         # 初始化数据
         existing_id= []
@@ -112,7 +112,8 @@ class Timeframe:
                 return download_list
             else:
                 # 取最高优先级
-                if self.check_timeframe_filter(t_item, existing_id, timeframe_info, filter_args.get("timeframe")) > 0:
+                t_item.set_torrent_info(rssid=rssid)
+                if self.check_timeframe_filter(t_item, existing_id, timeframe_info, media_wait_time):
                     timeframe_accept_list_item.append(t_item)
         return timeframe_accept_list_item
     

@@ -303,7 +303,7 @@ class Rss:
                         
                         # 判断需要等待的种子
                         if self.timeframe.check_rss_filter(media_info,
-                            match_info.get('filter_timeframe')) < 0:
+                            match_info.get('filter_timeframe')):
                                 continue                                  
                         else:
                             # 插入数据库历史记录
