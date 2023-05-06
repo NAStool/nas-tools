@@ -9,7 +9,7 @@ from config import Config
 
 class TorrentRemover(_IPluginModule):
     # 插件名称
-    module_name = "删除下载任务"
+    module_name = "下载任务联动删除"
     # 插件描述
     module_desc = "历史记录中源文件被删除时，同步删除下载器中的下载任务。"
     # 插件图标
