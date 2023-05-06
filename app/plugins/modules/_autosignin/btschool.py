@@ -1,3 +1,7 @@
+import time
+
+from app.helper import ChromeHelper
+from app.helper.cloudflare_helper import under_challenge
 from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
@@ -34,32 +38,79 @@ class BTSchool(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 首页
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://pt.btschool.club")
-        if not html_res or html_res.status_code != 200:
-            self.error(f"签到失败，请检查站点连通性")
-            return False, f'【{site}】签到失败，请检查站点连通性'
+        chrome = ChromeHelper()
+        if site_info.get("chrome"):
+            success, html = self.__chrome_visit(chrome=chrome,
+                                                url="https://pt.btschool.club/index.php",
+                                                ua=ua,
+                                                site_cookie=site_cookie,
+                                                proxy=proxy,
+                                                site=site)
+            if success:
+                html_text = html
+            else:
+                return False, html
+        else:
+            html_res = RequestUtils(cookies=site_cookie,
+                                    headers=ua,
+                                    proxies=proxy
+                                    ).get_res(url="https://pt.btschool.club")
+            if not html_res or html_res.status_code != 200:
+                self.error(f"签到失败，请检查站点连通性")
+                return False, f'【{site}】签到失败，请检查站点连通性'
+            html_text = html_res.text
 
-        if "login.php" in html_res.text:
+        if "login.php" in html_text:
             self.error(f"签到失败，cookie失效")
             return False, f'【{site}】签到失败，cookie失效'
 
         # 已签到
-        if self._sign_text not in html_res.text:
+        if self._sign_text not in html_text:
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
 
         # 签到
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://pt.btschool.club/index.php?action=addbonus")
-        if not sign_res or sign_res.status_code != 200:
-            self.error(f"签到失败，签到接口请求失败")
-            return False, f'【{site}】签到失败，签到接口请求失败'
+        if site_info.get("chrome"):
+            success, html = self.__chrome_visit(chrome=chrome,
+                                                url="https://pt.btschool.club/index.php?action=addbonus",
+                                                ua=ua,
+                                                site_cookie=site_cookie,
+                                                proxy=proxy,
+                                                site=site)
+            if success:
+                html_text = html
+            else:
+                return False, html
+        else:
+            sign_res = RequestUtils(cookies=site_cookie,
+                                    headers=ua,
+                                    proxies=proxy
+                                    ).get_res(url="https://pt.btschool.club/index.php?action=addbonus")
+            if not sign_res or sign_res.status_code != 200:
+                self.error(f"签到失败，签到接口请求失败")
+                return False, f'【{site}】签到失败，签到接口请求失败'
 
         # 签到成功
-        self.info(f"签到成功")
-        return True, f'【{site}】签到成功'
+        if self._sign_text not in html_text:
+            self.info(f"签到成功")
+            return True, f'【{site}】签到成功'
+
+    def __chrome_visit(self, chrome, url, ua, site_cookie, proxy, site):
+        if not chrome.visit(url=url, ua=ua, cookie=site_cookie,
+                            proxy=proxy):
+            self.warn("%s 无法打开网站" % site)
+            return False, f"【{site}】仿真签到失败，无法打开网站！"
+        # 检测是否过cf
+        time.sleep(3)
+        if under_challenge(chrome.get_html()):
+            # 循环检测是否过cf
+            cloudflare = chrome.pass_cloudflare()
+            if not cloudflare:
+                self.warn("%s 跳转站点失败" % site)
+                return False, f"【{site}】仿真签到失败，跳转站点失败！"
+        # 获取html
+        html_text = chrome.get_html()
+        if not html_text:
+            self.warn("%s 获取站点源码失败" % site)
+            return False, f"【{site}】仿真签到失败，获取站点源码失败！"
+        return True, html_text
