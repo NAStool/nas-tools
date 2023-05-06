@@ -104,7 +104,6 @@ class Searcher:
                        "episode": search_episode,
                        "year": media_info.year,
                        "type": media_info.type,
-                       "timeframe": media_info.filter_timeframe,
                        "site": sites,
                        "seeders": True}
         if filters:
@@ -180,8 +179,10 @@ class Searcher:
                 
             # timeframe
             media_list = self.timeframe.check_search_filter(in_from=in_from,
-                                                             filter_args=filter_args,
-                                                             media_list=media_list)                        
+                                                            rssid=media_info.rssid,
+                                                            mtype=media_info.type,
+                                                            media_wait_time=filter_args.get("timeframe"),
+                                                            media_list=media_list)
 
             # 择优下载
             download_items, left_medias = self.downloader.batch_download(in_from=in_from,
