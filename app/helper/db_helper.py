@@ -653,6 +653,7 @@ class DbHelper:
                          filter_rule=None,
                          filter_include=None,
                          filter_exclude=None,
+                         filter_timeframe=None,
                          save_path=None,
                          download_setting=-1,
                          fuzzy_match=0,
@@ -686,6 +687,7 @@ class DbHelper:
             FILTER_TEAM=filter_team,
             FILTER_INCLUDE=filter_include,
             FILTER_EXCLUDE=filter_exclude,
+            FILTER_TIMEFRAME=filter_timeframe,
             SAVE_PATH=save_path,
             DOWNLOAD_SETTING=download_setting,
             FUZZY_MATCH=fuzzy_match,
@@ -853,6 +855,7 @@ class DbHelper:
                       filter_rule=None,
                       filter_include=None,
                       filter_exclude=None,
+                      filter_timeframe=None,
                       save_path=None,
                       download_setting=-1,
                       total_ep=None,
@@ -893,6 +896,7 @@ class DbHelper:
             FILTER_TEAM=filter_team,
             FILTER_INCLUDE=filter_include,
             FILTER_EXCLUDE=filter_exclude,
+            FILTER_TIMEFRAME=filter_timeframe,
             SAVE_PATH=save_path,
             DOWNLOAD_SETTING=download_setting,
             FUZZY_MATCH=fuzzy_match,
@@ -2661,3 +2665,65 @@ class DbHelper:
         """
         self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
                                              PLUGINHISTORY.KEY == key).delete()
+
+    @DbPersist(_db)
+    def insert_tv_timeframe(self, rssid, episode):
+        """
+        插入电视剧timeframe信息
+        """
+        self._db.insert(
+            RSSTVTIMEFRAME(
+                RSSTVID=rssid,
+                TITLE=episode,
+                STATUS='wait',
+                FIRST_SEEN=datetime.datetime.now()
+            ))
+            
+    @DbPersist(_db)
+    def update_tv_timeframe(self, rssid, episode):
+        """
+        更新电视剧timeframe状态
+        """
+        self._db.query(RSSTVTIMEFRAME).filter(RSSTVTIMEFRAME.RSSTVID == int(rssid),
+                                              RSSTVTIMEFRAME.TITLE == episode).update(
+            {
+                "STATUS": 'accept'
+            }
+        )
+    
+    def get_tv_timeframe_info(self, rssid):
+        """
+        获取电视剧timeframe信息
+        """
+        return self._db.query(RSSTVTIMEFRAME).filter(RSSTVTIMEFRAME.RSSTVID == int(rssid)).all()
+    
+    @DbPersist(_db)
+    def insert_movie_timeframe(self, rssid, title):
+        """
+        插入电影timeframe信息
+        """
+        self._db.insert(
+            RSSMOVIETIMEFRAME(
+                RSSMOVIEID=rssid,
+                STATUS='wait',
+                TITLE=title,
+                FIRST_SEEN=datetime.datetime.now()
+            ))
+            
+    @DbPersist(_db)
+    def update_movie_timeframe(self, rssid, title):
+        """
+        更新状态电影timeframe状态
+        """
+        self._db.query(RSSMOVIETIMEFRAME).filter(RSSMOVIETIMEFRAME.RSSMOVIEID == int(rssid),
+                                                 RSSMOVIETIMEFRAME.TITLE == title).update(
+            {
+                "STATUS": 'accept'
+            }
+        )
+    
+    def get_movie_timeframe_info(self, rssid):
+        """
+        获取电影timeframe信息
+        """
+        return self._db.query(RSSMOVIETIMEFRAME).filter(RSSMOVIETIMEFRAME.RSSMOVIEID == int(rssid)).all()

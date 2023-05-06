@@ -4,6 +4,7 @@ from threading import Lock
 import log
 from app.downloader import Downloader
 from app.filter import Filter
+from app.timeframe import Timeframe
 from app.helper import DbHelper, RssHelper
 from app.media import Media
 from app.media.meta import MetaInfo
@@ -40,6 +41,7 @@ class Rss:
         self.dbhelper = DbHelper()
         self.rsshelper = RssHelper()
         self.subscribe = Subscribe()
+        self.timeframe = Timeframe()
 
     def rssdownload(self):
         """
@@ -51,7 +53,6 @@ class Rss:
 
         with lock:
             log.info("【Rss】开始RSS订阅...")
-
             # 读取电影订阅
             rss_movies = self.subscribe.get_subscribe_movies(state='R')
             if not rss_movies:
@@ -92,7 +93,6 @@ class Rss:
                 check_sites = []
             else:
                 check_sites = list(set(check_sites))
-
             # 匹配到的资源列表
             rss_download_torrents = []
             # 缺失的资源详情
@@ -300,12 +300,18 @@ class Rss:
                         # 设置下载参数
                         media_info.set_download_info(download_setting=match_info.get("download_setting"),
                                                      save_path=match_info.get("save_path"))
-                        # 插入数据库历史记录
-                        self.rsshelper.insert_rss_torrents(media_info)
+                        
+                        # 判断需要等待的种子
+                        if self.timeframe.check_rss_filter(media_info,
+                            match_info.get('filter_timeframe')) < 0:
+                                continue                                  
+                        else:
+                            # 插入数据库历史记录
+                            self.rsshelper.insert_rss_torrents(media_info)
                         # 加入下载列表
-                        if media_info not in rss_download_torrents:
-                            rss_download_torrents.append(media_info)
-                            res_num = res_num + 1
+                            if media_info not in rss_download_torrents:
+                                rss_download_torrents.append(media_info)
+                                res_num = res_num + 1
                     except Exception as e:
                         ExceptionUtils.exception_traceback(e)
                         log.error("【Rss】处理RSS发生错误：%s" % str(e))

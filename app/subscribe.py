@@ -74,6 +74,7 @@ class Subscribe:
                           filter_rule=None,
                           filter_include=None,
                           filter_exclude=None,
+                          filter_timeframe=None,
                           save_path=None,
                           download_setting=None,
                           total_ep=None,
@@ -135,6 +136,7 @@ class Subscribe:
                 default_rule = default_rss_setting.get('rule')
                 default_include = default_rss_setting.get('include')
                 default_exclude = default_rss_setting.get('exclude')
+                default_timeframe = default_rss_setting.get('timeframe')
                 default_download_setting = default_rss_setting.get('download_setting')
                 default_over_edition = default_rss_setting.get('over_edition')
                 default_rss_sites = default_rss_setting.get('rss_sites')
@@ -151,6 +153,8 @@ class Subscribe:
                     filter_include = default_include
                 if not filter_exclude and default_exclude:
                     filter_exclude = default_exclude
+                if not filter_timeframe and default_timeframe:
+                    filter_timeframe = filter_timeframe
                 if not over_edition and default_over_edition:
                     over_edition = 1 if default_over_edition == "1" else 0
                 if not download_setting and default_download_setting:
@@ -216,6 +220,9 @@ class Subscribe:
                     lack = total
                 if rssid:
                     self.delete_subscribe(mtype=MediaType.TV, rssid=rssid)
+                # 洗版时关闭timeframe
+                if over_edition:
+                    filter_timeframe = None
                 code = self.dbhelper.insert_rss_tv(media_info=media_info,
                                                    total=total,
                                                    lack=lack,
@@ -229,6 +236,7 @@ class Subscribe:
                                                    filter_rule=filter_rule,
                                                    filter_include=filter_include,
                                                    filter_exclude=filter_exclude,
+                                                   filter_timeframe=filter_timeframe,
                                                    save_path=save_path,
                                                    download_setting=download_setting,
                                                    total_ep=total_ep,
@@ -252,6 +260,7 @@ class Subscribe:
                                                       filter_rule=filter_rule,
                                                       filter_include=filter_include,
                                                       filter_exclude=filter_exclude,
+                                                      filter_timeframe=filter_timeframe,
                                                       save_path=save_path,
                                                       download_setting=download_setting,
                                                       fuzzy_match=0,
@@ -417,6 +426,7 @@ class Subscribe:
             filter_rule = rss_movie.FILTER_RULE
             filter_include = rss_movie.FILTER_INCLUDE
             filter_exclude = rss_movie.FILTER_EXCLUDE
+            filter_timeframe = rss_movie.FILTER_TIMEFRAME
             download_setting = rss_movie.DOWNLOAD_SETTING
             save_path = rss_movie.SAVE_PATH
             fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
@@ -456,6 +466,7 @@ class Subscribe:
                 "filter_rule": filter_rule,
                 "filter_include": filter_include,
                 "filter_exclude": filter_exclude,
+                "filter_timeframe": filter_timeframe,
                 "save_path": save_path,
                 "download_setting": download_setting,
                 "fuzzy_match": fuzzy_match,
@@ -486,6 +497,7 @@ class Subscribe:
             filter_rule = rss_tv.FILTER_RULE
             filter_include = rss_tv.FILTER_INCLUDE
             filter_exclude = rss_tv.FILTER_EXCLUDE
+            filter_timeframe = rss_tv.FILTER_TIMEFRAME
             download_setting = rss_tv.DOWNLOAD_SETTING
             save_path = rss_tv.SAVE_PATH
             total_ep = rss_tv.TOTAL_EP
@@ -532,6 +544,7 @@ class Subscribe:
                 "filter_rule": filter_rule,
                 "filter_include": filter_include,
                 "filter_exclude": filter_exclude,
+                "filter_timeframe": filter_timeframe, 
                 "save_path": save_path,
                 "download_setting": download_setting,
                 "total": rss_tv.TOTAL,
@@ -751,6 +764,7 @@ class Subscribe:
                     "rule": rss_info.get('filter_rule'),
                     "include": rss_info.get('filter_include'),
                     "exclude": rss_info.get('filter_exclude'),
+                    "timeframe": rss_info.get('filter_timeframe'),
                     "site": rss_info.get("search_sites")
                 }
                 search_result, _, _, _ = self.searcher.search_one_media(
@@ -884,6 +898,7 @@ class Subscribe:
                     "rule": rss_info.get('filter_rule'),
                     "include": rss_info.get('filter_include'),
                     "exclude": rss_info.get('filter_exclude'),
+                    "timeframe": rss_info.get('filter_timeframe'),
                     "site": rss_info.get("search_sites")
                 }
                 search_result, no_exists, _, _ = self.searcher.search_one_media(

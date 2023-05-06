@@ -716,6 +716,7 @@ function add_rss_manual(flag) {
   const filter_rule = $("#rss_rule").val();
   const filter_include = $("#rss_include").val();
   const filter_exclude = $("#rss_exclude").val();
+  const filter_timeframe = $('#rss_timeframe').val();
   const save_path = get_savepath("rss_save_path", "rss_save_path_manual");
   const download_setting = $("#rss_download_setting").val();
   const total_ep = $("#rss_total_ep").val();
@@ -772,6 +773,7 @@ function add_rss_manual(flag) {
     "filter_rule": filter_rule,
     "filter_include": filter_include,
     "filter_exclude": filter_exclude,
+    "filter_timeframe": filter_timeframe,
     "save_path": save_path,
     "download_setting": download_setting,
     "rss_sites": rss_sites,
@@ -887,6 +889,7 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_rule").val(rss_setting.filter_rule);
     $("#rss_include").val(rss_setting.filter_include);
     $("#rss_exclude").val(rss_setting.filter_exclude);
+    $("#rss_timeframe").val(rss_setting.filter_timeframe);
     $("#rss_download_setting").val(rss_setting.download_setting);
     refresh_savepath_select('rss_save_path', false, rss_setting.download_setting);
     check_manual_input_path("rss_save_path", "rss_save_path_manual", rss_setting.save_path);
@@ -907,6 +910,7 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_rule").val('');
     $("#rss_include").val('');
     $("#rss_exclude").val('');
+    $("#rss_timeframe").val('');
     $("#rss_save_path").val('');
     $("#rss_save_path_manual").val('');
     $("#rss_download_setting").val('');
@@ -935,6 +939,7 @@ function show_default_rss_setting_modal(mtype) {
       $("#default_rss_setting_rule").val(ret.data.rule);
       $("#default_rss_setting_include").val(ret.data.include);
       $("#default_rss_setting_exclude").val(ret.data.exclude);
+      $("#default_rss_setting_timeframe").val(ret.data.timeframe);
       $("#default_rss_setting_download_setting").val(ret.data.download_setting);
       $("#default_rss_setting_over_edition").val(ret.data.over_edition);
       if (ret.data.rss_sites.length === 0) {
@@ -954,6 +959,7 @@ function show_default_rss_setting_modal(mtype) {
       $("#default_rss_setting_rule").val('');
       $("#default_rss_setting_include").val('');
       $("#default_rss_setting_exclude").val('');
+      $("#default_rss_setting_timeframe").val('');      
       $("#default_rss_setting_download_setting").val('');
       $("#default_rss_setting_over_edition").val('0');
       select_SelectALL(false, "default_rss_sites");
@@ -1043,6 +1049,7 @@ function show_edit_rss_media_modal(rssid, type) {
       $("#rss_rule").val(ret.detail.filter_rule);
       $("#rss_include").val(ret.detail.filter_include);
       $("#rss_exclude").val(ret.detail.filter_exclude);
+      $("#rss_timeframe").val(ret.detail.filter_timeframe);
       $("#rss_download_setting").val(ret.detail.download_setting);
       refresh_savepath_select('rss_save_path', false, ret.detail.download_setting);
       check_manual_input_path("rss_save_path", "rss_save_path_manual", ret.detail.save_path);

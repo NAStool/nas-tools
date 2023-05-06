@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, Float, Index, Integer, Text, text, Sequence
+from sqlalchemy import Column, Float, Index, Integer, Text, text, Sequence, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -242,6 +242,7 @@ class RSSMOVIES(Base):
     FILTER_TEAM = Column(Text)
     FILTER_INCLUDE = Column(Text)
     FILTER_EXCLUDE = Column(Text)
+    FILTER_TIMEFRAME = Column(Text)
     SAVE_PATH = Column(Text)
     DOWNLOAD_SETTING = Column(Integer)
     FUZZY_MATCH = Column(Integer)
@@ -289,6 +290,7 @@ class RSSTVS(Base):
     FILTER_TEAM = Column(Text)
     FILTER_INCLUDE = Column(Text)
     FILTER_EXCLUDE = Column(Text)
+    FILTER_TIMEFRAME = Column(Text)
     SAVE_PATH = Column(Text)
     DOWNLOAD_SETTING = Column(Integer)
     FUZZY_MATCH = Column(Integer)
@@ -558,6 +560,23 @@ class PLUGINHISTORY(Base):
     VALUE = Column(Text)
     DATE = Column(Text)
 
+class RSSTVTIMEFRAME(Base):
+    __tablename__ = 'RSS_TV_TIMEFRAME'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    RSSTVID = Column(Integer, index=True)
+    TITLE = Column(Text, index=True)
+    STATUS = Column(Text)
+    FIRST_SEEN = Column(DateTime)
+
+class RSSMOVIETIMEFRAME(Base):
+    __tablename__ = 'RSS_MOVIE_TIMEFRAME'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    RSSMOVIEID = Column(Integer, index=True)
+    TITLE = Column(Text, index=True)
+    STATUS = Column(Text)
+    FIRST_SEEN = Column(DateTime)
 
 class MEDIASYNCITEMS(BaseMedia):
     __tablename__ = 'MEDIASYNC_ITEMS'
