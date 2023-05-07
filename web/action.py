@@ -119,7 +119,7 @@ class WebAction:
             "get_site_seeding_info": self.__get_site_seeding_info,
             "clear_tmdb_cache": self.__clear_tmdb_cache,
             "check_site_attr": self.__check_site_attr,
-            "refresh_process": self.__refresh_process,
+            "refresh_process": self.refresh_process,
             "restory_backup": self.__restory_backup,
             "start_mediasync": self.__start_mediasync,
             "mediasync_state": self.__mediasync_state,
@@ -1495,9 +1495,9 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = _filetransfer.transfer_media(in_from=SyncType.MAN,
-                                                               rmt_mode=rmt_mode,
-                                                               in_path=path,
-                                                               target_dir=dest_dir)
+                                                              rmt_mode=rmt_mode,
+                                                              in_path=path,
+                                                              target_dir=dest_dir)
                 if succ_flag:
                     _filetransfer.update_transfer_unknown_state(path)
                 else:
@@ -1520,9 +1520,9 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = _filetransfer.transfer_media(in_from=SyncType.MAN,
-                                                               rmt_mode=rmt_mode,
-                                                               in_path=path,
-                                                               target_dir=dest_dir)
+                                                              rmt_mode=rmt_mode,
+                                                              in_path=path,
+                                                              target_dir=dest_dir)
                 if not succ_flag:
                     ret_flag = False
                     if msg not in ret_msg:
@@ -2538,7 +2538,7 @@ class WebAction:
         return {"code": 0, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
 
     @staticmethod
-    def __refresh_process(data):
+    def refresh_process(data):
         """
         刷新进度条
         """

@@ -1670,7 +1670,6 @@ def stream_logging():
     """
     实时日志EventSources响应
     """
-
     def __logging(_source=""):
         """
         实时日志
@@ -1679,7 +1678,6 @@ def stream_logging():
 
         while True:
             with LoggingLock:
-                print(f"{LoggingSource} {_source} {log.LOG_INDEX}")
                 if _source != LoggingSource:
                     LoggingSource = _source
                     log.LOG_INDEX = len(log.LOG_QUEUE)
@@ -1687,7 +1685,7 @@ def stream_logging():
                     logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
                     log.LOG_INDEX = 0
                     if _source:
-                        logs = [l for l in logs if l.get("source") == _source]
+                        logs = [lg for lg in logs if lg.get("source") == _source]
                 else:
                     logs = []
                 time.sleep(1)
@@ -1697,6 +1695,29 @@ def stream_logging():
         __logging(request.args.get("source") or ""),
         mimetype='text/event-stream'
     )
+
+
+@App.route('/stream-progress')
+@login_required
+def stream_progress():
+    """
+    实时日志EventSources响应
+    """
+    def __progress(_type):
+        """
+        实时日志
+        """
+        WA = WebAction()
+        while True:
+            time.sleep(0.2)
+            detail = WA.refresh_process({"type": _type})
+            yield 'data: %s\n\n' % json.dumps(detail)
+
+    return Response(
+        __progress(request.args.get("type")),
+        mimetype='text/event-stream'
+    )
+
 
 @Sock.route('/message')
 @login_required
