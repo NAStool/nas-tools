@@ -735,12 +735,7 @@
 
     $("#sitecookie_action_btn").text("正在更新...").attr("disabled", true);
     let ocrflag = $("#cookieua_ocrflag").prop("checked");
-    // 刷新进度
-    refresh_sitecookie_current = siteid;
-    refresh_sitecookie_process_flag = true;
-    refresh_sitecookie_fail_count = 0;
-    refresh_sitecookie_process(siteid);
-    // 发送请求
+    // 发送更新请求
     ajax_post("update_sites_cookie_ua", { siteid: siteid,
                                           username: username,
                                           password: password,
@@ -757,23 +752,28 @@
       $("#cookieua_result_div").show();
       refresh_sitecookie_current = "";
     }, true, false);
-
+    // 刷新进度
+    refresh_sitecookie_current = siteid;
+    refresh_sitecookie_process(siteid);
   }
 
-  // 刷新进度标志
-  var refresh_sitecookie_process_flag = false;
-  // 刷新进度失败次数
-  var refresh_sitecookie_fail_count = 0;
   // 刷新站点更新进度，显示验证码
   function refresh_sitecookie_process(siteid) {
-    if (!refresh_sitecookie_process_flag) {
-      return;
-    }
-    if (siteid != refresh_sitecookie_current) {
+    if (siteid !== refresh_sitecookie_current) {
       return;
     }
     $("#sitecookie_process_bar_div").show();
-    ajax_post("refresh_process", {type: "sitecookie"}, function (ret) {
+    // 刷新进度
+    setTimeout(`start_sitecookie_process('${siteid}')`, 2000);
+  }
+
+  // 开始刷新进度条
+  var SiteCookieProgressEs;
+  function start_sitecookie_process(siteid) {
+    stop_sitecookie_progress();
+    SiteCookieProgressEs = new EventSource(`stream-progress?type=sitecookie`);
+    SiteCookieProgressEs.onmessage = function (event) {
+      let ret = JSON.parse(event.data);
       if (ret.code === 0 && ret.value <= 100) {
         // 更新进度条
         $("#sitecookie_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
@@ -783,46 +783,43 @@
           let code_key = ret.text.split("|")[1]
           show_captcha_code_modal(code_img, code_key, siteid);
         }
-        if (ret.value === 100) {
-          refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
-        }
+      }
+      if ($("#modal-update-site-cookie").is(":hidden")) {
+        stop_sitecookie_progress();
+      }
+    };
+  }
 
-      } else {
-        refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
-      }
-      if (refresh_sitecookie_fail_count < 5) {
-        setTimeout("refresh_sitecookie_process("+siteid+")", 1000);
-      }
-    }, true, false);
+  // 停止刷新进度条
+  function stop_sitecookie_progress() {
+    if (SiteCookieProgressEs) {
+      SiteCookieProgressEs.close();
+      SiteCookieProgressEs = undefined;
+    }
   }
 
   // 超时隐藏验证码对话框并恢复更新进度
   function sitecookie_captcha_timeout(siteid) {
     $("#modal-captcha-code").modal("hide");
-    if (siteid != refresh_sitecookie_current) {
+    if (siteid !== refresh_sitecookie_current) {
       return;
     }
     // 恢复刷新
-    refresh_sitecookie_process_flag = true;
-    refresh_sitecookie_fail_count = 0;
-    refresh_sitecookie_process(siteid);
     $("#modal-update-site-cookie").modal("show");
+    refresh_sitecookie_process(siteid);
   }
 
   // 显示验证码输入框
   function show_captcha_code_modal(code_img, code_key, siteid) {
     // 关闭上一个框
     $("#modal-update-site-cookie").modal("hide");
-    // 暂停获取状态
-    refresh_sitecookie_process_flag = false;
-    refresh_sitecookie_fail_count = 0;
     // 显示新框
     $("#captcha_key").val(code_key);
     $("#captcha_code_img").attr("src", code_img);
     $("#captcha_code").val("");
     $("#modal-captcha-code").modal("show");
     // 超时关闭
-    setTimeout(`sitecookie_captcha_timeout(${siteid})`, 30000);
+    setTimeout(`sitecookie_captcha_timeout('${siteid}')`, 30000);
   }
 
   // 输入验证码
@@ -837,14 +834,12 @@
     }
     ajax_post("set_site_captcha_code", {code: code, value: value}, function (ret) {
       if (ret.code === 0) {
-        // 重新刷新状态
-        refresh_sitecookie_process_flag = true;
-        refresh_sitecookie_fail_count = 0;
-        setTimeout(`refresh_sitecookie_process(${refresh_sitecookie_current})`, 2000);
         // 关闭框
         $("#modal-captcha-code").modal("hide");
         // 显示原框
         $("#modal-update-site-cookie").modal("show");
+        // 重新刷新状态
+        refresh_sitecookie_process(refresh_sitecookie_current);
       }
     });
   }

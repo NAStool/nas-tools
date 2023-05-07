@@ -1,9 +1,7 @@
 /**
  * 公共变量区
  */
-// 刷新进度
-let RefreshProcessFlag = false;
-let RefreshFailCount = 0;
+
 // 刷新订阅站点列表
 let RssSitesLength = 0;
 // 刷新搜索站点列表
@@ -20,6 +18,8 @@ let NavPageLoading = false;
 let NavPageXhr;
 // 是否允许打断弹窗
 let GlobalModalAbort = true;
+// 进度刷新EventSource
+let ProgressES;
 // 日志来源筛选时关掉之前的刷新日志计时器
 let LoggingSource = "";
 // 日志EventSource
@@ -101,7 +101,7 @@ function navmenu(page, newflag = false) {
 // 搜索
 function media_search(tmdbid, title, type) {
   const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
-  show_refresh_process("正在搜索 " + title + " ...", "search");
+  show_refresh_progress("正在搜索 " + title + " ...", "search");
   ajax_post("search", param, function (ret) {
     hide_refresh_process();
     if (ret.code === 0) {
@@ -131,6 +131,7 @@ function hide_wait_modal() {
 function stop_logging() {
   if (LoggingES) {
     LoggingES.close();
+    LoggingES = undefined;
   }
 }
 
@@ -398,26 +399,37 @@ function switch_cooperation_sites(obj) {
   $(`#user_auth_${siteid}_params`).show();
 }
 
-// 刷新进度条
-function refresh_process(type) {
-  if (!RefreshProcessFlag) {
-    return;
+// 停止刷新进度条
+function stop_progress() {
+  if (ProgressES) {
+    ProgressES.close();
+    ProgressES = undefined;
   }
-  ajax_post("refresh_process", {type: type}, function (ret) {
-    if (ret.code === 0 && ret.value <= 100) {
-      $("#modal_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
-      $("#modal_process_text").text(ret.text);
-    } else {
-      RefreshFailCount = RefreshFailCount + 1;
-    }
-    if (RefreshFailCount < 5) {
-      setTimeout("refresh_process('" + type + "')", 200);
-    }
-  }, true, false);
+}
+
+// 刷新进度条
+function start_progress(type) {
+  stop_progress();
+  ProgressES = new EventSource(`stream-progress?type=${type}`);
+  ProgressES.onmessage = function (event) {
+    render_progress(JSON.parse(event.data))
+  };
+}
+
+// 渲染进度条
+function render_progress(ret) {
+  if (ret.code === 0 && ret.value <= 100) {
+    $("#modal_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
+    $("#modal_process_text").text(ret.text);
+  }
+  if ($("#modal-process").is(":hidden")) {
+    stop_progress();
+  }
 }
 
 // 显示全局进度框
-function show_refresh_process(title, type) {
+function show_refresh_progress(title, type) {
+  // 显示对话框
   if (title) {
     $("#modal_process_title").text(title);
   } else {
@@ -426,15 +438,12 @@ function show_refresh_process(title, type) {
   $("#modal_process_bar").attr("style", "width: 0%").attr("aria-valuenow", 0);
   $("#modal_process_text").text("请稍候...");
   $("#modal-process").modal("show");
-  //刷新进度
-  RefreshProcessFlag = true;
-  RefreshFailCount = 0;
-  refresh_process(type);
+  // 开始刷新进度条
+  setTimeout(`start_progress('${type}')`, 1000);
 }
 
 // 关闭全局进度框
 function hide_refresh_process() {
-  RefreshProcessFlag = false;
   $("#modal-process").modal("hide");
 }
 
@@ -689,7 +698,7 @@ function show_rss_seasons_modal(name, year, type, mediaid, seasons, func) {
 function search_mediainfo_media(tmdbid, title, typestr) {
   hide_mediainfo_modal();
   const param = {"tmdbid": tmdbid, "search_word": title, "media_type": typestr};
-  show_refresh_process("正在搜索 " + title + " ...", "search");
+  show_refresh_progress("正在搜索 " + title + " ...", "search");
   ajax_post("search", param, function (ret) {
     hide_refresh_process();
     if (ret.code === 0) {
@@ -1352,7 +1361,7 @@ function search_media_advanced() {
   };
   const param = {"search_word": keyword, "filters": filters, "unident": true};
   $("#modal-search-advanced").modal("hide");
-  show_refresh_process(`正在搜索 ${keyword} ...`, "search");
+  show_refresh_progress(`正在搜索 ${keyword} ...`, "search");
   ajax_post("search", param, function (ret) {
     hide_refresh_process();
     if (ret.code === 0) {
@@ -1674,7 +1683,7 @@ function manual_media_transfer() {
     "logid": logid
   };
   $('#modal-media-identification').modal('hide');
-  show_refresh_process("手动转移 " + inpath, "filetransfer");
+  show_refresh_progress("手动转移 " + inpath, "filetransfer");
   let cmd = (manual_type === '3') ? "rename_udf" : "rename"
   ajax_post(cmd, data, function (ret) {
     hide_refresh_process();
