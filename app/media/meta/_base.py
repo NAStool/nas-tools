@@ -17,6 +17,8 @@ class MetaBase(object):
     fileflag = False
     # 原字符串
     org_string = None
+    # 识别词处理后字符串
+    rev_string = None
     # 副标题
     subtitle = None
     # 类型 电影、电视剧
@@ -761,6 +763,7 @@ class MetaBase(object):
             "backdrop": self.get_backdrop_image(),
             "poster": self.get_poster_image(),
             "org_string": self.org_string,
+            "rev_string": self.rev_string,
             "subtitle": self.subtitle,
             "cn_name": self.cn_name,
             "en_name": self.en_name,
