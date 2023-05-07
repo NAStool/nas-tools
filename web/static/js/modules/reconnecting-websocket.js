@@ -128,7 +128,7 @@
             timeoutInterval: 2000,
 
             /** The maximum number of reconnection attempts to make. Unlimited if null. */
-            maxReconnectAttempts: null,
+            maxReconnectAttempts: 5,
 
             /** The binary type, possible values 'blob' or 'arraybuffer', default 'blob'. */
             binaryType: 'blob'
