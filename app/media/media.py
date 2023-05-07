@@ -16,7 +16,7 @@ from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbExcep
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_PEOPLE_PROFILE_URL
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD
 
 
 class Media:
@@ -1710,7 +1710,7 @@ class Media:
             "credit_id": crew.get("credit_id"),
             "department": crew.get("department"),
             "job": crew.get("job"),
-            "profile": TMDB_PEOPLE_PROFILE_URL % crew.get('id')
+            "profile": 'https://www.themoviedb.org/person/%s' % crew.get('id')
         } for crew in crews or []]
 
     @staticmethod
@@ -1730,7 +1730,7 @@ class Media:
             "role": cast.get("character"),
             "credit_id": cast.get("credit_id"),
             "order": cast.get("order"),
-            "profile": TMDB_PEOPLE_PROFILE_URL % cast.get('id')
+            "profile": 'https://www.themoviedb.org/person/%s' % cast.get('id')
         } for cast in casts or []]
 
     def get_tmdb_directors_actors(self, tmdbinfo):

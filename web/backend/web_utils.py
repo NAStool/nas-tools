@@ -1,4 +1,3 @@
-import io
 from functools import lru_cache
 from urllib.parse import quote
 
@@ -8,7 +7,7 @@ from app.media import Media, Bangumi, DouBan
 from app.media.meta import MetaInfo
 from app.utils import StringUtils, ExceptionUtils, SystemUtils, RequestUtils, IpUtils
 from app.utils.types import MediaType
-from config import Config, NASTOOL_UPDATE_URL
+from config import Config
 from version import APP_VERSION
 
 
@@ -53,7 +52,7 @@ class WebUtils:
         try:
             releases_update_only = Config().get_config("app").get("releases_update_only")
             version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
-                NASTOOL_UPDATE_URL % quote(WebUtils.get_current_version()))
+                f"https://nastool.cn/{quote(WebUtils.get_current_version())}/update")
             if version_res:
                 ver_json = version_res.json()
                 version = ver_json.get("latest")
