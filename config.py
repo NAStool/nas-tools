@@ -47,25 +47,11 @@ FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f
 FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 # 默认背景图地址
 DEFAULT_TMDB_IMAGE = 'https://s3.bmp.ovh/imgs/2022/07/10/77ef9500c851935b.webp'
-# 默认微信消息代理服务器地址
-DEFAULT_WECHAT_PROXY = 'https://wechat.nastool.cn'
-# 默认OCR识别服务地址
-DEFAULT_OCR_SERVER = 'https://nastool.cn'
 # 默认TMDB代理服务地址
 DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn/3'
-# 默认CookieCloud服务地址
-DEFAULT_COOKIECLOUD_SERVER = 'http://nastool.cn:8088'
-# TMDB API地址
+# TMDB域名地址
 TMDB_API_DOMAIN = 'api.themoviedb.org'
-# TMDB图片地址
 TMDB_IMAGE_DOMAIN = 'image.tmdb.org'
-TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
-# 检查更新的地址
-NASTOOL_UPDATE_URL = "https://nastool.cn/%s/update"
-# 插件安装统计地址
-NASTOOL_PLUGIN_INSTALL = "https://nastool.cn/plugin/%s/install"
-# 插件安装统计数据
-NASTOOL_PLUGIN_STATISTIC = "https://nastool.cn/plugin/statistic"
 # 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 电影默认命名格式

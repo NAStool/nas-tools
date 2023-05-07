@@ -1,12 +1,11 @@
 import base64
 
 from app.utils import RequestUtils
-from config import DEFAULT_OCR_SERVER
 
 
 class OcrHelper:
 
-    _ocr_b64_url = "%s/captcha/base64" % DEFAULT_OCR_SERVER
+    _ocr_b64_url = "https://nastool.cn/captcha/base64"
 
     def get_captcha_text(self, image_url=None, image_b64=None, cookie=None, ua=None):
         """
