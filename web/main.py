@@ -404,8 +404,11 @@ def resources():
     site_name = request.args.get("title")
     page = request.args.get("page") or 0
     keyword = request.args.get("keyword")
-    Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
-        "data") or []
+    Results = WebAction().list_site_resources({
+        "id": site_id,
+        "page": page,
+        "keyword": keyword
+    }).get("data") or []
     return render_template("site/resources.html",
                            Results=Results,
                            SiteId=site_id,
@@ -1025,14 +1028,13 @@ def plugin():
 @action_login_check
 def do():
     try:
-        cmd = request.form.get("cmd")
-        data = request.form.get("data")
+        content = request.get_json()
+        cmd = content.get("cmd")
+        data = content.get("data") or {}
+        return WebAction().action(cmd, data)
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
         return {"code": -1, "msg": str(e)}
-    if data:
-        data = json.loads(data)
-    return WebAction().action(cmd, data)
 
 
 # 目录事件响应

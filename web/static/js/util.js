@@ -34,13 +34,14 @@ function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
   }
   let data = {
     cmd: cmd,
-    data: JSON.stringify(params)
+    data: params
   };
   $.ajax({
     type: "POST",
     url: "do?random=" + Math.random(),
+    contentType: 'application/json',
     dataType: "json",
-    data: data,
+    data: JSON.stringify(data),
     cache: false,
     async: aync,
     timeout: 0,

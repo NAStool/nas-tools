@@ -1,6 +1,7 @@
 import base64
 import datetime
 import importlib
+import inspect
 import json
 import os.path
 import re
@@ -133,7 +134,7 @@ class WebAction:
             "update_rssparser": self.__update_rssparser,
             "run_userrss": self.__run_userrss,
             "run_brushtask": self.__run_brushtask,
-            "list_site_resources": self.__list_site_resources,
+            "list_site_resources": self.list_site_resources,
             "list_rss_articles": self.__list_rss_articles,
             "rss_article_test": self.__rss_article_test,
             "list_rss_history": self.__list_rss_history,
@@ -247,14 +248,22 @@ class WebAction:
             "/sta": {"func": self.user_statistics, "desc": "站点数据统计"}
         }
 
-    def action(self, cmd, data=None):
+    def action(self, cmd, data):
+        """
+        执行WEB请求
+        """
         func = self._actions.get(cmd)
         if not func:
             return {"code": -1, "msg": "非授权访问！"}
-        else:
+        elif inspect.signature(func).parameters:
             return func(data)
+        else:
+            return func(**{})
 
     def api_action(self, cmd, data=None):
+        """
+        执行API请求
+        """
         result = self.action(cmd, data)
         if not result:
             return {
@@ -1043,7 +1052,7 @@ class WebAction:
             return True, f"{file} 删除失败"
 
     @staticmethod
-    def __version(data):
+    def __version():
         """
         检查新版本
         """
@@ -1164,7 +1173,7 @@ class WebAction:
         else:
             return {"code": 0}
 
-    def __restart(self, data):
+    def __restart(self):
         """
         重启
         """
@@ -1172,7 +1181,7 @@ class WebAction:
         self.restart_server()
         return {"code": 0}
 
-    def update_system(self, data=None):
+    def update_system(self):
         """
         更新
         """
@@ -1212,7 +1221,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def __reset_db_version(data):
+    def __reset_db_version():
         """
         重置数据库版本
         """
@@ -1224,7 +1233,7 @@ class WebAction:
             return {"code": 1, "msg": str(e)}
 
     @staticmethod
-    def __logout(data):
+    def __logout():
         """
         注销
         """
@@ -1891,7 +1900,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def truncate_blacklist(data):
+    def truncate_blacklist():
         """
         清空文件转移黑名单记录
         """
@@ -1899,7 +1908,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def truncate_rsshistory(data):
+    def truncate_rsshistory():
         """
         清空RSS历史记录
         """
@@ -2509,7 +2518,7 @@ class WebAction:
         return "<br>".join(rule_htmls)
 
     @staticmethod
-    def __clear_tmdb_cache(data):
+    def __clear_tmdb_cache():
         """
         清空TMDB缓存
         """
@@ -2580,7 +2589,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def __mediasync_state(data):
+    def __mediasync_state():
         """
         获取媒体库同步数据情况
         """
@@ -2765,7 +2774,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def __list_site_resources(data):
+    def list_site_resources(data):
         resources = Indexer().list_resources(index_id=data.get("id"),
                                              page=data.get("page"),
                                              keyword=data.get("keyword"))
@@ -3329,7 +3338,7 @@ class WebAction:
             return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}
 
     @staticmethod
-    def get_library_spacesize(data=None):
+    def get_library_spacesize():
         """
         查询媒体库存储空间
         """
@@ -3379,7 +3388,7 @@ class WebAction:
                 "TotalSpace": TotalSpace}
 
     @staticmethod
-    def get_transfer_statistics(data=None):
+    def get_transfer_statistics():
         """
         查询转移历史统计数据
         """
@@ -3413,7 +3422,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_library_mediacount(data=None):
+    def get_library_mediacount():
         """
         查询媒体库统计数据
         """
@@ -3434,13 +3443,13 @@ class WebAction:
             return {"code": -1, "msg": "媒体库服务器连接失败"}
 
     @staticmethod
-    def get_library_playhistory(data=None):
+    def get_library_playhistory():
         """
         查询媒体库播放记录
         """
         return {"code": 0, "result": MediaServer().get_activity_log(30)}
 
-    def get_search_result(self, data=None):
+    def get_search_result(self):
         """
         查询所有搜索结果
         """
@@ -3661,14 +3670,14 @@ class WebAction:
         return {"code": 0, "result": [media.to_dict() for media in medias]}
 
     @staticmethod
-    def get_movie_rss_list(data=None):
+    def get_movie_rss_list():
         """
         查询所有电影订阅
         """
         return {"code": 0, "result": Subscribe().get_subscribe_movies()}
 
     @staticmethod
-    def get_tv_rss_list(data=None):
+    def get_tv_rss_list():
         """
         查询所有电视剧订阅
         """
@@ -3683,7 +3692,7 @@ class WebAction:
         return {"code": 0, "result": [rec.as_dict() for rec in Rss().get_rss_history(rtype=mtype)]}
 
     @staticmethod
-    def get_downloading(data=None):
+    def get_downloading():
         """
         查询正在下载的任务
         """
@@ -3767,7 +3776,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_unknown_list(data=None):
+    def get_unknown_list():
         """
         查询所有未识别记录
         """
@@ -3852,7 +3861,7 @@ class WebAction:
             WebAction.re_identification({"flag": "unidentification", "ids": ItemIds})
 
     @staticmethod
-    def get_customwords(data=None):
+    def get_customwords():
         _wordshelper = WordsHelper()
         words = []
         words_info = _wordshelper.get_custom_words(gid=-1)
@@ -3911,7 +3920,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_users(data=None):
+    def get_users():
         """
         查询所有用户
         """
@@ -3923,7 +3932,7 @@ class WebAction:
         return {"code": 0, "result": Users}
 
     @staticmethod
-    def get_filterrules(data=None):
+    def get_filterrules():
         """
         查询所有过滤规则
         """
@@ -4235,7 +4244,7 @@ class WebAction:
             return {"code": 1}
 
     @staticmethod
-    def __get_indexers(data=None):
+    def __get_indexers():
         """
         获取索引器
         """
@@ -4710,7 +4719,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_user_menus(data=None):
+    def get_user_menus():
         """
         查询用户菜单
         """
@@ -4729,7 +4738,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_top_menus(data=None):
+    def get_top_menus():
         """
         查询顶底菜单列表
         """
@@ -4852,7 +4861,7 @@ class WebAction:
             return {"code": 1}
 
     @staticmethod
-    def __get_indexer_statistics(data=None):
+    def __get_indexer_statistics():
         """
         获取索引器统计数据
         """
@@ -4896,7 +4905,7 @@ class WebAction:
         return {"code": 1}
 
     @staticmethod
-    def get_movie_rss_items(data=None):
+    def get_movie_rss_items():
         """
         获取所有电影订阅项目
         """
@@ -4909,7 +4918,7 @@ class WebAction:
         return {"code": 0, "result": RssMovieItems}
 
     @staticmethod
-    def get_tv_rss_items(data=None):
+    def get_tv_rss_items():
         """
         获取所有电视剧订阅项目
         """
@@ -4934,7 +4943,7 @@ class WebAction:
                 UniqueTvItems.append(item)
         return {"code": 0, "result": UniqueTvItems}
 
-    def get_ical_events(self, data=None):
+    def get_ical_events(self):
         """
         获取ical日历事件
         """
@@ -4996,7 +5005,7 @@ class WebAction:
         return {"code": 0, "msg": "插件卸载功"}
 
     @staticmethod
-    def get_plugin_apps(data=None):
+    def get_plugin_apps():
         """
         获取插件列表
         """
@@ -5027,7 +5036,7 @@ class WebAction:
         return {"code": 0, "state": state}
 
     @staticmethod
-    def get_plugins_conf(data=None):
+    def get_plugins_conf():
         Plugins = PluginManager().get_plugins_conf(current_user.level)
         return {"code": 0, "result": Plugins}
 
@@ -5114,7 +5123,7 @@ class WebAction:
             return None
 
     @staticmethod
-    def get_system_processes(data=None):
+    def get_system_processes():
         """
         获取系统进程
         """
