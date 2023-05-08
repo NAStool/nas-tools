@@ -135,7 +135,7 @@ body, .page {
         margin-right: unset !important;
     }
     .custom-media-info-height {
-        height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 710px);
+        height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 610px);
         border: none;
     }
     #litLayoutNavbar{
@@ -385,11 +385,6 @@ body, .page {
 
 .theme-light .lit-media-info-page-bg {
     background-color: rgb(231, 235, 239);
-}
-
-.custom-media-info-height {
-    height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 541px);
-    border: none;
 }
 
 .main-bottom-menubar {
