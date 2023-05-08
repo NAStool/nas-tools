@@ -13,6 +13,16 @@ class PluginHelper:
         return RequestUtils(timeout=5).get(f"https://nastool.cn/plugin/{plugin_id}/install")
 
     @staticmethod
+    def report(plugins):
+        """
+        批量上报插件安装统计数据
+        """
+        return RequestUtils(content_type="application/json",
+                            timeout=5).post(f"https://nastool.cn/plugin/update", json={
+            "plugins": [{"plugin_id": plugin, "count": 1} for plugin in plugins]
+        })
+
+    @staticmethod
     @cached(cache=TTLCache(maxsize=1, ttl=3600))
     def statistic():
         """

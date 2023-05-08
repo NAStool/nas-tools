@@ -163,6 +163,8 @@ class SystemConfigKey(Enum):
     DefaultRssSettingTV = "DefaultRssSettingTV"
     # 用户已安装的插件
     UserInstalledPlugins = "UserInstalledPlugins"
+    # 已安装插件汇报状态
+    UserInstalledPluginsReport = "UserInstalledPluginsReport"
     # 括削配置
     UserScraperConf = "UserScraperConf"
     # 索引站点
