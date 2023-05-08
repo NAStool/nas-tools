@@ -376,6 +376,23 @@ class Scraper:
         # 保存文件
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
+    def __save_remove_file(self, out_file, content):
+        """
+        保存文件到远端
+        """
+        temp_file = os.path.join(self._temp_path, out_file[1:])
+        temp_file_dir = os.path.dirname(temp_file)
+        if not os.path.exists(temp_file_dir):
+            os.makedirs(temp_file_dir)
+        with open(temp_file, "wb") as f:
+            f.write(content)
+        if self._rmt_mode in [RmtMode.RCLONE, RmtMode.RCLONECOPY]:
+            SystemUtils.rclone_move(temp_file, out_file)
+        elif self._rmt_mode in [RmtMode.MINIO, RmtMode.MINIOCOPY]:
+            SystemUtils.minio_move(temp_file, out_file)
+        else:
+            SystemUtils.move(temp_file, out_file)
+
     @retry(RequestException, logger=log)
     def __save_image(self, url, out_path, itype='', force=False):
         """
@@ -395,18 +412,7 @@ class Scraper:
             if r:
                 # 下载到temp目录，远程则先存到temp再远程移动，本地则直接保存
                 if self._rmt_mode in ModuleConf.REMOTE_RMT_MODES:
-                    temp_img = os.path.join(self._temp_path, image_path)
-                    temp_img_dir = os.path.dirname(temp_img)
-                    if not os.path.exists(temp_img_dir):
-                        os.makedirs(temp_img_dir)
-                    with open(file=temp_img, mode="wb") as img:
-                        img.write(r.content)
-                    if self._rmt_mode in [RmtMode.RCLONE, RmtMode.RCLONECOPY]:
-                        SystemUtils.rclone_move(temp_img, image_path)
-                    elif self._rmt_mode in [RmtMode.MINIO, RmtMode.MINIOCOPY]:
-                        SystemUtils.minio_move(temp_img, image_path)
-                    else:
-                        SystemUtils.move(temp_img, image_path)
+                    self.__save_remove_file(image_path, r.content)
                 else:
                     with open(file=image_path, mode="wb") as img:
                         img.write(r.content)
@@ -423,18 +429,7 @@ class Scraper:
         xml_str = doc.toprettyxml(indent="  ", encoding="utf-8")
         # 下载到temp目录，远程则先存到temp再远程移动，本地则直接保存
         if self._rmt_mode in ModuleConf.REMOTE_RMT_MODES:
-            temp_file = os.path.join(self._temp_path, out_file)
-            temp_file_dir = os.path.dirname(temp_file)
-            if not os.path.exists(temp_file_dir):
-                os.makedirs(temp_file_dir)
-            with open(temp_file, "wb") as xml_file:
-                xml_file.write(xml_str)
-            if self._rmt_mode in [RmtMode.RCLONE, RmtMode.RCLONECOPY]:
-                SystemUtils.rclone_move(temp_file, out_file)
-            elif self._rmt_mode in [RmtMode.MINIO, RmtMode.MINIOCOPY]:
-                SystemUtils.minio_move(temp_file, out_file)
-            else:
-                SystemUtils.move(temp_file, out_file)
+            self.__save_remove_file(out_file, xml_str)
         else:
             with open(out_file, "wb") as xml_file:
                 xml_file.write(xml_str)
