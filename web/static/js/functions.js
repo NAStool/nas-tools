@@ -249,6 +249,10 @@ function connect_message() {
   MessageWS.onopen = function (event) {
     get_message('');
   };
+  MessageWS.onerror = function (event) {
+    MessageWS.close();
+    MessageWS = undefined;
+  }
 
 }
 
