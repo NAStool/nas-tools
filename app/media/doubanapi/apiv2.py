@@ -173,7 +173,7 @@ class DoubanApi(object):
         headers = {'User-Agent': choice(cls._user_agents)}
         resp = RequestUtils(headers=headers, session=cls._session).get_res(url=req_url, params=params)
 
-        return resp.json() if resp else None
+        return resp.json() if resp else {}
 
     def search(self, keyword, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["search"], q=keyword, start=start, count=count, _ts=ts)

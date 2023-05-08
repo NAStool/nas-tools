@@ -391,7 +391,7 @@ class SITEBRUSHTORRENTS(Base):
     TASK_ID = Column(Text, index=True)
     TORRENT_NAME = Column(Text)
     TORRENT_SIZE = Column(Text)
-    ENCLOSURE = Column(Text)
+    ENCLOSURE = Column(Text, index=True)
     DOWNLOADER = Column(Text)
     DOWNLOAD_ID = Column(Text)
     LST_MOD_DATE = Column(Text)

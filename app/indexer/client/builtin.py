@@ -10,6 +10,7 @@ from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
 from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
+from app.indexer.client._torrentleech import TorrentLeech
 from app.sites import Sites
 from app.utils import StringUtils
 from app.utils.types import SearchType, IndexerType, ProgressKey, SystemConfigKey
@@ -145,16 +146,17 @@ class BuiltinIndexer(_IIndexClient):
         result_array = []
         try:
             if indexer.parser == "TNodeSpider":
-                error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
+                error_flag, result_array = TNodeSpider(indexer).search(keyword=search_word)
             elif indexer.parser == "RarBg":
-                error_flag, result_array = Rarbg().search(indexer=indexer,
-                                                          keyword=search_word,
-                                                          imdb_id=match_media.imdb_id if match_media else None)
-            elif indexer.parser == "RenderSpider":
-                error_flag, result_array = RenderSpider().search(
+                error_flag, result_array = Rarbg(indexer).search(
                     keyword=search_word,
-                    indexer=indexer,
+                    imdb_id=match_media.imdb_id if match_media else None)
+            elif indexer.parser == "RenderSpider":
+                error_flag, result_array = RenderSpider(indexer).search(
+                    keyword=search_word,
                     mtype=match_media.type if match_media and match_media.tmdb_info else None)
+            elif indexer.parser == "TorrentLeech":
+                error_flag, result_array = TorrentLeech(indexer).search(keyword=search_word)
             else:
                 error_flag, result_array = self.__spider_search(
                     keyword=search_word,
@@ -203,16 +205,17 @@ class BuiltinIndexer(_IIndexClient):
         start_time = datetime.datetime.now()
 
         if indexer.parser == "RenderSpider":
-            error_flag, result_array = RenderSpider().search(keyword=keyword,
-                                                             indexer=indexer,
-                                                             page=page)
+            error_flag, result_array = RenderSpider(indexer).search(keyword=keyword,
+                                                                    page=page)
         elif indexer.parser == "RarBg":
-            error_flag, result_array = Rarbg().search(keyword=keyword,
-                                                      indexer=indexer,
-                                                      page=page)
+            error_flag, result_array = Rarbg(indexer).search(keyword=keyword,
+                                                             page=page)
         elif indexer.parser == "TNodeSpider":
-            error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=keyword,
-                                                                           page=page)
+            error_flag, result_array = TNodeSpider(indexer).search(keyword=keyword,
+                                                                   page=page)
+        elif indexer.parser == "TorrentLeech":
+            error_flag, result_array = TorrentLeech(indexer).search(keyword=keyword,
+                                                                    page=page)
         else:
             error_flag, result_array = self.__spider_search(indexer=indexer,
                                                             page=page,

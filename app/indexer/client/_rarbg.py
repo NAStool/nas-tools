@@ -7,11 +7,15 @@ from config import Config
 
 class Rarbg:
     _appid = "nastool"
+    _indexer_id = None
+    _indexer_name = None
     _req = None
     _token = None
     _api_url = "http://torrentapi.org/pubapi_v2.php"
 
-    def __init__(self):
+    def __init__(self, indexer):
+        self._indexer_id = indexer.id
+        self._indexer_name = indexer.name
         self.init_config()
 
     def init_config(self):
@@ -26,21 +30,21 @@ class Rarbg:
         if res and res.json():
             self._token = res.json().get('token')
 
-    def search(self, keyword, indexer, imdb_id=None, page=1):
+    def search(self, keyword, imdb_id=None, page=1):
         if not keyword and not imdb_id:
             mode = "list"
         else:
             mode = "search"
         self.__get_token()
         if not self._token:
-            log.warn(f"【INDEXER】{indexer.name} 未获取到token，无法搜索")
+            log.warn(f"【INDEXER】{self._indexer_name} 未获取到token，无法搜索")
             return True, []
         params = {
             'app_id': self._appid,
             'mode': mode,
             'token': self._token,
             'format': 'json_extended',
-            'limit': page * 100
+            'limit': int(page) * 100
         }
         if imdb_id:
             params['search_imdb'] = imdb_id
@@ -53,7 +57,7 @@ class Rarbg:
             for result in results:
                 if not result or not result.get('title'):
                     continue
-                torrent = {'indexer': indexer.id,
+                torrent = {'indexer': self._indexer_id,
                            'title': result.get('title'),
                            'enclosure': result.get('download'),
                            'size': result.get('size'),
@@ -66,9 +70,9 @@ class Rarbg:
                            'imdbid': result.get('episode_info').get('imdb') if result.get('episode_info') else ''}
                 torrents.append(torrent)
         elif res is not None:
-            log.warn(f"【INDEXER】{indexer.name} 搜索失败，错误码：{res.status_code}")
+            log.warn(f"【INDEXER】{self._indexer_name} 搜索失败，错误码：{res.status_code}")
             return True, []
         else:
-            log.warn(f"【INDEXER】{indexer.name} 搜索失败，无法连接 torrentapi.org")
+            log.warn(f"【INDEXER】{self._indexer_name} 搜索失败，无法连接 torrentapi.org")
             return True, []
         return False, torrents

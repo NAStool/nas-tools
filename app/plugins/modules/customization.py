@@ -46,7 +46,7 @@ class Customization(_IPluginModule):
                             'content':
                                 {
                                     'id': 'customization',
-                                    'placeholder': '多个正则请用;或换行分隔，支持正则表达式，特殊字符注意转义',
+                                    'placeholder': '多个匹配对象请用;或换行分隔，支持正则表达式，特殊字符注意转义',
                                     'rows': 5
                                 }
                         },
@@ -55,7 +55,7 @@ class Customization(_IPluginModule):
                         {
                             'title': '自定义分隔符',
                             'required': "",
-                            'tooltip': '当匹配到多个结果时，使用此分隔符进行分隔，留空使用@；如名称中识别出A和B，分隔符为@，则结果为A@B，按添加自定义占位符的顺序',
+                            'tooltip': '当匹配到多个结果时，使用此分隔符按添加自定义占位符的顺序进行合成，留空使用@（同一正则表达式内的多个对象按名称中出现的顺序合成）',
                             'type': 'text',
                             'content': [
                                 {

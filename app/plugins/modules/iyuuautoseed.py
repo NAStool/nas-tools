@@ -10,9 +10,9 @@ from jinja2 import Template
 from lxml import etree
 
 from app.downloader import Downloader
-from app.helper import IyuuHelper
 from app.media.meta import MetaInfo
 from app.plugins.modules._base import _IPluginModule
+from app.plugins.modules.iyuu.iyuu_helper import IyuuHelper
 from app.sites import Sites
 from app.utils import RequestUtils
 from app.utils.types import DownloaderType
@@ -231,9 +231,12 @@ class IYUUAutoSeed(_IPluginModule):
             self.iyuuhelper = IyuuHelper(token=self._token)
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self.info(f"辅种服务启动，周期：{self._cron}")
-                self._scheduler.add_job(self.auto_seed,
-                                        CronTrigger.from_crontab(self._cron))
+                try:
+                    self._scheduler.add_job(self.auto_seed,
+                                            CronTrigger.from_crontab(self._cron))
+                    self.info(f"辅种服务启动，周期：{self._cron}")
+                except Exception as err:
+                    self.error(f"运行周期格式不正确：{str(err)}")
             if self._onlyonce:
                 self.info(f"辅种服务启动，立即运行一次")
                 self._scheduler.add_job(self.auto_seed, 'date',
@@ -298,8 +301,8 @@ class IYUUAutoSeed(_IPluginModule):
                     </div>
                   </div>
                 """
-        return "IYUU站点绑定",  Template(template).render(AuthSites=auth_sites,
-                                                      IyuuToken = self._token),  "IYUUAutoSeed_user_bind_site()"
+        return "IYUU站点绑定", Template(template).render(AuthSites=auth_sites,
+                                                         IyuuToken=self._token), "IYUUAutoSeed_user_bind_site()"
 
     @staticmethod
     def get_script():
@@ -326,20 +329,29 @@ class IYUUAutoSeed(_IPluginModule):
                 $("#iyuuautoseed_passkey").removeClass("is-invalid");
             }
             // 认证
-            ajax_post("iyuu_bind_site", {"token": token, "site": site, "uid": uid, "passkey": passkey}, function (ret) {
+            ajax_post("run_plugin_method", {"plugin_id": 'IYUUAutoSeed', 'method': 'iyuu_bind_site', "site": site, "uid": uid, "passkey": passkey}, function (ret) {
                 $("#modal-plugin-page").modal('hide');
-                if (ret.code === 0) {
+                if (ret.result.code === 0) {
                     show_success_modal("IYUU用户认证成功！", function () {
                         $("#modal-plugin-IYUUAutoSeed").modal('show');
                     });
                 } else {
-                    show_fail_modal(ret.msg, function(){
+                    show_fail_modal(ret.result.msg, function(){
                         $("#modal-plugin-page").modal('show');
                     });
                 }
             });
           }
         """
+
+    def iyuu_bind_site(self, site, passkey, uid):
+        """
+        IYUU绑定合作站点
+        """
+        state, msg = self.iyuuhelper.bind_site(site=site,
+                                               passkey=passkey,
+                                               uid=uid)
+        return {"code": 0 if state else 1, "msg": msg}
 
     def __update_config(self):
         self.update_config({
@@ -434,11 +446,11 @@ class IYUUAutoSeed(_IPluginModule):
                 self.send_message(
                     title="【IYUU自动辅种任务完成】",
                     text=f"服务器返回可辅种总数：{self.total}\n"
-                        f"实际可辅种数：{self.realtotal}\n"
-                        f"已存在：{self.exist}\n"
-                        f"成功：{self.success}\n"
-                        f"失败：{self.fail}\n"
-                        f"{self.cached} 条失败记录已加入缓存"
+                         f"实际可辅种数：{self.realtotal}\n"
+                         f"已存在：{self.exist}\n"
+                         f"成功：{self.success}\n"
+                         f"失败：{self.fail}\n"
+                         f"{self.cached} 条失败记录已加入缓存"
                 )
         self.info("辅种任务执行完成")
 
@@ -646,8 +658,7 @@ class IYUUAutoSeed(_IPluginModule):
             self.cached += 1
             return False
         # 强制使用Https
-        if not torrent_url.startswith("https://"):
-            torrent_url = torrent_url.replace("http://", "https://")
+        torrent_url = f"{torrent_url}&https=1"
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)

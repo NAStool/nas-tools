@@ -13,5 +13,5 @@ from .words_helper import WordsHelper
 from .submodule_helper import SubmoduleHelper
 from .ffmpeg_helper import FfmpegHelper
 from .redis_helper import RedisHelper
-from .iyuu_helper import IyuuHelper
 from .rss_helper import RssHelper
+from .plugin_helper import PluginHelper

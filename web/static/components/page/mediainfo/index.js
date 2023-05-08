@@ -73,25 +73,6 @@ export class PageMediainfo extends CustomElement {
 
   render() {
     return html`
-      <style>
-        .lit-media-info-page-bg {
-          background-color: rgb(var(--tblr-body-bg-rgb));
-        }
-        
-        .theme-light .lit-media-info-page-bg {
-          background-color: rgb(231, 235, 239);
-        }
-        .custom-media-info-height {
-          height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 541px);
-          border: none;
-        }
-        @media (max-width: 768px) {
-          .custom-media-info-height {
-          height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 610px);
-          border: none;
-        }
-        }
-      </style>
       <div class="container-xl placeholder-glow page-wrapper-top-off lit-media-info-page-bg">
         <!-- 渲染媒体信息 -->
         <div class="card rounded-0 lit-media-info-background custom-media-info-height">

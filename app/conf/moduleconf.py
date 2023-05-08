@@ -42,6 +42,9 @@ class ModuleConf(object):
         "move": RmtMode.MOVE
     }
 
+    # 远程转移模式
+    REMOTE_RMT_MODES = [RmtMode.RCLONE, RmtMode.RCLONECOPY, RmtMode.MINIO, RmtMode.MINIOCOPY]
+
     # 消息通知类型
     MESSAGE_CONF = {
         "client": {

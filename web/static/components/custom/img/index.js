@@ -62,15 +62,6 @@ export class CustomImg extends CustomElement {
 
   render() {
     return html`
-      <style>
-        .lit-custom-img-carousel {
-          opacity:0;
-          transition: 1s;
-        }
-        .lit-custom-img-carousel-show {
-          opacity:1;
-        }
-      </style>
       <div class="placeholder-glow${this.img_ratio ? " ratio" : ""}"
           style=${(this.img_ratio ? "--tblr-aspect-ratio:" + this.img_ratio + ";" : "") + (this.div_style ?? "")}>
         <div ?hidden=${!this._placeholder || this.img_placeholder != "1"} class="placeholder rounded-0 ${this.img_class}" style=${this.img_style}></div>

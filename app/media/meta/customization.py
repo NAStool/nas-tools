@@ -27,6 +27,8 @@ class CustomizationMatcher(object):
         # 处理重复多次的情况，保留先后顺序（按添加自定义占位符的顺序）
         unique_customization = {}
         for item in re.findall(customization_re, title):
+            if not isinstance(item, tuple):
+                item = (item,)
             for i in range(len(item)):
                 if item[i] and unique_customization.get(item[i]) is None:
                     unique_customization[item[i]] = i

@@ -122,4 +122,4 @@ class Opencd(_ISiteSigninHandler):
                     return False, f'【{site}】签到失败'
 
         self.error(f'签到失败：未获取到验证码')
-        return False, f'{site}签到失败：未获取到验证码'
+        return False, f'【{site}】签到失败：未获取到验证码'

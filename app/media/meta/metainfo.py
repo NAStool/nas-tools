@@ -18,8 +18,10 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :return: MetaAnime、MetaVideo
     """
 
-    # 应用自定义识别词
-    title, msg, used_info = WordsHelper().process(title)
+    # 记录原始名称
+    org_title = title
+    # 应用自定义识别词，获取识别词处理后名称
+    rev_title, msg, used_info = WordsHelper().process(title)
     if subtitle:
         subtitle, _, _ = WordsHelper().process(subtitle)
 
@@ -28,16 +30,21 @@ def MetaInfo(title, subtitle=None, mtype=None):
             log.warn("【Meta】%s" % msg_item)
 
     # 判断是否处理文件
-    if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
+    if org_title and os.path.splitext(org_title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:
         fileflag = False
 
-    if mtype == MediaType.ANIME or is_anime(title):
-        meta_info = MetaAnime(title, subtitle, fileflag)
+    if mtype == MediaType.ANIME or is_anime(rev_title):
+        meta_info = MetaAnime(rev_title, subtitle, fileflag)
     else:
-        meta_info = MetaVideo(title, subtitle, fileflag)
+        meta_info = MetaVideo(rev_title, subtitle, fileflag)
 
+    # 设置原始名称
+    meta_info.org_string = org_title
+    # 设置识别词处理后名称
+    meta_info.rev_string = rev_title
+    # 设置应用的识别词
     meta_info.ignored_words = used_info.get("ignored")
     meta_info.replaced_words = used_info.get("replaced")
     meta_info.offset_words = used_info.get("offset")

@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash
 
 import log
 from app.conf import SystemConfig
-from app.helper import DbHelper
+from app.helper import DbHelper, PluginHelper
 from app.plugins import PluginManager
 from app.media import Category
 from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
@@ -308,6 +308,27 @@ def update_config():
                 "queue_cnt": 10
             })
             _config['pt'].pop("ptsignin_cron")
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 存量插件安装情况统计
+    try:
+        plugin_report_state = SystemConfig().get(SystemConfigKey.UserInstalledPluginsReport)
+        installed_plugins = SystemConfig().get(SystemConfigKey.UserInstalledPlugins)
+        if not plugin_report_state and installed_plugins:
+            ret = PluginHelper().report(installed_plugins)
+            if ret:
+                SystemConfig().set(SystemConfigKey.UserInstalledPluginsReport, '1')
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # TMDB代理服务开关迁移
+    try:
+        tmdb_proxy = Config().get_config('laboratory').get("tmdb_proxy")
+        if tmdb_proxy:
+            _config['app']['tmdb_domain'] = 'tmdb.nastool.workers.dev'
+            _config['laboratory'].pop("tmdb_proxy")
             overwrite_cofig = True
     except Exception as e:
         ExceptionUtils.exception_traceback(e)

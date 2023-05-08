@@ -5,14 +5,14 @@ from xml.dom import minidom
 from requests.exceptions import RequestException
 
 import log
-from app.conf import SystemConfig
+from app.conf import SystemConfig, ModuleConf
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
 from app.media.meta import MetaInfo
 from app.utils.commons import retry
 from config import Config, RMT_MEDIAEXT
-from app.utils import DomUtils, RequestUtils, ExceptionUtils, NfoReader
-from app.utils.types import MediaType, SystemConfigKey
+from app.utils import DomUtils, RequestUtils, ExceptionUtils, NfoReader, SystemUtils
+from app.utils.types import MediaType, SystemConfigKey, RmtMode
 from app.media import Media
 
 
@@ -21,6 +21,8 @@ class Scraper:
     _scraper_flag = False
     _scraper_nfo = {}
     _scraper_pic = {}
+    _rmt_mode = None
+    _temp_path = None
 
     def __init__(self):
         self.media = Media()
@@ -30,6 +32,10 @@ class Scraper:
         if scraper_conf:
             self._scraper_nfo = scraper_conf.get('scraper_nfo') or {}
             self._scraper_pic = scraper_conf.get('scraper_pic') or {}
+        self._rmt_mode = None
+        self._temp_path = os.path.join(Config().get_temp_path(), "scraper")
+        if not os.path.exists(self._temp_path):
+            os.makedirs(self._temp_path)
 
     def folder_scraper(self, path, exclude_path=None, mode=None):
         """
@@ -370,9 +376,25 @@ class Scraper:
         # 保存文件
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
-    @staticmethod
+    def __save_remove_file(self, out_file, content):
+        """
+        保存文件到远端
+        """
+        temp_file = os.path.join(self._temp_path, out_file[1:])
+        temp_file_dir = os.path.dirname(temp_file)
+        if not os.path.exists(temp_file_dir):
+            os.makedirs(temp_file_dir)
+        with open(temp_file, "wb") as f:
+            f.write(content)
+        if self._rmt_mode in [RmtMode.RCLONE, RmtMode.RCLONECOPY]:
+            SystemUtils.rclone_move(temp_file, out_file)
+        elif self._rmt_mode in [RmtMode.MINIO, RmtMode.MINIOCOPY]:
+            SystemUtils.minio_move(temp_file, out_file)
+        else:
+            SystemUtils.move(temp_file, out_file)
+
     @retry(RequestException, logger=log)
-    def __save_image(url, out_path, itype='', force=False):
+    def __save_image(self, url, out_path, itype='', force=False):
         """
         下载poster.jpg并保存
         """
@@ -388,9 +410,12 @@ class Scraper:
             log.info(f"【Scraper】正在下载{itype}图片：{url} ...")
             r = RequestUtils().get_res(url=url, raise_exception=True)
             if r:
-                with open(file=image_path,
-                          mode="wb") as img:
-                    img.write(r.content)
+                # 下载到temp目录，远程则先存到temp再远程移动，本地则直接保存
+                if self._rmt_mode in ModuleConf.REMOTE_RMT_MODES:
+                    self.__save_remove_file(image_path, r.content)
+                else:
+                    with open(file=image_path, mode="wb") as img:
+                        img.write(r.content)
                 log.info(f"【Scraper】{itype}图片已保存：{image_path}")
             else:
                 log.info(f"【Scraper】{itype}图片下载失败，请检查网络连通性")
@@ -399,12 +424,15 @@ class Scraper:
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    @staticmethod
-    def __save_nfo(doc, out_file):
+    def __save_nfo(self, doc, out_file):
         log.info("【Scraper】正在保存NFO文件：%s" % out_file)
         xml_str = doc.toprettyxml(indent="  ", encoding="utf-8")
-        with open(out_file, "wb") as xml_file:
-            xml_file.write(xml_str)
+        # 下载到temp目录，远程则先存到temp再远程移动，本地则直接保存
+        if self._rmt_mode in ModuleConf.REMOTE_RMT_MODES:
+            self.__save_remove_file(out_file, xml_str)
+        else:
+            with open(out_file, "wb") as xml_file:
+                xml_file.write(xml_str)
         log.info("【Scraper】NFO文件已保存：%s" % out_file)
 
     def gen_scraper_files(self,
@@ -414,7 +442,8 @@ class Scraper:
                           file_ext,
                           force=False,
                           force_nfo=False,
-                          force_pic=False):
+                          force_pic=False,
+                          rmt_mode=None):
         """
         刮削元数据入口
         :param media: 已识别的媒体信息
@@ -424,6 +453,7 @@ class Scraper:
         :param force: 是否强制刮削
         :param force_nfo: 是否强制刮削NFO
         :param force_pic: 是否强制刮削图片
+        :param rmt_mode: 转移方式
         """
         if not force and not self._scraper_flag:
             return
@@ -434,6 +464,8 @@ class Scraper:
             self._scraper_nfo = {}
         if not self._scraper_pic:
             self._scraper_pic = {}
+
+        self._rmt_mode = rmt_mode
 
         try:
             # 电影

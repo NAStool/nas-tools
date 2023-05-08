@@ -1,4 +1,4 @@
-import re
+import regex as re
 import cn2an
 from app.media.fanart import Fanart
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, Config
@@ -17,6 +17,8 @@ class MetaBase(object):
     fileflag = False
     # 原字符串
     org_string = None
+    # 识别词处理后字符串
+    rev_string = None
     # 副标题
     subtitle = None
     # 类型 电影、电视剧
@@ -142,10 +144,10 @@ class MetaBase(object):
     note = {}
     # 副标题解析
     _subtitle_flag = False
-    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
-    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
-    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十百零EP\-]+)\s*[集话話期]"
-    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十百零]+)\s*集全|全\s*([0-9一二三四五六七八九十百零]+)\s*[集话話期]"
+    _subtitle_season_re = r"(?<![全|共]\s*)[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季(?!\s*[全|共])"
+    _subtitle_season_all_re = r"[全|共]\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季\s*[全|共]"
+    _subtitle_episode_re = r"(?<![全|共]\s*)[第\s]+([0-9一二三四五六七八九十百零EP\-]+)\s*[集话話期](?!\s*[全|共])"
+    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十百零]+)\s*集\s*[全|共]|[全|共]\s*([0-9一二三四五六七八九十百零]+)\s*[集话話期]"
 
     def __init__(self, title, subtitle=None, fileflag=False):
         self.category_handler = Category()
@@ -642,6 +644,7 @@ class MetaBase(object):
     def init_subtitle(self, title_text):
         if not title_text:
             return
+        title_text = f" {title_text} "
         if re.search(r'[全第季集话話期]', title_text, re.IGNORECASE):
             # 第x季
             season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
@@ -708,10 +711,19 @@ class MetaBase(object):
             # x集全
             episode_all_str = re.search(r'%s' % self._subtitle_episode_all_re, title_text, re.IGNORECASE)
             if episode_all_str:
-                self.begin_episode = None
-                self.end_episode = None
-                self.total_episodes = 0
-                self.type = MediaType.TV
+                episode_all = episode_all_str.group(1)
+                if not episode_all:
+                    episode_all = episode_all_str.group(2)
+                if episode_all and self.begin_episode is None:
+                    try:
+                        self.total_episodes = int(cn2an.cn2an(episode_all.strip(), mode='smart'))
+                    except Exception as err:
+                        ExceptionUtils.exception_traceback(err)
+                        return
+                    self.begin_episode = None
+                    self.end_episode = None
+                    self.type = MediaType.TV
+                    self._subtitle_flag = True
             # 全x季 x季全
             season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
             if season_all_str:
@@ -751,6 +763,7 @@ class MetaBase(object):
             "backdrop": self.get_backdrop_image(),
             "poster": self.get_poster_image(),
             "org_string": self.org_string,
+            "rev_string": self.rev_string,
             "subtitle": self.subtitle,
             "cn_name": self.cn_name,
             "en_name": self.en_name,

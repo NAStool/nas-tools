@@ -4,6 +4,7 @@ import hashlib
 import mimetypes
 import os.path
 import re
+import time
 import traceback
 import urllib
 import xml.dom.minidom
@@ -40,7 +41,7 @@ from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, ExceptionUtils, StringUtils
 from app.utils.types import *
-from config import PT_TRANSFER_INTERVAL, Config
+from config import PT_TRANSFER_INTERVAL, Config, TMDB_API_DOMAINS
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -72,7 +73,11 @@ LoginManager = LoginManager()
 LoginManager.login_view = "login"
 LoginManager.init_app(App)
 
-# API注册
+# SSE
+LoggingSource = ""
+LoggingLock = Lock()
+
+# 路由注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
 # fix Windows registry stuff
@@ -399,8 +404,11 @@ def resources():
     site_name = request.args.get("title")
     page = request.args.get("page") or 0
     keyword = request.args.get("keyword")
-    Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
-        "data") or []
+    Results = WebAction().list_site_resources({
+        "id": site_id,
+        "page": page,
+        "keyword": keyword
+    }).get("data") or []
     return render_template("site/resources.html",
                            Results=Results,
                            SiteId=site_id,
@@ -842,7 +850,8 @@ def basic():
                            CustomScriptCfg=CustomScriptCfg,
                            CurrentUser=current_user,
                            ScraperNfo=ScraperConf.get("scraper_nfo") or {},
-                           ScraperPic=ScraperConf.get("scraper_pic") or {})
+                           ScraperPic=ScraperConf.get("scraper_pic") or {},
+                           TmdbDomains=TMDB_API_DOMAINS)
 
 
 # 自定义识别词设置页面
@@ -1020,14 +1029,13 @@ def plugin():
 @action_login_check
 def do():
     try:
-        cmd = request.form.get("cmd")
-        data = request.form.get("data")
+        content = request.get_json()
+        cmd = content.get("cmd")
+        data = content.get("data") or {}
+        return WebAction().action(cmd, data)
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
         return {"code": -1, "msg": str(e)}
-    if data:
-        data = json.loads(data)
-    return WebAction().action(cmd, data)
 
 
 # 目录事件响应
@@ -1190,11 +1198,19 @@ def plex_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
-    # 发送消息
-    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
-                                (request_json, MediaServerType.PLEX))
-    # 触发事件
-    EventManager().send_event(EventType.PlexWebhook, request_json)
+    # 事件类型
+    event_match = request_json.get("event") in ["media.play", "media.stop"]
+    # 媒体类型
+    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode"]
+    # 是否直播
+    is_live = request_json.get("Metadata", {}).get("live") == "1"
+    # 如果事件类型匹配,媒体类型匹配,不是直播
+    if event_match and type_match and not is_live:
+        # 发送消息
+        ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                    (request_json, MediaServerType.PLEX))
+        # 触发事件
+        EventManager().send_event(EventType.PlexWebhook, request_json)
     return 'Ok'
 
 
@@ -1651,33 +1667,59 @@ def Img():
     return response
 
 
-@Sock.route('/logging')
+@App.route('/stream-logging')
 @login_required
-def logging_handler(ws):
+def stream_logging():
     """
-    实时日志WebSocket
+    实时日志EventSources响应
     """
-    source = ""
-    while True:
-        message = ws.receive()
-        if not message:
-            continue
-        try:
-            _source = json.loads(message).get("source")
-        except Exception as err:
-            print(str(err))
-            continue
-        if _source != source:
-            log.LOG_INDEX = len(log.LOG_QUEUE)
-            source = _source
-        if log.LOG_INDEX > 0:
-            logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
-            log.LOG_INDEX = 0
-            if _source:
-                logs = [l for l in logs if l.get("source") == _source]
-        else:
-            logs = []
-        ws.send((json.dumps(logs)))
+    def __logging(_source=""):
+        """
+        实时日志
+        """
+        global LoggingSource
+
+        while True:
+            with LoggingLock:
+                if _source != LoggingSource:
+                    LoggingSource = _source
+                    log.LOG_INDEX = len(log.LOG_QUEUE)
+                if log.LOG_INDEX > 0:
+                    logs = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+                    log.LOG_INDEX = 0
+                    if _source:
+                        logs = [lg for lg in logs if lg.get("source") == _source]
+                else:
+                    logs = []
+                time.sleep(1)
+                yield 'data: %s\n\n' % json.dumps(logs)
+
+    return Response(
+        __logging(request.args.get("source") or ""),
+        mimetype='text/event-stream'
+    )
+
+
+@App.route('/stream-progress')
+@login_required
+def stream_progress():
+    """
+    实时日志EventSources响应
+    """
+    def __progress(_type):
+        """
+        实时日志
+        """
+        WA = WebAction()
+        while True:
+            time.sleep(0.2)
+            detail = WA.refresh_process({"type": _type})
+            yield 'data: %s\n\n' % json.dumps(detail)
+
+    return Response(
+        __progress(request.args.get("type")),
+        mimetype='text/event-stream'
+    )
 
 
 @Sock.route('/message')

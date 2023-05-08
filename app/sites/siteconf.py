@@ -25,7 +25,8 @@ class SiteConf:
         '//input[@class="dt_button"][contains(@value, "打卡")]',
         '//a[contains(@href, "sign_in")]',
         '//a[contains(@onclick, "do_signin")]',
-        '//a[@id="do-attendance"]'
+        '//a[@id="do-attendance"]',
+        '//shark-icon-button[@href="attendance.php"]'
     ]
 
     # 站点详情页字幕下载链接识别XPATH
@@ -37,11 +38,13 @@ class SiteConf:
     _SITE_LOGIN_XPATH = {
         "username": [
             '//input[@name="username"]',
-            '//input[@id="form_item_username"]'
+            '//input[@id="form_item_username"]',
+            '//input[@id="username"]'
         ],
         "password": [
             '//input[@name="password"]',
-            '//input[@id="form_item_password"]'
+            '//input[@id="form_item_password"]',
+            '//input[@id="password"]'
         ],
         "captcha": [
             '//input[@name="imagestring"]',

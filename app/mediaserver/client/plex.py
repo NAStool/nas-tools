@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 from functools import lru_cache
 from urllib.parse import quote_plus
 import log
@@ -380,17 +381,35 @@ class Plex(_IMediaClient):
         """
         if not self._plex:
             return ""
-        # 担心有些没图片,多获取几个
-        items = self._plex.fetchItems(f"/hubs/home/recentlyAdded?type={type}&sectionID={library_key}",
-                                      container_size=8,
-                                      container_start=0)
-        poster_urls = []
-        for item in items:
-            if item.posterUrl is not None:
-                poster_urls.append(self.get_nt_image_url(item.posterUrl))
-            if len(poster_urls) == 4:
+        # 返回结果
+        poster_urls = {}
+        # 页码计数
+        container_start = 0
+        # 需要的总条数/每页的条数
+        total_size = 4
+
+        # 如果总数不足,接续获取下一页
+        while len(poster_urls) < total_size:
+            items = self._plex.fetchItems(f"/hubs/home/recentlyAdded?type={type}&sectionID={library_key}",
+                                          container_size=total_size,
+                                          container_start=container_start)
+            for item in items:
+                if item.type == 'episode':
+                    # 如果是剧集的单集,则去找上级的图片
+                    if item.parentThumb is not None:
+                        poster_urls[item.parentThumb] = None
+                else:
+                    # 否则就用自己的图片
+                    if item.thumb is not None:
+                        poster_urls[item.thumb] = None
+                if len(poster_urls) == total_size:
+                    break
+            if len(items) < total_size:
                 break
-        image_list_str = ", ".join([url for url in poster_urls])
+            container_start += total_size
+        image_list_str = ", ".join(
+            [f"{self.get_nt_image_url(self._host.rstrip('/') + url)}?X-Plex-Token={self._token}" for url in
+             list(poster_urls.keys())[:total_size]])
         return image_list_str
 
     def get_iteminfo(self, itemid):
@@ -479,9 +498,10 @@ class Plex(_IMediaClient):
         sessions = self._plex.sessions()
         ret_sessions = []
         for session in sessions:
+            bitrate = sum([m.bitrate or 0 for m in session.media])
             ret_sessions.append({
                 "type": session.TAG,
-                "bitrate": sum([m.bitrate for m in session.media]),
+                "bitrate": bitrate,
                 "address": session.player.address
             })
         return ret_sessions
@@ -557,7 +577,7 @@ class Plex(_IMediaClient):
                 "type": item_type,
                 "image": image,
                 "link": link,
-                "percent": item.viewOffset / item.duration * 100
+                "percent": item.viewOffset / item.duration * 100 if item.viewOffset and item.duration else 0
             })
         return ret_resume
 

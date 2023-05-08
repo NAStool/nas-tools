@@ -50,6 +50,8 @@ class BrushTask(object):
         self.stop_service()
         # 读取刷流任务列表
         self.load_brushtasks()
+        # 清理缓存
+        self._torrents_cache = []
         # 启动RSS任务
         if self._brush_tasks:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
@@ -252,6 +254,10 @@ class BrushTask(object):
                 if not self.__is_allow_new_torrent(taskinfo=taskinfo,
                                                    dlcount=max_dlcount,
                                                    torrent_size=size):
+                    continue
+                # 检查是否已处理过
+                if self.is_torrent_handled(enclosure=enclosure):
+                    log.info("【Brush】%s 已在刷流任务中" % torrent_name)
                     continue
                 # 开始下载
                 log.debug("【Brush】%s 符合条件，开始下载..." % torrent_name)
@@ -978,3 +984,9 @@ class BrushTask(object):
         获取刷种任务的种子列表
         """
         return self.dbhelper.get_brushtask_torrents(brush_id, active)
+
+    def is_torrent_handled(self, enclosure):
+        """
+        判断种子是否已经处理过
+        """
+        return self.dbhelper.get_brushtask_torrent_by_enclosure(enclosure)

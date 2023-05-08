@@ -338,7 +338,6 @@
   //关闭媒体库同步框
   function close_mediasync_modal() {
     $("#index-mediasync-modal").modal('hide');
-    refresh_sync_process_flag = false;
   }
 
   //开始媒体库同步
@@ -350,12 +349,10 @@
       ajax_post("start_mediasync", {
         "librarys": select_GetSelectedVAL("sync_library")
       }, function (ret) {
-        refresh_sync_process_flag = true;
-        refresh_sync_process();
+        setTimeout("start_mediasync_progress()", 1000);
       }, true, false);
     } else {
-      refresh_sync_process_flag = true;
-      refresh_sync_process();
+      setTimeout("start_mediasync_progress()", 1000);
     }
   }
 
@@ -371,43 +368,33 @@
     });
   }
 
-  //刷新进度及文件
-  var refresh_sync_process_flag = false;
-  function refresh_sync_process() {
-    if (!refresh_sync_process_flag) {
-      return;
+  // 停止刷新进度
+  function stop_mediasync_progress() {
+    if (MediaSyncProgressEs) {
+      MediaSyncProgressEs.close();
+      MediaSyncProgressEs = undefined;
     }
-    ajax_post("refresh_process", {type: "mediasync"}, function (ret) {
+  }
+
+  //刷新进度
+  var MediaSyncProgressEs;
+  function start_mediasync_progress() {
+    stop_mediasync_progress();
+    MediaSyncProgressEs = new EventSource(`stream-progress?type=mediasync`);
+    MediaSyncProgressEs.onmessage = function (event) {
+      let ret = JSON.parse(event.data);
       if (ret.code === 0) {
         $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%")
             .attr("aria-valuenow", ret.value);
         $("#mediasync_status").text(ret.text);
       }
-      if (ret.value < 100) {
-        setTimeout("refresh_sync_process()", 200);
+      if ($("#index-mediasync-modal").is(":hidden")) {
+        stop_mediasync_progress();
       }
-    }, true, false);
+    }
   }
 
 </script>
-<script type="text/javascript">
-    var dom = document.getElementById('container');
-    var myChart = echarts.init(dom, null, {
-      renderer: 'canvas',
-      useDirtyRect: false
-    });
-    var app = {};
-
-    var option;
-
-
-
-    if (option && typeof option === 'object') {
-      myChart.setOption(option);
-    }
-
-    window.addEventListener('resize', myChart.resize);
-  </script>
 <script type="text/javascript">
 
   var chart_statistics = undefined;
@@ -440,7 +427,10 @@
           }
         },
         legend: {
-          data: ['电影', '电视剧', '动漫']
+          data: ['电影', '电视剧', '动漫'],
+          textStyle: {
+            color: '#206bc4'
+          }
         },
         toolbox: {
           feature: {

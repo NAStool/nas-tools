@@ -127,6 +127,7 @@
         $("#plugin_apps_content").empty();
         for (let pid in ret.result) {
           let plugin = ret.result[pid];
+          let count = ret.statistic[pid];
           let plugin_html = `
             <div class="card card-link-pop card-borderless p-0 shadow-sm rounded-3 overflow-hidden" href="javascript:void(0)">
               <div class="card-cover card-cover-blurred text-center ${plugin.color.startsWith('bg-') ? plugin.color:''}"
@@ -136,6 +137,7 @@
                     style="background-image: url('../static/img/plugins/${plugin.icon}')"
                 >
                 </span>
+                ${count ? `<span class="badge position-absolute" style="top: 10px; right: 10px;">${count}</span>` : ''}
               </div>
               <div class="card-body text-start">
                 <div class="card-title mb-1">${plugin.name}</div>
@@ -223,15 +225,7 @@
 </script>
 <script type="text/javascript">
   $(document).ready(function(){
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      let options = {
-        delay: {show: 50, hide: 50},
-        html: tooltipTriggerEl.getAttribute("data-bs-html") === "true" ?? false,
-        placement: tooltipTriggerEl.getAttribute('data-bs-placement') ?? 'auto'
-      };
-      return new bootstrap.Tooltip(tooltipTriggerEl, options);
-    });
+    fresh_tooltip();
   });
 </script>
 <script type="text/javascript">
