@@ -260,36 +260,45 @@ function connect_message() {
 function render_message(ret) {
   let lst_time = ret.lst_time;
   const msgs = ret.message;
-  for (let msg of msgs) {
-    // 消息UI
-    let html_text = `<div class="list-group-item">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="avatar">NT</span>
+  if (msgs) {
+    for (let msg of msgs) {
+      // 消息UI
+      let html_text = `<div class="list-group-item">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="avatar">NT</span>
+              </div>
+              <div class="col text-truncate">
+                <span class="text-wrap">${msg.title}</span>
+                <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
+                <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
+              </div>
             </div>
-            <div class="col text-truncate">
-              <span class="text-wrap">${msg.title}</span>
-              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
-              <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
-            </div>
-          </div>
-        </div>`;
-    $("#system-messages").prepend(html_text);
-    // 滚动到顶部
-    $(".offcanvas-body").animate({scrollTop:0}, 300);
-    // 浏览器消息提醒
-    if (!OldMessageFlag && !$("#offcanvasEnd").is(":hidden")) {
-      browserNotification(msg.title, msg.content);
+          </div>`;
+      $("#system-messages").prepend(html_text);
+      // 滚动到顶部
+      $(".offcanvas-body").animate({scrollTop: 0}, 300);
+      // 浏览器消息提醒
+      if (!OldMessageFlag && !$("#offcanvasEnd").is(":hidden")) {
+        browserNotification(msg.title, msg.content);
+      }
     }
+    // 非旧消息
+    OldMessageFlag = false;
   }
-  // 非旧消息
-  OldMessageFlag = false;
   // 下一次处理
-  setTimeout("get_message('" + lst_time + "')", 3000);
+  if (lst_time) {
+    setTimeout(`get_message('${lst_time}')`, 3000);
+  } else if (msgs) {
+    setTimeout(`get_message('')`, 3000);
+  }
 }
 
 //发送拉取消息的请求
 function get_message(lst_time) {
+  if (!MessageWS) {
+    return;
+  }
   MessageWS.send(JSON.stringify({"lst_time": lst_time}));
 }
 
@@ -1763,6 +1772,9 @@ function send_web_message(obj) {
     text = obj;
   }
   // 消息交互
+  if (!MessageWS) {
+    return;
+  }
   MessageWS.send(JSON.stringify({"text": text}));
   // 显示自己发送的消息
   $("#system-messages").prepend(`<div class="list-group-item">
