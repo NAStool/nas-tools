@@ -48,7 +48,7 @@ FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea
 # 默认背景图地址
 DEFAULT_TMDB_IMAGE = 'https://s3.bmp.ovh/imgs/2022/07/10/77ef9500c851935b.webp'
 # 默认TMDB代理服务地址
-DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn/3'
+DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.workers.dev/3'
 # TMDB域名地址
 TMDB_API_DOMAIN = 'api.themoviedb.org'
 TMDB_IMAGE_DOMAIN = 'image.tmdb.org'
