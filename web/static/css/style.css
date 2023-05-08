@@ -135,7 +135,7 @@ body, .page {
         margin-right: unset !important;
     }
     .custom-media-info-height {
-        height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 610px);
+        height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 710px);
         border: none;
     }
     #litLayoutNavbar{
