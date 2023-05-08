@@ -125,6 +125,11 @@ body, .page {
     height: 350px;
 }
 
+.custom-media-info-height {
+    height: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 541px);
+    border: none;
+}
+
 @media (max-width: 768px) {
     .lit-media-info-image {
         width: 150px;
