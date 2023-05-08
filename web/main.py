@@ -41,7 +41,7 @@ from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, ExceptionUtils, StringUtils
 from app.utils.types import *
-from config import PT_TRANSFER_INTERVAL, Config
+from config import PT_TRANSFER_INTERVAL, Config, TMDB_API_DOMAINS
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -850,7 +850,8 @@ def basic():
                            CustomScriptCfg=CustomScriptCfg,
                            CurrentUser=current_user,
                            ScraperNfo=ScraperConf.get("scraper_nfo") or {},
-                           ScraperPic=ScraperConf.get("scraper_pic") or {})
+                           ScraperPic=ScraperConf.get("scraper_pic") or {},
+                           TmdbDomains=TMDB_API_DOMAINS)
 
 
 # 自定义识别词设置页面

@@ -213,16 +213,15 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB域名 <span class="form-help"
-                                                                    title="如api.themoviedb.org无法访问可偿试使用api.tmdb.org，如均无法访问，则需要修改host或者使用网络代理"
+                  <label class="form-label required">TMDB API Url <span class="form-help"
+                                                                    title="选择访问TMDB API时使用的地址，api.themoviedb.org、api.tmdb.org为官方地址，其余为使用代理中转，如无法连接TMDB匹配媒体信息时可偿试更换"
                                                                     data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="app.tmdb_domain">
-                    <option value="api.themoviedb.org" {% if not Config.app.tmdb_domain or
-                      Config.app.tmdb_domain=='api.themoviedb.org' %}selected{% endif %}>api.themoviedb.org
+                    {% for domain in TmdbDomains %}
+                    <option value="{{ domain }}" {% if Config.app.tmdb_domain==domain %}selected{% endif %}>
+                      {{ domain }}
                     </option>
-                    <option value="api.tmdb.org" {% if Config.app.tmdb_domain=='api.tmdb.org' %}selected{% endif %}>
-                      api.tmdb.org
-                    </option>
+                    {% endfor %}
                   </select>
                 </div>
               </div>
@@ -685,18 +684,6 @@
                     <span class="form-check-label">搜索优先使用英文名 <span class="form-help"
                                                                             title="开启后对于精确搜索场景将会优先使用英文名搜索，否则优先使用中文名搜索"
                                                                             data-bs-toggle="tooltip">?</span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-12 col-xl-3">
-                <div class="mb-3">
-                  <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.tmdb_proxy" {% if Config.laboratory
-                      and Config.laboratory.tmdb_proxy %}checked{% endif %}>
-                    <span class="form-check-label">使用TMDB代理服务 <span class="form-help"
-                                                                          title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启"
-                                                                          data-bs-toggle="tooltip">?</span>
                     </span>
                   </label>
                 </div>

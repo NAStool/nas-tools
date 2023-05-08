@@ -323,6 +323,16 @@ def update_config():
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
 
+    # TMDB代理服务开关迁移
+    try:
+        tmdb_proxy = Config().get_config('laboratory').get("tmdb_proxy")
+        if tmdb_proxy:
+            _config['app']['tmdb_domain'] = 'tmdb.nastool.workers.dev'
+            _config['laboratory'].pop("tmdb_proxy")
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
     # 重写配置文件
     if overwrite_cofig:
         Config().save_config(_config)
