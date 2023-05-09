@@ -509,7 +509,7 @@ class TRANSFERHISTORY(Base):
     DEST = Column(Text)
     DEST_PATH = Column(Text)
     DEST_FILENAME = Column(Text)
-    DATE = Column(Text)
+    DATE = Column(Text, index=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
