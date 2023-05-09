@@ -104,21 +104,29 @@
     </div>
   </div>
   <div id="main_bottom_menubar" class="position-fixed w-100 d-flex justify-content-between d-sm-none main-bottom-menubar d-none">
-    <a class="card-btn border-0" href="javascript:navmenu('index')">
+    {% if "我的媒体库" in CurrentUser.pris %}
+    <a class="card-btn border-0 px-0 text-center" href="javascript:navmenu('index')">
       {{ SVG.home() }}
     </a>
-    <a class="card-btn border-0" href="javascript:navmenu('ranking')">
+    {% endif %}
+    {% if "探索" in CurrentUser.pris %}
+    <a class="card-btn border-0 px-0 text-center" href="javascript:navmenu('ranking')">
       {{ SVG.chart_bar() }}
     </a>
-    <a class="card-btn border-0" href="javascript:navmenu('service')">
+    {% endif %}
+    {% if "服务" in CurrentUser.pris %}
+    <a class="card-btn border-0 px-0 text-center" href="javascript:navmenu('service')">
       {{ SVG.layout_2() }}
     </a>
-    <a class="card-btn border-0" href="javascript:navmenu('movie_rss')">
+    {% endif %}
+    {% if "订阅管理" in CurrentUser.pris %}
+    <a class="card-btn border-0 px-0 text-center" href="javascript:navmenu('movie_rss')">
       {{ SVG.movie() }}
     </a>
-    <a class="card-btn border-0" href="javascript:navmenu('tv_rss')">
+    <a class="card-btn border-0 px-0 text-center" href="javascript:navmenu('tv_rss')">
       {{ SVG.device_tv() }}
     </a>
+    {% endif %}
   </div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
