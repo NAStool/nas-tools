@@ -70,6 +70,7 @@ body, .page {
     left:calc(50% - 40px);
     width:80px;
     height:80px;
+    z-index: 1033;
 }
 
 .offcanvas {
