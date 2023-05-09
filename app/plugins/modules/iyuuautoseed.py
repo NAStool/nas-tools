@@ -658,7 +658,10 @@ class IYUUAutoSeed(_IPluginModule):
             self.cached += 1
             return False
         # 强制使用Https
-        torrent_url = f"{torrent_url}&https=1"
+        if "?" in torrent_url:
+            torrent_url += "&https=1"
+        else:
+            torrent_url += "?https=1"
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
@@ -757,6 +760,9 @@ class IYUUAutoSeed(_IPluginModule):
             """
             判断是否为特殊站点
             """
+            spec_params = ["hash=", "authkey="]
+            if any(field in base_url for field in spec_params):
+                return True
             if "hdchina.org" in url:
                 return True
             if "hdsky.me" in url:
