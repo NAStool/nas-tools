@@ -137,7 +137,7 @@
                     style="background-image: url('../static/img/plugins/${plugin.icon}')"
                 >
                 </span>
-                ${count ? `<span class="badge position-absolute" style="top: 10px; right: 10px;">${count}</span>` : ''}
+                ${count ? `<span class="badge position-absolute" style="top: 10px; right: 10px;">${count.toLocaleString()}</span>` : ''}
               </div>
               <div class="card-body text-start">
                 <div class="card-title mb-1">${plugin.name}</div>

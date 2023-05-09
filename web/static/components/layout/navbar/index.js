@@ -69,6 +69,7 @@ export class LayoutNavbar extends CustomElement {
       document.querySelector("#logo_animation").remove();
       this.removeAttribute("hidden");
       document.querySelector("#page_content").removeAttribute("hidden");
+      document.querySelector("#main_bottom_menubar").classList.remove('d-none');
       document.querySelector("layout-searchbar").removeAttribute("hidden");
     }, 200);
 

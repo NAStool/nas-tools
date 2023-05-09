@@ -523,11 +523,9 @@ class ModuleConf(object):
         }
     }
 
-    # 网络测试对象
+    # 网络测试对象，TMDB API除外
     NETTEST_TARGETS = [
         "www.themoviedb.org",
-        "api.themoviedb.org",
-        "api.tmdb.org",
         "image.tmdb.org",
         "webservice.fanart.tv",
         "api.telegram.org",

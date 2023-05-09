@@ -112,6 +112,8 @@ class SiteSubtitle:
                     continue
             if sublink_list:
                 log.info(f"【Sites】{media_info.page_url} 页面字幕下载完成")
+            else:
+                log.warn(f"【Sites】{media_info.page_url} 页面未找到字幕下载链接")
         elif res is not None:
             log.warn(f"【Sites】连接 {media_info.page_url} 失败，状态码：{res.status_code}")
         else:
