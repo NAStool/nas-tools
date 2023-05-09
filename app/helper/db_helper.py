@@ -172,11 +172,11 @@ class DbHelper:
                                                            | (TRANSFERHISTORY.TITLE.like(search))).count()
             data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.SOURCE_FILENAME.like(search))
                                                           | (TRANSFERHISTORY.TITLE.like(search))).order_by(
-                TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
+                TRANSFERHISTORY.ID.desc()).limit(int(rownum)).offset(begin_pos).all()
             return count, data
         else:
             return self._db.query(TRANSFERHISTORY).count(), self._db.query(TRANSFERHISTORY).order_by(
-                TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
+                TRANSFERHISTORY.ID.desc()).limit(int(rownum)).offset(begin_pos).all()
 
     def get_transfer_info_by_id(self, logid):
         """
