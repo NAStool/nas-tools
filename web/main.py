@@ -1206,7 +1206,7 @@ def plex_webhook():
     # 事件类型
     event_match = request_json.get("event") in ["media.play", "media.stop", "library.new"]
     # 媒体类型
-    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode"]
+    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode", "show"]
     # 是否直播
     is_live = request_json.get("Metadata", {}).get("live") == "1"
     # 如果事件类型匹配,媒体类型匹配,不是直播

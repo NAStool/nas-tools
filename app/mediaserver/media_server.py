@@ -366,7 +366,7 @@ class MediaServer:
                 image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
                                                          season_id=event_info.get('season_id'),
                                                          episode_id=event_info.get('episode_id'))
-            elif event_info.get("item_type") == "MOV":
+            elif event_info.get("item_type") in ["MOV", "SHOW"]:
                 # 根据返回的item_id去调用媒体服务器获取
                 image_url = self.get_remote_image_by_id(item_id=event_info.get('item_id'),
                                                         image_type="Backdrop")

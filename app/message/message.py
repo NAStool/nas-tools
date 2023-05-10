@@ -557,7 +557,7 @@ class Message(object):
             return
 
         # 消息标题
-        if event_info.get('item_type') == "TV":
+        if event_info.get('item_type') in ["TV", "SHOW"]:
             message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
         elif event_info.get('item_type') == "MOV":
             message_title = f"{_webhook_actions.get(event_info.get('event'))}电影 {event_info.get('item_name')}"

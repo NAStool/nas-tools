@@ -534,7 +534,7 @@ class Plex(_IMediaClient):
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
             else:
-                eventItem['item_type'] = "MOV"
+                eventItem['item_type'] = "MOV" if message.get('Metadata', {}).get('type') == 'movie' else "SHOW"
                 eventItem['item_name'] = "%s %s" % (
                     message.get('Metadata', {}).get('title'), "(" + str(message.get('Metadata', {}).get('year')) + ")")
                 eventItem['item_id'] = message.get('Metadata', {}).get('ratingKey')
