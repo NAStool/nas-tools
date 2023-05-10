@@ -86,7 +86,7 @@
   {% for FieldId, FieldAttr in Fields.items() %}
     {% if FieldAttr.type == "dropdown" %}
     <div class="dropdown">
-      <button class="btn btn-ghost-secondary ms-auto dropdown-toggle"
+      <button class="btn btn-ghost-secondary ms-auto dropdown-toggle px-1"
          data-bs-toggle="dropdown" aria-expanded="false">
         {% if not Params or not Params.get(FieldId) %}
           {{ FieldAttr.name }}

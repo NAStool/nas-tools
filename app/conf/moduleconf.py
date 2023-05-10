@@ -803,6 +803,14 @@ class ModuleConf(object):
     # 发现过滤器
     DISCOVER_FILTER_CONF = {
         "tmdb_movie": {
+            "sort_by": {
+                "name": "排序",
+                "type": "dropdown",
+                "options": [{'value': '', 'name': '默认'},
+                            {'value': 'popularity.desc', 'name': '近期热度'},
+                            {'value': 'vote_average.desc', 'name': '高分优先'},
+                            {'value': 'release_date.desc', 'name': '首播时间'}]
+            },
             "with_genres": {
                 "name": "类型",
                 "type": "dropdown",
@@ -835,6 +843,14 @@ class ModuleConf(object):
             }
         },
         "tmdb_tv": {
+            "sort_by": {
+                "name": "排序",
+                "type": "dropdown",
+                "options": [{'value': '', 'name': '默认'},
+                            {'value': 'popularity.desc', 'name': '近期热度'},
+                            {'value': 'vote_average.desc', 'name': '高分优先'},
+                            {'value': 'first_air_date.desc', 'name': '首播时间'}]
+            },
             "with_genres": {
                 "name": "类型",
                 "type": "dropdown",
