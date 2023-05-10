@@ -343,6 +343,36 @@ class ModuleConf(object):
                     }
                 }
             },
+             "ntfy": {
+                "name": "ntfy",
+                "img_url": "../static/img/message/ntfy.png",
+                "color": "#72CAEE",
+                "config": {
+                    "server": {
+                        "id": "ntfy_server",
+                        "required": True,
+                        "title": "ntfy服务器地址",
+                        "tooltip": "自己搭建ntfy服务端地址",
+                        "type": "text",
+                        "placeholder": "http://localhost:8800"
+                    },
+                    "token": {
+                        "id": "ntfy_token",
+                        "required": True,
+                        "title": "令牌Token",
+                        "tooltip": "ntfy服务端创建的token",
+                        "type": "text"
+                    },
+                    "priority": {
+                        "id": "ntfy_priority",
+                        "required": False,
+                        "title": "消息Priority",
+                        "tooltip": "消息通知优先级, 请填写数字(1-8), 默认: 8",
+                        "type": "text",
+                        "placeholder": "8"
+                    }
+                }
+            },
             "chanify": {
                 "name": "Chanify",
                 "img_url": "../static/img/message/chanify.png",
