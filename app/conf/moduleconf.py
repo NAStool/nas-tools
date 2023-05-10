@@ -343,6 +343,51 @@ class ModuleConf(object):
                     }
                 }
             },
+             "ntfy": {
+                "name": "ntfy",
+                "img_url": "../static/img/message/ntfy.png",
+                "color": "#72CAEE",
+                "config": {
+                    "server": {
+                        "id": "ntfy_server",
+                        "required": True,
+                        "title": "ntfy服务器地址",
+                        "tooltip": "自己搭建ntfy服务端地址",
+                        "type": "text",
+                        "placeholder": "http://localhost:8800"
+                    },
+                    "token": {
+                        "id": "ntfy_token",
+                        "required": True,
+                        "title": "令牌Token",
+                        "tooltip": "ntfy服务端创建的token",
+                        "type": "text"
+                    },
+                     "topic": {
+                        "id": "ntfy_topic",
+                        "required": True,
+                        "title": "topic",
+                        "tooltip": "ntfy创建的topic",
+                        "type": "text"
+                    },
+                    "priority": {
+                        "id": "ntfy_priority",
+                        "required": False,
+                        "title": "消息Priority",
+                        "tooltip": "消息通知优先级, 请填写数字(1-5), 默认: 4",
+                        "type": "text",
+                        "placeholder": "4"
+                    },
+                    "tags": {
+                        "id": "ntfy_tags",
+                        "required": False,
+                        "title": "消息tags",
+                        "tooltip": "消息tags,以逗号分隔, 请参阅ntfy官网, 默认: rotating_light",
+                        "type": "text",
+                        "placeholder": "rotating_light"
+                    }
+                }
+            },
             "chanify": {
                 "name": "Chanify",
                 "img_url": "../static/img/message/chanify.png",
