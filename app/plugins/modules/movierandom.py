@@ -1,5 +1,5 @@
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Event
 
 import pytz
@@ -283,7 +283,8 @@ class MovieRandom(_IPluginModule):
             if self._onlyonce:
                 self.info(f"电影随机服务启动，立即运行一次")
                 self._scheduler.add_job(self.__random, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())) + timedelta(
+                                            seconds=3))
                 # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
@@ -468,7 +469,7 @@ class MovieRandom(_IPluginModule):
 
     def get_state(self):
         return self._enable \
-            and self._cron
+               and self._cron
 
     def stop_service(self):
         """
