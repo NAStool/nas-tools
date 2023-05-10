@@ -369,10 +369,10 @@ class DouBan:
                                                 tags=tags)
         if not infos:
             return []
-        return self.__dict_items(infos.get("items"))
+        return self.__dict_items(infos.get("items"), poster_filter=True)
 
     @staticmethod
-    def __dict_items(infos, media_type=None):
+    def __dict_items(infos, media_type=None, poster_filter=False):
         """
         转化为字典
         """
@@ -419,7 +419,12 @@ class DouBan:
 
             # 高清海报
             if poster_path:
+                if poster_filter and ("movie_large.jpg" in poster_path
+                                      or "tv_normal.png" in poster_path):
+                    continue
                 poster_path = poster_path.replace("s_ratio_poster", "m_ratio_poster")
+            elif poster_filter:
+                continue
 
             ret_infos.append({
                 'id': "DB:%s" % rid,
