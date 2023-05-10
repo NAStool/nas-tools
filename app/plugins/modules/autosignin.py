@@ -371,15 +371,15 @@ class AutoSignIn(_IPluginModule):
                                         "retry": retry_sites
                                     })
 
-            # 签到详细信息 登录成功、签到成功、已签到、仿真签到成功、失败--命中重试
-            signin_message = login_success_msg + sign_success_msg + already_sign_msg + fz_sign_msg + failed_msg
-            if len(retry_msg) > 0:
-                signin_message.append("——————命中重试—————")
-                signin_message += retry_msg
-            Message().send_site_signin_message(signin_message)
-
             # 发送通知
             if self._notify:
+                # 签到详细信息 登录成功、签到成功、已签到、仿真签到成功、失败--命中重试
+                signin_message = login_success_msg + sign_success_msg + already_sign_msg + fz_sign_msg + failed_msg
+                if len(retry_msg) > 0:
+                    signin_message.append("——————命中重试—————")
+                    signin_message += retry_msg
+                Message().send_site_signin_message(signin_message)
+
                 next_run_time = self._scheduler.get_jobs()[0].next_run_time.strftime('%Y-%m-%d %H:%M:%S')
                 # 签到汇总信息
                 self.send_message(title="【自动签到任务完成】",
