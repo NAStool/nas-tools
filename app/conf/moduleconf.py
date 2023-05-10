@@ -363,13 +363,28 @@ class ModuleConf(object):
                         "tooltip": "ntfy服务端创建的token",
                         "type": "text"
                     },
+                     "topic": {
+                        "id": "ntfy_topic",
+                        "required": True,
+                        "title": "topic",
+                        "tooltip": "ntfy创建的topic",
+                        "type": "text"
+                    },
                     "priority": {
                         "id": "ntfy_priority",
                         "required": False,
                         "title": "消息Priority",
-                        "tooltip": "消息通知优先级, 请填写数字(1-8), 默认: 8",
+                        "tooltip": "消息通知优先级, 请填写数字(1-5), 默认: 4",
                         "type": "text",
-                        "placeholder": "8"
+                        "placeholder": "4"
+                    },
+                    "tags": {
+                        "id": "ntfy_tags",
+                        "required": False,
+                        "title": "消息tags",
+                        "tooltip": "消息tags,以逗号分隔, 请参阅ntfy官网, 默认: rotating_light",
+                        "type": "text",
+                        "placeholder": "rotating_light"
                     }
                 }
             },

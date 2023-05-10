@@ -7,7 +7,9 @@ class Ntfy(_IMessageClient):
 
     _server = None
     _token = None
+    _topic = None
     _priority = None
+    _tags = None
     _client_config = {}
 
     def __init__(self, config):
@@ -18,10 +20,16 @@ class Ntfy(_IMessageClient):
         if self._client_config:
             self._server = StringUtils.get_base_url(self._client_config.get('server'))
             self._token = self._client_config.get('token')
+            self._topic = self._client_config.get('topic')
+            self._tags = 'rotating_light' if self._client_config.get('tags') == '' else self._client_config.get('tags')
+            if len(self._tags.split(",")) > 1:
+                self._tags = self._tags.split(",")
+            else:
+                self._tags = [self._tags]
             try:
                 self._priority = int(self._client_config.get('priority'))
             except Exception as e:
-                self._priority = 8
+                self._priority = 4
                 ExceptionUtils.exception_traceback(e)
 
     @classmethod
@@ -45,11 +53,11 @@ class Ntfy(_IMessageClient):
                 return False, "参数未配置"
             sc_url = "%s" % (self._server)
             sc_data = {
-                "topic": "2vB29tkwJUMwLNI6",
+                "topic": self._topic, 
                 "title": title,
                 "message": text,
                 "priority": self._priority,
-                "tags": ["rotating_light"],
+                "tags": self._tags
                         }
             res = RequestUtils(headers={
                     "Authorization": "Bearer " + self._token
