@@ -1,6 +1,6 @@
 import re
 import xml.dom.minidom
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Event
 
 import pytz
@@ -98,7 +98,8 @@ class DoubanRank(_IPluginModule):
             if self._onlyonce:
                 self.info(f"订阅服务启动，立即运行一次")
                 self._scheduler.add_job(self.__refresh_rss, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())) + timedelta(
+                                            seconds=3))
                 # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
@@ -423,7 +424,8 @@ class DoubanRank(_IPluginModule):
                         continue
                     if self._vote and media_info.vote_average \
                             and media_info.vote_average < self._vote:
-                        self.info(f"{media_info.get_title_string()} 评分 {media_info.vote_average} 低于限制 {self._vote}，跳过 ．．．")
+                        self.info(
+                            f"{media_info.get_title_string()} 评分 {media_info.vote_average} 低于限制 {self._vote}，跳过 ．．．")
                         continue
                     # 检查媒体服务器是否存在
                     item_id = self.mediaserver.check_item_exists(mtype=media_info.type,

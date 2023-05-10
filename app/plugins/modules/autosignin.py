@@ -217,7 +217,8 @@ class AutoSignIn(_IPluginModule):
             if self._onlyonce:
                 self.info(f"签到服务启动，立即运行一次")
                 self._scheduler.add_job(self.sign_in, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())) + timedelta(
+                                            seconds=3))
 
             if self._onlyonce or self._clean:
                 # 关闭一次性开关|清理缓存开关
