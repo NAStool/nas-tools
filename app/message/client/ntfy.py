@@ -51,7 +51,7 @@ class Ntfy(_IMessageClient):
         try:
             if not self._server or not self._token:
                 return False, "参数未配置"
-            sc_url = "%s" % (self._server)
+            sc_url = "%s" % self._server
             sc_data = {
                 "topic": self._topic, 
                 "title": title,

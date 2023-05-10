@@ -345,8 +345,8 @@ class ModuleConf(object):
             },
              "ntfy": {
                 "name": "ntfy",
-                "img_url": "../static/img/message/ntfy.png",
-                "color": "#72CAEE",
+                "img_url": "../static/img/message/ntfy.webp",
+                "color": "#409D8A",
                 "config": {
                     "server": {
                         "id": "ntfy_server",
