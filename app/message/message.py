@@ -118,10 +118,11 @@ class Message(object):
         log.info(f"【Message】发送消息 {cname}：title={title}, text={text}")
         if self._domain:
             if url:
-                # 直接打开媒体库
-                if 'open_media_server' in url:
+                # 唤起App
+                if 'openapp' in url:
                     url = "%s%s" % (self._domain, url)
-                if not url.startswith("http"):
+                # 跳转页面
+                elif not url.startswith("http"):
                     url = "%s?next=%s" % (self._domain, url)
             else:
                 url = ""
@@ -589,9 +590,8 @@ class Message(object):
         message_content = "\n".join(message_texts)
         self.messagecenter.insert_system_message(title=message_title, content=message_content)
 
-        url = ""
-        if event_info.get('event') == "library.new" and channel == "Plex" and event_info.get('play_url'):
-            url = event_info.get('play_url')
+        # 跳转链接
+        url = event_info.get('play_url') or ""
 
         # 发送消息
         for client in self._active_clients:

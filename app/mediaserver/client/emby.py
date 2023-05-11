@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.parse import quote
 
 import log
 from app.mediaserver.client._base import _IMediaClient
@@ -713,6 +714,8 @@ class Emby(_IMediaClient):
                 if message.get('PlaybackInfo', {}).get('PositionTicks'):
                     eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
                                               message.get('Item', {}).get('RunTimeTicks') * 100
+            eventItem['play_url'] = f"/open?url=" \
+                                    f"{quote(self.get_play_url(eventItem.get('item_id')))}&type=emby"
         if message.get('Session'):
             eventItem['ip'] = message.get('Session').get('RemoteEndPoint')
             eventItem['device_name'] = message.get('Session').get('DeviceName')

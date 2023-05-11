@@ -1,4 +1,5 @@
 import re
+from urllib.parse import quote
 
 import log
 from app.mediaserver.client._base import _IMediaClient
@@ -582,7 +583,8 @@ class Jellyfin(_IMediaClient):
         """
         eventItem = {'event': message.get('NotificationType', ''),
                      'item_name': message.get('Name'),
-                     'user_name': message.get('NotificationUsername')
+                     'user_name': message.get('NotificationUsername'),
+                     'play_url': f"/open?url={quote(self.get_play_url(message.get('Id')))}&type=jellyfin"
                      }
         return eventItem
 

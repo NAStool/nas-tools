@@ -543,7 +543,7 @@ class Plex(_IMediaClient):
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
         if eventItem.get('event') == "library.new":
-            eventItem['play_url'] = f"/open_media_server?url=" \
+            eventItem['play_url'] = f"/open?url=" \
                                     f"{quote(self.get_play_url(message.get('Metadata', {}).get('key')))}&type=plex"
         if message.get('Player'):
             eventItem['ip'] = message.get('Player').get('publicAddress')

@@ -396,10 +396,10 @@ def sitelist():
                            Count=len(IndexerSites))
 
 
-# 打开媒体库中转页面,直接打开,不认证
-@App.route('/open_media_server', methods=['POST', 'GET'])
-def open_media_server():
-    return render_template("open_media_server.html")
+# 唤起App中转页面
+@App.route('/openapp', methods=['POST', 'GET'])
+def open_app():
+    return render_template("openapp.html")
 
 # 站点资源页面
 @App.route('/resources', methods=['POST', 'GET'])

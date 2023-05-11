@@ -20,6 +20,9 @@
         };
       }
 
+      /**
+       * 打开App
+       */
       function open_app() {
         const searchParams = new URLSearchParams(window.location.search);
         const url = searchParams.get('url');
@@ -50,6 +53,7 @@
             break;
           case 'emby':
           case 'jellyfin':
+          case 'douban':
           default:
             // 其他类型的打开原始的媒体库链接
             window.top.location.href = url;
