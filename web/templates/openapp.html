@@ -21,6 +21,19 @@
       }
 
       /**
+       * 从emby的媒体库链接中获取参数
+       * @param url emby的媒体库链接
+       */
+      function extract_params_from_embyurl(url) {
+        const itemId = /id=([^\&]+)/.exec(url)?.[1];
+        const serverId = /serverId=([^\&]+)/.exec(url)?.[1];
+        return {
+            serverId,
+            itemId,
+        };
+      }
+
+      /**
        * 打开App
        */
       function open_app() {
@@ -52,6 +65,28 @@
             });
             break;
           case 'emby':
+            const emby_params = extract_params_from_embyurl(url);
+            const emby_options = {
+              scheme: {
+                protocol: 'emby' //APP 协议，URL Scheme 的 scheme 字段，就是你要打开的 APP 的标识
+              },
+              // yingyongbao,appstore,fallback:不同环境打开失败失败开的页面,这里都设置为原始的媒体库链接
+              yingyongbao: url,
+              appstore: url,
+              //填写appstore的下载地址
+              fallback: url,
+              //填写唤端失败后跳转的地址
+              timeout: 3000,
+            };
+            const emby_callLib = new CallApp(emby_options);
+            emby_callLib.open({
+              param: {
+                serverId: emby_params.serverId,
+                itemId: emby_params.itemId,
+              },
+              path: 'items',
+            });
+            break;
           case 'jellyfin':
           case 'douban':
           default:
