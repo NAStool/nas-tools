@@ -24,7 +24,7 @@ class _IPluginModule(metaclass=ABCMeta):
     - error(msg) 记录插件ERROR日志
     - debug(msg) 记录插件DEBUG日志
     - get_page() 插件额外页面数据，在插件配置页面左下解按钮展示
-    - get_script() 插件额外脚本（Javascript），将会写入插件页面，可在插件元素中绑定使用
+    - get_script() 插件额外脚本（Javascript），将会写入插件页面，可在插件元素中绑定使用，，XX_PluginInit为初始化函数
     - send_message() 发送消息
     - get_data_path() 获取插件数据保存目录
     - history() 记录插件运行数据，key需要唯一，value为对象

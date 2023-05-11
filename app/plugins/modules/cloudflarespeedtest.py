@@ -98,7 +98,6 @@ class CloudflareSpeedTest(_IPluginModule):
                             'required': "",
                             'tooltip': '如当前版本与CloudflareSpeedTest最新版本不一致，可开启重装后运行获取新版本',
                             'type': 'text',
-                            # 'hidden': True,
                             'content': [
                                 {
                                     'id': 'version',

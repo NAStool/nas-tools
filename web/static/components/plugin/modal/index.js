@@ -98,19 +98,19 @@ export class PluginModal extends CustomElement {
       let placeholder = content[index]["placeholder"];
       let default_value = content[index]["default"];
       if (index === "0") {
-        text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off" ?hidden=${hidden}>`
+        text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">`
         text_content = html`<div class="mb-1">
                       <label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>
                       ${text}
                     </div>`
       } else {
-        text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off" ?hidden=${hidden}>`
+        text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">`
         text_content = html`${text_content}<div class="mb-3">
                       ${text}
                     </div>`
       }
     }
-    return html`<div class="col-12 col-lg">${text_content}</div>`
+    return html`<div class="col-12 col-lg" style="display:${hidden ? 'none':'block'}">${text_content}</div>`
   }
 
 
@@ -121,13 +121,14 @@ export class PluginModal extends CustomElement {
     let id = field_content["id"];
     let onclick = field_content["onclick"];
     let default_value = field_content["default"];
+    let hidden = field_content["hidden"];
     let checkbox;
     if (this.config[id] || (this.config[id] === undefined && default_value)) {
       checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}" onclick="${onclick}" checked>`
     } else {
       checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}" onclick="${onclick}">`
     }
-    return html`<div class="col-12 col-lg">
+    return html`<div class="col-12 col-lg" style="display:${hidden ? 'none':'block'}">
                   <div class="mb-1">
                     <label class="form-check form-switch ${required}">
                     ${checkbox}
@@ -143,6 +144,7 @@ export class PluginModal extends CustomElement {
     let required = field_content["required"];
     let tooltip = field_content["tooltip"];
     let content = field_content["content"];
+    let hidden = field_content["hidden"];
     for (let index in content) {
       let id = content[index]["id"];
       let options = content[index]["options"];
@@ -170,7 +172,7 @@ export class PluginModal extends CustomElement {
           </select>
         </div>`
     }
-    return html`<div class="col-12 col-lg">${text_content}</div>`
+    return html`<div class="col-12 col-lg" style="display:${hidden ? 'none':'block'}">${text_content}</div>`
   }
 
   __render_textarea(field_content) {
@@ -179,6 +181,7 @@ export class PluginModal extends CustomElement {
     let tooltip = field_content["tooltip"];
     let content = field_content["content"];
     let readonly = field_content["readonly"];
+    let hidden = field_content["hidden"];
     let id = content["id"];
     let placeholder = content["placeholder"];
     let rows = content["rows"] || 5;
@@ -192,7 +195,7 @@ export class PluginModal extends CustomElement {
     } else {
       textarea = html`<textarea class="form-control" id="${this.prefix}${id}" rows="${rows}" placeholder="${placeholder}">${this.config[id] || ""}</textarea>`
     }
-    return html`<div class="col-12 col-lg">
+    return html`<div class="col-12 col-lg" style="display:${hidden ? 'none':'block'}">
                   <div class="mb-1">
                     ${label}
                     ${textarea}
@@ -263,6 +266,14 @@ export class PluginModal extends CustomElement {
       </div>`
   }
 
+  // 执行插件初始化的方法
+  firstUpdated() {
+    // 动态获取函数名称
+    let functionName = `${this.id}_PluginInit`;
+    if (typeof window[functionName] === "function") {
+      window[functionName](); // 调用函数
+    }
+  }
 }
 
 window.customElements.define("plugin-modal", PluginModal);

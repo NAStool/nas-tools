@@ -53,7 +53,9 @@ class DoubanSync(_IPluginModule):
     subscribe = None
     _enable = False
     _onlyonce = False
-    _interval = False
+    _sync_type = False
+    _rss_interval = 0
+    _interval = 0
     _auto_search = False
     _auto_rss = False
     _users = []
@@ -70,19 +72,23 @@ class DoubanSync(_IPluginModule):
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
-            self._interval = config.get("interval")
-            self._rss_interval = config.get("rss_interval")
-            if self._interval and str(self._interval).isdigit():
-                self._interval = int(self._interval)
-            else:
+            self._sync_type = config.get("sync_type")
+            if self._sync_type == '1':
                 self._interval = 0
-            if self._rss_interval and str(self._rss_interval).isdigit():
-                self._rss_interval = int(self._rss_interval)
+                rss_interval = config.get("rss_interval")
+                if rss_interval and str(rss_interval).isdigit():
+                    self._rss_interval = int(rss_interval)
+                    if self._rss_interval < 300:
+                        self._rss_interval = 300
+                else:
+                    self._rss_interval = 0
             else:
                 self._rss_interval = 0
-            if self._rss_interval < 300:
-                self._rss_interval = 300
-
+                interval = config.get("interval")
+                if interval and str(interval).isdigit():
+                    self._interval = int(interval)
+                else:
+                    self._interval = 0
             self._auto_search = config.get("auto_search")
             self._auto_rss = config.get("auto_rss")
             self._cookie = config.get("cookie")
@@ -107,16 +113,16 @@ class DoubanSync(_IPluginModule):
         if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._interval:
-                self.info(f"订阅服务启动，周期：{self._interval} 小时，类型：{self._types}，用户：{self._users}")
+                self.info(f"豆瓣全量同步服务启动，周期：{self._interval} 小时，类型：{self._types}，用户：{self._users}")
                 self._scheduler.add_job(self.sync, 'interval',
                                         hours=self._interval)
             if self._rss_interval:
-                self.info(f"RSS服务启动，周期：{self._rss_interval} 秒，类型：{self._types}，用户：{self._users}")
+                self.info(f"豆瓣近期动态同步服务启动，周期：{self._rss_interval} 秒，类型：{self._types}，用户：{self._users}")
                 self._scheduler.add_job(self.sync, 'interval', args=['rss'],
                                         seconds=self._rss_interval)
 
             if self._onlyonce:
-                self.info("同步服务启动，立即运行一次")
+                self.info("豆瓣同步服务启动，立即运行一次")
                 self._scheduler.add_job(self.sync, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())) + timedelta(
                                             seconds=3))
@@ -126,6 +132,7 @@ class DoubanSync(_IPluginModule):
                 self.update_config({
                     "onlyonce": self._onlyonce,
                     "enable": self._enable,
+                    "sync_type": self._sync_type,
                     "interval": self._interval,
                     "rss_interval": self._rss_interval,
                     "auto_search": self._auto_search,
@@ -142,9 +149,10 @@ class DoubanSync(_IPluginModule):
 
     def get_state(self):
         return self._enable \
-               and self._interval \
                and self._users \
-               and self._types
+               and self._types \
+            and ((self._sync_type == '1' and self._rss_interval)
+                 or (self._sync_type != '1' and self._interval))
 
     @staticmethod
     def get_fields():
@@ -158,7 +166,7 @@ class DoubanSync(_IPluginModule):
                         {
                             'title': '开启豆瓣同步',
                             'required': "",
-                            'tooltip': '开启后，定时同步豆瓣在看、想看、看过记录，有新内容时自动添加订阅或者搜索下载',
+                            'tooltip': '开启后，定时同步豆瓣在看、想看、看过记录，有新内容时自动添加订阅或者搜索下载，支持全量同步及近期动态两种模式，分别设置同步间隔',
                             'type': 'switch',
                             'id': 'enable',
                         }
@@ -186,7 +194,7 @@ class DoubanSync(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '同步数据类型',
+                            'title': '同步内容',
                             'required': "required",
                             'tooltip': '同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用英文逗号,分隔配置',
                             'type': 'text',
@@ -196,13 +204,30 @@ class DoubanSync(_IPluginModule):
                                     'placeholder': 'do,wish,collect',
                                 }
                             ]
+                        },
+                        {
+                            'title': '同步方式',
+                            'required': "required",
+                            'tooltip': '选择使用哪种方式同步豆瓣数据：全量同步（根据同步范围全量同步所有数据）、近期动态（同步用户近期的10条动态数据）',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'sync_type',
+                                    'options': {
+                                        '0': '全量同步',
+                                        '1': '近期动态'
+                                    },
+                                    'default': '0',
+                                    'onchange': 'DoubanSync_sync_rss_change(this)'
+                                }
+                            ]
                         }
                     ],
                     [
                         {
-                            'title': '同步范围（天）',
+                            'title': '全量同步范围（天）',
                             'required': "required",
-                            'tooltip': '同步多少天内的记录，0表示同步全部',
+                            'tooltip': '同步多少天内的记录，0表示同步全部，仅适用于全量同步',
                             'type': 'text',
                             'content': [
                                 {
@@ -212,9 +237,9 @@ class DoubanSync(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '同步间隔（小时）',
+                            'title': '全量同步间隔（小时）',
                             'required': "required",
-                            'tooltip': '间隔多久同步一次豆瓣数据，为了避免被豆瓣封禁IP，应尽可能拉长间隔时间',
+                            'tooltip': '间隔多久同步一次时间范围内的用户标记的数据，为了避免被豆瓣封禁IP，应尽可能拉长间隔时间',
                             'type': 'text',
                             'content': [
                                 {
@@ -224,14 +249,14 @@ class DoubanSync(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '用户动态同步间隔（秒）',
+                            'title': '近期动态同步间隔（秒）',
                             'required': "required",
-                            'tooltip': '间隔多久同步一次豆瓣动态数据，最小 300 秒',
+                            'tooltip': '豆瓣近期动态的同步时间间隔，最小300秒，可设置较小的间隔同步用户近期动态数据，但无法同步全部标记数据',
                             'type': 'text',
                             'content': [
                                 {
                                     'id': 'rss_interval',
-                                    'placeholder': '5',
+                                    'placeholder': '300',
                                 }
                             ]
                         }
@@ -369,7 +394,24 @@ class DoubanSync(_IPluginModule):
             ajax_post("run_plugin_method", {"plugin_id": 'DoubanSync', 'method': 'delete_sync_history', 'douban_id': id}, function (ret) {
               $("#douban_history_" + id).remove();
             });
-        
+          }
+          
+          // 同步方式切换
+          function DoubanSync_sync_rss_change(obj){
+            if ($(obj).val() == '1') {
+                $('#doubansync_rss_interval').parent().parent().show();
+                $('#doubansync_interval').parent().parent().hide();
+                $('#doubansync_days').parent().parent().hide();
+            }else{
+                $('#doubansync_rss_interval').parent().parent().hide();
+                $('#doubansync_interval').parent().parent().show();
+                $('#doubansync_days').parent().parent().show();
+            }
+          }
+          
+          // 初始化完成后执行的方法
+          function DoubanSync_PluginInit(){
+            DoubanSync_sync_rss_change('#doubansync_sync_type');
           }
         """
 
