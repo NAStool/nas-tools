@@ -118,7 +118,7 @@ class DoubanSync(_IPluginModule):
                                         hours=self._interval)
             if self._rss_interval:
                 self.info(f"豆瓣近期动态同步服务启动，周期：{self._rss_interval} 秒，类型：{self._types}，用户：{self._users}")
-                self._scheduler.add_job(self.sync, 'interval', args=['rss'],
+                self._scheduler.add_job(self.sync, 'interval',
                                         seconds=self._rss_interval)
 
             if self._onlyonce:
@@ -450,7 +450,7 @@ class DoubanSync(_IPluginModule):
         return self.delete_history(key=douban_id)
 
     @EventHandler.register(EventType.DoubanSync)
-    def sync(self, source='web', event=None):
+    def sync(self, event=None):
         """
         同步豆瓣数据
         """
@@ -458,9 +458,8 @@ class DoubanSync(_IPluginModule):
             self.info("豆瓣配置：同步间隔未配置或配置不正确")
             return
         with lock:
-            self.info(f"开始同步豆瓣数据，来源 {source}...")
             # 拉取豆瓣数据
-            medias = self.__get_all_douban_movies(source=source)
+            medias = self.__get_all_douban_movies()
             # 开始搜索
             for media in medias:
                 if not media or not media.get_name():
@@ -569,16 +568,13 @@ class DoubanSync(_IPluginModule):
         else:
             self.history(key=media.douban_id, value=value)
 
-    def __get_all_douban_movies(self, source="web"):
+    def __get_all_douban_movies(self):
         """
         获取每一个用户的每一个类型的豆瓣标记
         :return: 搜索到的媒体信息列表（不含TMDB信息）
         """
-        if not self._interval \
-                or not self._users \
-                or not self._types:
-            self.error("豆瓣插件未配置或配置不正确")
-            return []
+        self.info(f"同步方式：{'近期动态' if self._sync_type else '全量同步'}")
+
         # 返回媒体列表
         media_list = []
         # 豆瓣ID列表
@@ -593,7 +589,7 @@ class DoubanSync(_IPluginModule):
             if userinfo:
                 user_name = userinfo.get("name")
 
-            if source == "web":
+            if self._sync_type != "1":
                 # 每页条数
                 perpage_number = 15
                 # 所有类型成功数量

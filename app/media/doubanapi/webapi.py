@@ -186,14 +186,9 @@ class DoubanWeb(object):
             title = item.xpath("./title/text()")[0][2:]
             dtype = item.xpath("./title/text()")[0][:2]
             link = item.xpath("./link/text()")[0]
-            pubDate = item.xpath(".//pubDate/text()")[0] #Tue, 09 May 2023 15:01:14 GMT
-            # convert to 2023-05-10
+            pubDate = item.xpath(".//pubDate/text()")[0]
             date = datetime.datetime.strptime(pubDate, "%a, %d %b %Y %H:%M:%S %Z")
             new_date = date.strftime("%Y-%m-%d")
-
-            desc = item.xpath("./description/text()")[0]
-            desc_tree = etree.HTML(desc)
-            cover = desc_tree.xpath("//img/@src")[0]
             def map_type():
                 if dtype == '想看':
                     return 'wish'
@@ -210,7 +205,6 @@ class DoubanWeb(object):
                 obj = {
                     "title": title,
                     "url": link,
-                    "cover": cover,
                     "date": new_date,
                     "type": dtype,
                 }
