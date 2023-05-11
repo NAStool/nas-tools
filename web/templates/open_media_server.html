@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在跳转...</title>
+    <script src="../static/js/modules/callapp-lib.js"></script>
+    <script>
+      /**
+       * 从plex的媒体库链接中获取参数
+       * @param url plex的媒体库链接
+       */
+      function extract_params_from_plexurl(url) {
+        const metadataKey = /key=([^&]+)/.exec(url)?.[1];
+        const serverId = /\/server\/([\w-]+)\/details/.exec(url)?.[1];
+        return {
+            serverId,
+            metadataKey,
+        };
+      }
+
+      function open_app() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const url = searchParams.get('url');
+        const type = searchParams.get('type');
+        switch (type){
+          case 'plex':
+            const params = extract_params_from_plexurl(url);
+            const options = {
+              scheme: {
+                protocol: 'plex' //APP 协议，URL Scheme 的 scheme 字段，就是你要打开的 APP 的标识
+              },
+              // yingyongbao,appstore,fallback:不同环境打开失败失败开的页面,这里都设置为原始的媒体库链接
+              yingyongbao: url,
+              appstore: url,
+              //填写appstore的下载地址
+              fallback: url,
+              //填写唤端失败后跳转的地址
+              timeout: 3000,
+            };
+            const callLib = new CallApp(options);
+            callLib.open({
+              param: {
+                metadataKey: params.metadataKey,
+                server: params.serverId,
+              },
+              path: 'preplay',
+            });
+            break;
+          case 'emby':
+          case 'jellyfin':
+          default:
+            // 其他类型的打开原始的媒体库链接
+            window.top.location.href = url;
+        }
+      }
+      //加载完成后尝试自动start
+      window.onload = function() {
+        open_app();
+      };
+    </script>
+</head>
+<body>
+  <div onclick="open_app()"  style="width:100%; height:100%; position:absolute; top:0; left:0;text-align:center;">
+    <p style="font-size: 2em;">如果没有跳转，请点击屏幕任意位置...</p>
+  </div>
+</body>
+</html>

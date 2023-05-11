@@ -396,6 +396,11 @@ def sitelist():
                            Count=len(IndexerSites))
 
 
+# 打开媒体库中转页面,直接打开,不认证
+@App.route('/open_media_server', methods=['POST', 'GET'])
+def open_media_server():
+    return render_template("open_media_server.html")
+
 # 站点资源页面
 @App.route('/resources', methods=['POST', 'GET'])
 @login_required
@@ -1199,9 +1204,9 @@ def plex_webhook():
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
     # 事件类型
-    event_match = request_json.get("event") in ["media.play", "media.stop"]
+    event_match = request_json.get("event") in ["media.play", "media.stop", "library.new"]
     # 媒体类型
-    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode"]
+    type_match = request_json.get("Metadata", {}).get("type") in ["movie", "episode", "show"]
     # 是否直播
     is_live = request_json.get("Metadata", {}).get("live") == "1"
     # 如果事件类型匹配,媒体类型匹配,不是直播

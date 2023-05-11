@@ -118,6 +118,9 @@ class Message(object):
         log.info(f"【Message】发送消息 {cname}：title={title}, text={text}")
         if self._domain:
             if url:
+                # 直接打开媒体库
+                if 'open_media_server' in url:
+                    url = "%s%s" % (self._domain, url)
                 if not url.startswith("http"):
                     url = "%s?next=%s" % (self._domain, url)
             else:
@@ -532,6 +535,7 @@ class Message(object):
             return
         # 拼装消息内容
         _webhook_actions = {
+            "library.new": "新入库",
             "system.webhooktest": "测试",
             "playback.start": "开始播放",
             "playback.stop": "停止播放",
@@ -553,7 +557,7 @@ class Message(object):
             return
 
         # 消息标题
-        if event_info.get('item_type') == "TV":
+        if event_info.get('item_type') in ["TV", "SHOW"]:
             message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
         elif event_info.get('item_type') == "MOV":
             message_title = f"{_webhook_actions.get(event_info.get('event'))}电影 {event_info.get('item_name')}"
@@ -585,6 +589,10 @@ class Message(object):
         message_content = "\n".join(message_texts)
         self.messagecenter.insert_system_message(title=message_title, content=message_content)
 
+        url = ""
+        if event_info.get('event') == "library.new" and channel == "Plex" and event_info.get('play_url'):
+            url = event_info.get('play_url')
+
         # 发送消息
         for client in self._active_clients:
             if "mediaserver_message" in client.get("switchs"):
@@ -592,7 +600,8 @@ class Message(object):
                     client=client,
                     title=message_title,
                     text=message_content,
-                    image=image_url
+                    image=image_url,
+                    url=url
                 )
 
     def send_plugin_message(self, title, text="", image=""):

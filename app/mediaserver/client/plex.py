@@ -1,5 +1,5 @@
 import os
-from collections import OrderedDict
+from urllib.parse import quote
 from functools import lru_cache
 from urllib.parse import quote_plus
 import log
@@ -534,7 +534,7 @@ class Plex(_IMediaClient):
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
             else:
-                eventItem['item_type'] = "MOV"
+                eventItem['item_type'] = "MOV" if message.get('Metadata', {}).get('type') == 'movie' else "SHOW"
                 eventItem['item_name'] = "%s %s" % (
                     message.get('Metadata', {}).get('title'), "(" + str(message.get('Metadata', {}).get('year')) + ")")
                 eventItem['item_id'] = message.get('Metadata', {}).get('ratingKey')
@@ -542,6 +542,9 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
+        if eventItem.get('event') == "library.new":
+            eventItem['play_url'] = f"/open_media_server?url=" \
+                                    f"{quote(self.get_play_url(message.get('Metadata', {}).get('key')))}&type=plex"
         if message.get('Player'):
             eventItem['ip'] = message.get('Player').get('publicAddress')
             eventItem['client'] = message.get('Player').get('title')
