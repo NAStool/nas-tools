@@ -119,7 +119,7 @@ class Message(object):
         if self._domain:
             if url:
                 # 唤起App
-                if 'openapp' in url:
+                if '/open?url=' in url:
                     url = "%s%s" % (self._domain, url)
                 # 跳转页面
                 elif not url.startswith("http"):

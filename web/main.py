@@ -397,7 +397,7 @@ def sitelist():
 
 
 # 唤起App中转页面
-@App.route('/openapp', methods=['POST', 'GET'])
+@App.route('/open', methods=['POST', 'GET'])
 def open_app():
     return render_template("openapp.html")
 
