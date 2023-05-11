@@ -72,7 +72,7 @@ class CookieCloud(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'server',
-                                    'placeholder': 'http://nastool.cn:8088'
+                                    'placeholder': 'https://nastool.cn/cookiecloud'
                                 }
                             ]
 
