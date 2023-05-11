@@ -454,7 +454,7 @@ class DoubanSync(_IPluginModule):
         """
         同步豆瓣数据
         """
-        if not self._interval:
+        if not self._interval and not self._rss_interval:
             self.info("豆瓣配置：同步间隔未配置或配置不正确")
             return
         with lock:
