@@ -2,6 +2,7 @@ from functools import lru_cache
 
 import requests
 from lxml import etree
+import datetime
 
 from app.utils import RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
@@ -13,6 +14,7 @@ class DoubanWeb(object):
     _session = requests.Session()
 
     _movie_base = "https://movie.douban.com"
+    _rss_base = "https://www.douban.com"
     _search_base = "https://search.douban.com"
     _page_limit = 50
     _timout = 5
@@ -36,6 +38,8 @@ class DoubanWeb(object):
         "top250": f"{_movie_base}/top250",
         # 用户名称
         "user": f"{_movie_base}/people/%s/",
+        # 用户动态 RSS
+        "rss": f"{_rss_base}/feed/people/%s/interests"
     }
 
     _webparsers = {
@@ -155,11 +159,63 @@ class DoubanWeb(object):
                            timeout=cls._timout).get_res(url=req_url % kwargs)
         return req.json() if req else None
 
+    @classmethod
+    def __invoke_rss(cls, url, *kwargs):
+        req_url = cls._weburls.get(url)
+        if not req_url:
+            return None
+        return RequestUtils(timeout=cls._timout).get(url=req_url % kwargs)
+
     @staticmethod
     def __get_json(json):
         if not json:
             return None
         return json.get("subjects")
+
+    @classmethod
+    def __get_rss_list(cls, xml):
+        if not xml:
+            return None
+
+        tree = etree.XML(xml.encode("utf-8"))
+        items = tree.xpath("//item")
+        if not items:
+            return None
+        result = []
+        for item in items:
+            title = item.xpath("./title/text()")[0][2:]
+            dtype = item.xpath("./title/text()")[0][:2]
+            link = item.xpath("./link/text()")[0]
+            pubDate = item.xpath(".//pubDate/text()")[0] #Tue, 09 May 2023 15:01:14 GMT
+            # convert to 2023-05-10
+            date = datetime.datetime.strptime(pubDate, "%a, %d %b %Y %H:%M:%S %Z")
+            new_date = date.strftime("%Y-%m-%d")
+
+            desc = item.xpath("./description/text()")[0]
+            desc_tree = etree.HTML(desc)
+            cover = desc_tree.xpath("//img/@src")[0]
+            def map_type():
+                if dtype == '想看':
+                    return 'wish'
+                elif dtype == '看过':
+                    return 'collect'
+                elif dtype == '在看':
+                    return 'do'
+                else:
+                    return 'collect'
+            
+            dtype = map_type()
+            
+            if 'movie' in link:
+                obj = {
+                    "title": title,
+                    "url": link,
+                    "cover": cover,
+                    "date": new_date,
+                    "type": dtype,
+                }
+                result.append(obj)
+        return result
 
     @classmethod
     def __get_list(cls, url, html):
@@ -244,6 +300,30 @@ class DoubanWeb(object):
         在看
         """
         return self.__get_list("do", self.__invoke_web("do", cookie, userid, start))
+
+    def interests(self, userid):
+        """
+        动态
+        """
+        return self.__get_rss_list(self.__invoke_rss("rss", userid))
+
+    def wish_in_interests(self, userid):
+        """
+        想看
+        """
+        return list(filter(lambda x: x.get("type") == "wish", self.interests(userid)))
+
+    def do_in_interests(self, userid):
+        """
+        在看
+        """
+        return list(filter(lambda x: x.get("type") == "do", self.interests(userid)))
+    
+    def collect_in_interests(self, userid):
+        """
+        看过
+        """
+        return list(filter(lambda x: x.get("type") == "collect", self.interests(userid)))
 
     def search(self, cookie, keyword):
         """

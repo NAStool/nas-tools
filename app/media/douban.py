@@ -125,6 +125,29 @@ class DouBan:
                 douban_info["actors"] = celebrities.get("actors")
             return douban_info
 
+    def get_latest_douban_interests(self, dtype, userid, wait=False):
+        """
+        获取最新动态中的想看/在看/看过数据
+        """
+        if wait:
+            time = round(random.uniform(1, 5), 1)
+            log.info("【Douban】随机休眠：%s 秒" % time)
+            sleep(time)
+        if dtype == "do":
+            web_infos = self.doubanweb.do_in_interests(userid=userid)
+        elif dtype == "collect":
+            web_infos = self.doubanweb.collect_in_interests(userid=userid)
+        elif dtype == "wish":
+            web_infos = self.doubanweb.wish_in_interests(userid=userid)
+        else:
+            web_infos = self.doubanweb.interests(userid=userid)
+        if not web_infos:
+            return []
+        for web_info in web_infos:
+            web_info["id"] = web_info.get("url").split("/")[-2]
+        return web_infos
+
+
     def get_douban_wish(self, dtype, userid, start, wait=False):
         """
         获取豆瓣想看列表数据
