@@ -9,11 +9,13 @@
 [![Platform](https://img.shields.io/badge/platform-amd64/arm64-pink?style=plastic)](https://hub.docker.com/r/jxxghp/nas-tools)
 
 
-Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
+Docker：
+* https://hub.docker.com/r/jxxghp/nas-tools 
+* https://hub.docker.com/r/nastool/nas-tools
 
 TG频道：https://t.me/nastool_official
 
-Wiki：https://t.me/NAStool_wiki
+Wiki：https://wiki.nastool.cn
 
 API: http://localhost:3000/api/v1/
 
