@@ -667,7 +667,7 @@ class Emby(_IMediaClient):
             if res and res.status_code == 200:
                 sessions = res.json()
                 for session in sessions:
-                    if session.get("NowPlayingItem"):
+                    if session.get("NowPlayingItem") and not session.get("PlayState", {}).get("IsPaused"):
                         playing_sessions.append(session)
             return playing_sessions
         except Exception as e:
