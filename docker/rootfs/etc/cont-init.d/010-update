@@ -25,10 +25,24 @@ function compare {
 # 更换国内软件源
 function package_cn {
 
+    cp /etc/apk/repositories /etc/apk/repositories.bak
     sed -i "s/dl-cdn.alpinelinux.org/${ALPINE_MIRROR}/g" /etc/apk/repositories
     apk update -f
     if [ $? -ne 0 ]; then
         echo "无法更换软件源，请更新镜像！"
+        cp /etc/apk/repositories.bak /etc/apk/repositories
+    fi
+
+}
+function package_cn_debian {
+
+    cp /etc/apt/sources.list /etc/apt/sources.list.bak
+    sed -i 's/http:\/\/deb.debian.org\/debian\//http:\/\/mirrors.tuna.tsinghua.edu.cn\/debian\//g' /etc/apt/sources.list
+    sed -i 's/http:\/\/security.debian.org\/debian-security\//http:\/\/mirrors.tuna.tsinghua.edu.cn\/debian-security\//g' /etc/apt/sources.list
+    apt-get update -y
+    if [ $? -ne 0 ]; then
+        echo "无法更换软件源，请更新镜像！"
+        cp /etc/apt/sources.list.bak /etc/apt/sources.list
     fi
 
 }
@@ -36,13 +50,43 @@ function package_cn {
 # 软件包更新
 function package_update {
 
-    hash_old=$(cat /tmp/package_list.txt.sha256sum)
-    hash_new=$(sha256sum package_list.txt)
-    if [ "${hash_old}" != "${hash_new}" ]; then
-        echo "检测到package_list.txt有变化，更新软件包..."
-        if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
-            echo "Debian 镜像目前不支持软件包重启更新，请更新镜像"
+    if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+        if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
+            package_list_debian_url=https://ghproxy.com/https://github.com/NAStool/nas-tools-builder/raw/main/debian/package_list.txt
         else
+            package_list_debian_url=https://github.com/NAStool/nas-tools-builder/raw/main/debian/package_list.txt
+        fi
+        if [ ! -f /tmp/package_list_debian.txt ]; then
+            curl -L ${package_list_debian_url} -o /tmp/package_list_debian.txt
+        else
+            rm -rf /tmp/package_list_debian.txt
+            curl -L ${package_list_debian_url} -o /tmp/package_list_debian.txt
+        fi
+        if [ ! -s /tmp/package_list_debian.txt.sha256sum ]; then
+            sha256sum /tmp/package_list_debian.txt > /tmp/package_list_debian.txt.sha256sum
+        fi
+        hash_old=$(cat /tmp/package_list_debian.txt.sha256sum)
+        hash_new=$(sha256sum /tmp/package_list_debian.txt)
+        if [ "${hash_old}" != "${hash_new}" ]; then
+            echo "检测到package_list.txt有变化，更新软件包..."
+            if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
+                package_cn_debian
+            else
+                apt-get update -y
+            fi
+            apt-get install -y $(echo $(cat /tmp/package_list_debian.txt))
+            if [ $? -ne 0 ]; then
+                echo "无法更新软件包，请更新镜像！"
+            else
+                echo "软件包安装成功"
+                sha256sum /tmp/package_list_debian.txt > /tmp/package_list.txt.sha256sum
+            fi
+        fi
+    else
+        hash_old=$(cat /tmp/package_list.txt.sha256sum)
+        hash_new=$(sha256sum package_list.txt)
+        if [ "${hash_old}" != "${hash_new}" ]; then
+            echo "检测到package_list.txt有变化，更新软件包..."
             if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
                 package_cn
             fi
