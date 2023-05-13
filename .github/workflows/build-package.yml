@@ -1,0 +1,284 @@
+name: NAStool Package
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
+      - .github/workflows/build-package.yml
+      - requirements.txt
+
+jobs:
+  Windows-build:
+    runs-on: windows-latest
+    steps:
+    - name: Init Python 3.10.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10'
+
+    - name: Install dependent packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel numpy==1.23.5 pyparsing==3.0.9 wxpython==4.2.0 pyinstaller==5.7.0
+        git clone --depth=1 -b master https://github.com/NAStool/nas-tools --recurse-submodule
+        cd nas-tools
+        pip install -r requirements.txt
+        echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+        echo $env:NASTOOL_CONFIG
+      shell: pwsh
+
+    - name: Package through pyinstaller
+      run: |
+        cd nas-tools
+        dir
+        copy .\package\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.10\x64\Scripts
+        copy .\package\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\package\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\package\rely\hook-iso639.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\third_party.txt .\package
+        copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.10\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
+        xcopy .\web c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\web\ /e
+        xcopy .\config c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\config\ /e
+        xcopy .\scripts c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\scripts\ /e
+        cd package
+        pyinstaller nas-tools.spec
+        dir  D:/a/nas-tools/nas-tools/nas-tools/package/dist
+      shell: pwsh
+
+    - name: Upload windows file
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: D:/a/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.exe
+
+  Linux-build-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Init Python 3.10.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.10'
+
+      - name: Install dependent packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel pyinstaller==5.7.0
+          git clone --depth=1 -b master https://github.com/NAStool/nas-tools --recurse-submodule
+          cd nas-tools
+          pip install -r requirements.txt
+          echo ("NASTOOL_CONFIG=/home/runner/work/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+          echo $env:NASTOOL_CONFIG
+        shell: pwsh
+
+      - name: Package through pyinstaller
+        run: |
+          cd nas-tools
+          pwd
+          ls -all
+          cp ./package/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-iso639.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./third_party.txt ./package/
+          cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
+          cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/web/
+          cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/config/
+          cp -r ./scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/scripts/
+          cd package
+          pwd
+          ls -all
+          pyinstaller nas-tools.spec
+          mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.amd64
+          ls -all /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist
+        shell: pwsh
+
+      - name: Upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-amd64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.amd64
+
+  Linux-build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Package through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/arm64 --file ./package/builder/Dockerfile --build-arg branch=master --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.arm64
+        shell: pwsh
+
+      - name: Upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-arm64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.arm64
+
+  Linux-build-amd64-musl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Package through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/amd64 --file ./package/builder/alpine.Dockerfile --build-arg branch=master --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.amd64
+        shell: pwsh
+
+      - name: Upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-musl-amd64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.amd64
+
+  Linux-build-arm64-musl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Ppackage through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/arm64 --file ./package/builder/alpine.Dockerfile --build-arg branch=master --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
+        shell: pwsh
+
+      - name: Upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-musl-arm64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
+
+  Mac-build:
+    runs-on: macos-latest
+    steps:
+      - name: Init Python 3.10.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.10'
+
+      - name: Install dependent packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel numpy==1.23.5 pyparsing==3.0.9 pyinstaller==5.7.0
+          git clone --depth=1 -b master https://github.com/NAStool/nas-tools --recurse-submodule
+          cd nas-tools
+          pip install -r requirements.txt
+          CURRENT_DIR=$(pwd)
+          echo "NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml" >> $GITHUB_ENV
+          echo $env:NASTOOL_CONFIG
+        shell: bash
+
+      - name: Package through pyinstaller
+        run: |
+          cd nas-tools
+          pwd
+          ls -all
+          cp ./package/rely/hook-cn2an.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-zhconv.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-iso639.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./third_party.txt ./package/
+          cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
+          cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
+          cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
+          cp -r ./scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/scripts/
+          cd package
+          pyinstaller nas-tools.spec
+          mv ./dist/nas-tools ./dist/nas-tools.macos
+          pwd
+          ls -all ./dist/
+        shell: bash
+
+      - name: Upload mac file
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos
+          path: /Users/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.macos
+
+  Create-release_Send-message:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: [Windows-build, Linux-build-amd64, Linux-build-arm64, Linux-build-amd64-musl, Linux-build-arm64-musl, Mac-build]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Release version
+      id: release_version
+      run: |
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+        echo "app_version=$app_version" >> $GITHUB_ENV
+
+    - name: Download exe and rename
+      uses: actions/download-artifact@v3
+    - name: get release_informations
+      shell: bash
+      run: |
+        pwd
+        ls -all
+        mkdir releases
+        mv ./windows/nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+        mv ./linux-amd64/nas-tools.linux.amd64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_amd64_v${{ env.app_version }}
+        mv ./linux-arm64/nas-tools.linux.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_arm64_v${{ env.app_version }}
+        mv ./linux-musl-amd64/nas-tools.linux.musl.amd64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_amd64_v${{ env.app_version }}
+        mv ./linux-musl-arm64/nas-tools.linux.musl.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_arm64_v${{ env.app_version }}
+        mv ./macos/nas-tools.macos /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
+        pwd
+        ls -all
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        prerelease: false
+
+    - name: Upload release asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: |
+            /home/runner/work/nas-tools/nas-tools/releases/
+
+    - name: Send telegram message (release informations)
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+            ${{ github.event.commits[0].message }}
