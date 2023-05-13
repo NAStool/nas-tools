@@ -50,12 +50,12 @@ class CloudflareSpeedTest(_IPluginModule):
     _re_install = False
     _notify = False
     _check = False
-    _cf_path = '/config/CloudflareSpeedTest'
-    _cf_ipv4 = '/config/CloudflareSpeedTest/ip.txt'
-    _cf_ipv6 = '/config/CloudflareSpeedTest/ipv6.txt'
+    _cf_path = '/config/plugins/CloudflareSpeedTest'
+    _cf_ipv4 = _cf_path + '/ip.txt'
+    _cf_ipv6 = _cf_path + '/ipv6.txt'
+    _result_file = _cf_path + '/result_hosts.txt'
     _release_prefix = 'https://github.com/XIU2/CloudflareSpeedTest/releases/download'
     _binary_name = 'CloudflareST'
-    _result_file = '/config/CloudflareSpeedTest/result_hosts.txt'
 
     # 退出事件
     _event = Event()
