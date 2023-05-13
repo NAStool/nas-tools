@@ -563,11 +563,11 @@ class BrushTask(object):
             if client_speed and up_limit_speed and str(up_limit_speed).isdigit():
                 if float(client_speed.get('up_speed')) / 1024 >= float(up_limit_speed):
                     log.warn("【Brush】刷流任务 %s 所选下载器 %s 目前上传速度 %s Kb/s，不再新增下载"
-                             % (task_name, downloader_name, float(client_speed.get('up_speed')) / 1024))
+                             % (task_name, downloader_name, round(float(client_speed.get('up_speed')) / 1024, 4)))
             if client_speed and dl_limit_speed and str(dl_limit_speed).isdigit():
                 if float(client_speed.get('dl_speed')) / 1024 >= float(dl_limit_speed):
                     log.warn("【Brush】刷流任务 %s 所选下载器 %s 目前下载速度 %s Kb/s，不再新增下载"
-                             % (task_name, downloader_name, float(client_speed.get('dl_speed')) / 1024))
+                             % (task_name, downloader_name, round(float(client_speed.get('dl_speed')) / 1024, 4)))
 
         # 检查正在下载的任务数
         if dlcount:
