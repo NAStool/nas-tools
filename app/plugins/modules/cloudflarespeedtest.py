@@ -452,8 +452,6 @@ class CloudflareSpeedTest(_IPluginModule):
             try:
                 # 解压
                 os.system(f'{unzip_command}')
-                # 赋权
-                os.system(f'chmod +x {self._cf_path}/{self._binary_name}')
                 # 删除压缩包
                 os.system(f'rm -rf {self._cf_path}/{cf_file_name}')
                 if Path(f'{self._cf_path}/{self._binary_name}').exists():
