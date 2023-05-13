@@ -70,6 +70,7 @@ function package_update {
         hash_old=$(cat /tmp/package_list_debian.txt.sha256sum)
         hash_new=$(sha256sum /tmp/package_list_debian.txt)
         if [ "${hash_old}" != "${hash_new}" ]; then
+            DEBIAN_FRONTEND="noninteractive"
             echo "检测到package_list.txt有变化，更新软件包..."
             if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
                 package_cn_debian
