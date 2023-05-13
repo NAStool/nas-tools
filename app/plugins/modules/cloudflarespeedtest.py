@@ -231,9 +231,9 @@ class CloudflareSpeedTest(_IPluginModule):
         CloudflareSpeedTest优选
         """
         self._cf_path = self.get_data_path()
-        self._ipv4 = os.path.join(self.get_data_path(), "ip.txt")
-        self._ipv6 = os.path.join(self.get_data_path(), "ipv6.txt")
-        self._result_file = os.path.join(self.get_data_path(), "result_hosts.txt")
+        self._ipv4 = os.path.join(self._cf_path, "ip.txt")
+        self._ipv6 = os.path.join(self._cf_path, "ipv6.txt")
+        self._result_file = os.path.join(self._cf_path, "result_hosts.txt")
 
         # 获取自定义Hosts插件，若无设置则停止
         customHosts = self.get_config("CustomHosts")
