@@ -50,12 +50,12 @@ class CloudflareSpeedTest(_IPluginModule):
     _re_install = False
     _notify = False
     _check = False
-    _cf_path = 'cloudflarespeedtest'
-    _cf_ipv4 = 'cloudflarespeedtest/ip.txt'
-    _cf_ipv6 = 'cloudflarespeedtest/ipv6.txt'
+    _cf_path = None
+    _cf_ipv4 = None
+    _cf_ipv6 = None
+    _result_file = None
     _release_prefix = 'https://github.com/XIU2/CloudflareSpeedTest/releases/download'
     _binary_name = 'CloudflareST'
-    _result_file = 'cloudflarespeedtest/result_hosts.txt'
 
     # 退出事件
     _event = Event()
@@ -230,6 +230,11 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         CloudflareSpeedTest优选
         """
+        self._cf_path = self.get_data_path()
+        self._ipv4 = os.path.join(self.get_data_path(), "ip.txt")
+        self._ipv6 = os.path.join(self.get_data_path(), "ipv6.txt")
+        self._result_file = os.path.join(self.get_data_path(), "result_hosts.txt")
+
         # 获取自定义Hosts插件，若无设置则停止
         customHosts = self.get_config("CustomHosts")
         self._customhosts = customHosts and customHosts.get("enable")
@@ -265,7 +270,7 @@ class CloudflareSpeedTest(_IPluginModule):
         if err_flag:
             self.info("正在进行CLoudflare CDN优选，请耐心等待")
             # 执行优选命令，-dd不测速
-            cf_command = f'./{self._cf_path}/{self._binary_name} {self._additional_args} -o {self._result_file}' + (
+            cf_command = f'cd {self._cf_path} && ./{self._binary_name} {self._additional_args} -o {self._result_file}' + (
                 f' -f {self._cf_ipv4}' if self._ipv4 else '') + (f' -f {self._cf_ipv6}' if self._ipv6 else '')
             self.info(f'正在执行优选命令 {cf_command}')
             os.system(cf_command)
@@ -431,14 +436,16 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         macos docker安装cloudflare
         """
-        # 首次下载或下载新版压缩包
-        proxies = Config().get_proxies()
-        https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
-        if https_proxy:
-            os.system(
-                f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
-        else:
-            os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
+        # 手动下载安装包后，无需在此下载
+        if not Path(f'{self._cf_path}/{cf_file_name}').exists():
+            # 首次下载或下载新版压缩包
+            proxies = Config().get_proxies()
+            https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
+            if https_proxy:
+                os.system(
+                    f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
+            else:
+                os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
