@@ -565,3 +565,18 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
+
+    def get_client_speed(self):
+        if not self.trc:
+            return False
+        try:
+            session_stats = self.trc.session_stats(timeout=30)
+            if session_stats:
+                return {
+                    "up_speed": session_stats.upload_speed,
+                    "dl_speed": session_stats.download_speed
+                }
+            return False
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False

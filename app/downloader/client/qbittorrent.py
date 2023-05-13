@@ -125,7 +125,7 @@ class Qbittorrent(_IDownloadClient):
                 # 如果分类存在，但是路径不一致，则更新
                 if os.path.normpath(category_item.get("savePath")) != os.path.normpath(save_path):
                     self.__update_category(name=label, save_path=save_path, is_edit=True)
-                    
+
     def __get_qb_category(self):
         """
         查询下载器中已设置的分类
@@ -133,7 +133,7 @@ class Qbittorrent(_IDownloadClient):
         if not self.qbc:
             return {}
         return self.qbc.torrent_categories.categories or {}
-    
+
     def __get_qb_auto(self):
         """
         查询下载器是否开启自动管理
@@ -653,6 +653,21 @@ class Qbittorrent(_IDownloadClient):
             return False
         try:
             return self.qbc.torrents_recheck(torrent_hashes=ids)
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False
+
+    def get_client_speed(self):
+        if not self.qbc:
+            return False
+        try:
+            transfer_info = self.qbc.transfer.info
+            if transfer_info:
+                return {
+                    "up_speed": transfer_info.get('up_info_speed'),
+                    "dl_speed": transfer_info.get('dl_info_speed')
+                }
+            return False
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False

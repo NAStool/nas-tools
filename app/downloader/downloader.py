@@ -1325,6 +1325,14 @@ class Downloader:
             return self.default_client
         return self.__get_client(downloader_id)
 
+    def get_downloader(self, downloader_id=None):
+        """
+        获取下载器实例
+        """
+        if not downloader_id:
+            return self.default_client
+        return self.__get_client(downloader_id)
+
     def get_status(self, dtype=None, config=None):
         """
         测试下载器状态
