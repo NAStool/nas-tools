@@ -113,6 +113,8 @@ class BrushTask(object):
                 "site_id": task.SITE,
                 "interval": task.INTEVAL,
                 "label": task.LABEL,
+                "up_limit": task.UP_LIMIT,
+                "dl_limit": task.DL_LIMIT,
                 "savepath": task.SAVEPATH,
                 "state": task.STATE,
                 "downloader": task.DOWNLOADER,
@@ -537,8 +539,8 @@ class BrushTask(object):
         # 判断大小
         seed_size = taskinfo.get("seed_size") or None
         task_name = taskinfo.get("name")
-        up_limit_speed = taskinfo.get("up_limit_speed") or None
-        dl_limit_speed = taskinfo.get("dl_limit_speed") or None
+        up_limit_speed = taskinfo.get("up_limit") or None
+        dl_limit_speed = taskinfo.get("dl_limit") or None
         downloader_id = taskinfo.get("downloader")
         downloader_name = taskinfo.get("downloader_name")
         total_size = self.dbhelper.get_brushtask_totalsize(taskinfo.get("id"))
@@ -561,11 +563,11 @@ class BrushTask(object):
             if client_speed and up_limit_speed and str(up_limit_speed).isdigit():
                 if float(client_speed.get('up_speed')) / 1024 >= float(up_limit_speed):
                     log.warn("【Brush】刷流任务 %s 所选下载器 %s 目前上传速度 %s Kb/s，不再新增下载"
-                             % (task_name, downloader_name, float(client_speed.get('up_info_speed')) / 1024))
+                             % (task_name, downloader_name, float(client_speed.get('up_speed')) / 1024))
             if client_speed and dl_limit_speed and str(dl_limit_speed).isdigit():
                 if float(client_speed.get('dl_speed')) / 1024 >= float(dl_limit_speed):
                     log.warn("【Brush】刷流任务 %s 所选下载器 %s 目前下载速度 %s Kb/s，不再新增下载"
-                             % (task_name, downloader_name, float(client_speed.get('up_info_speed')) / 1024))
+                             % (task_name, downloader_name, float(client_speed.get('dl_speed')) / 1024))
 
         # 检查正在下载的任务数
         if dlcount:

@@ -372,6 +372,8 @@ class SITEBRUSHTASK(Base):
     SEED_SIZE = Column(Text)
     INTEVAL = Column(Text)
     LABEL = Column(Text)
+    UP_LIMIT = Column(Text)
+    DL_LIMIT = Column(Text)
     SAVEPATH = Column(Text)
     DOWNLOADER = Column(Text)
     TRANSFER = Column(Text)

@@ -1931,6 +1931,8 @@ class WebAction:
         brushtask_state = data.get("brushtask_state")
         brushtask_rssurl = data.get("brushtask_rssurl")
         brushtask_label = data.get("brushtask_label")
+        brushtask_up_limit = data.get("brushtask_up_limit")
+        brushtask_dl_limit = data.get("brushtask_dl_limit")
         brushtask_savepath = data.get("brushtask_savepath")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_sendmessage = 'Y' if data.get(
@@ -1983,6 +1985,8 @@ class WebAction:
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,
             "label": brushtask_label,
+            "up_limit": brushtask_up_limit,
+            "dl_limit": brushtask_dl_limit,
             "savepath": brushtask_savepath,
             "transfer": brushtask_transfer,
             "state": brushtask_state,
