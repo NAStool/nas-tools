@@ -3,8 +3,6 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/NAStool/nas-tools?style=plastic)](https://github.com/NAStool/nas-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/NAStool/nas-tools?style=plastic)](https://github.com/NAStool/nas-tools/network/members)
-[![GitHub license](https://img.shields.io/github/license/NAStool/nas-tools?style=plastic)](https://github.com/NAStool/nas-tools/blob/master/LICENSE.md)
-[![Docker pulls](https://img.shields.io/docker/pulls/nastool/nas-tools?style=plastic)](https://hub.docker.com/r/nastool/nas-tools)
 [![Platform](https://img.shields.io/badge/platform-amd64/arm64-pink?style=plastic)](https://hub.docker.com/r/nastool/nas-tools)
 
 
