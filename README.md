@@ -10,7 +10,7 @@ Docker：https://hub.docker.com/r/nastool/nas-tools
 
 Wiki：https://wiki.nastool.org
 
-API: http://localhost:3000/api/v1/
+API：http://localhost:3000/api/v1/
 
 
 ## 安装
@@ -23,7 +23,7 @@ docker pull nastool/nas-tools:latest
 
 https://github.com/NAStool/nas-tools/releases
 
-### 4、群晖套件
+### 3、群晖套件
 
 https://spk.imnks.com/
 
